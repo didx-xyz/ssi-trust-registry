@@ -1,6 +1,7 @@
 import express from 'express'
+import { Server } from 'http'
 
-export async function startServer(): Promise<number> {
+export async function startServer(): Promise<Server> {
   return new Promise((resolve, reject) => {
     const port = 3000
     const app = express()
@@ -9,9 +10,13 @@ export async function startServer(): Promise<number> {
       res.status(200).send('OK')
     })
 
-    app.listen(3000, () => {
-      console.log(`App is running on port ${port}`)
-      resolve(3000)
+    const server = app.listen(port, (error?: Error) => {
+      if (error) {
+        reject(error)
+      } else {
+        console.log(`Server is running on port ${port}`)
+        resolve(server)
+      }
     })
   })
 }

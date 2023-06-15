@@ -1,11 +1,19 @@
 import fetch from 'node-fetch'
 import { startServer } from './server'
+import { Server } from 'http'
+import { AddressInfo } from 'net'
 
 describe('main', () => {
   let port: number
+  let server: Server
+
   beforeAll(async () => {
-    port = await startServer()
-    console.log('after server start')
+    server = await startServer()
+    port = (server.address() as AddressInfo).port
+  })
+
+  afterAll(() => {
+    server.close()
   })
 
   test('health endpoint works', async () => {
