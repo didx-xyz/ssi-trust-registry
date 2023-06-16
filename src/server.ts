@@ -3,7 +3,7 @@ import { Server } from 'node:http'
 import fs from 'node:fs/promises'
 import { asyncHandler, errorHandler } from './middleware'
 
-export async function startServer(): Promise<Server> {
+export function startServer(): Promise<Server> {
   return new Promise((resolve, reject) => {
     const port = 3000
     const app = express()

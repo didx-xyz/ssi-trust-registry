@@ -1,6 +1,6 @@
 import { startServer } from './server'
 
-async function main() {
+function main() {
   startServer()
 }
 
