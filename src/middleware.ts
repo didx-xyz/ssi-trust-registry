@@ -1,4 +1,10 @@
 import type { Request, Response, NextFunction } from 'express'
+import expressHttpContext from 'express-http-context'
+import morgan from 'morgan'
+import { v4 as uuidv4 } from 'uuid'
+import { createLogger } from './logger'
+
+const logger = createLogger(__filename)
 
 /**
  * @see https://zellwk.com/blog/async-await-express/
@@ -33,4 +39,35 @@ export function errorHandler(
   console.error('Error handler caught an error:', error, error.message)
   res.status(500)
   res.json({ error: error.message || 'Unexpected error' })
+}
+
+export const httpContext = expressHttpContext.middleware
+export function httpContextRequestId(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  const requestId = req.header('X-Request-ID') || uuidv4()
+  expressHttpContext.set('requestId', requestId)
+  next()
+}
+
+const morganMiddleware = morgan(
+  ':method :url :status :res[content-length] - :response-time ms',
+  {
+    stream: {
+      write: (message) => logger.http(message.trim()),
+    },
+  }
+)
+export function httpLogger(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  if (req.url === '/health' || req.headers.upgrade === 'websocket') {
+    next()
+  } else {
+    morganMiddleware(req, res, next)
+  }
 }
