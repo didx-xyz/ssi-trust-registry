@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ssi-trust-registry:
+    image: ${REGISTRY:-local}/ssi-trust-registry:${IMAGE_TAG:-latest}
+    container_name: ssi-trust-registry
+    ports:
+      - 3000:3000
+    command:
+      - yarn
+      - dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
