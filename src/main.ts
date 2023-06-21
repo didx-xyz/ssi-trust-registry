@@ -1,4 +1,7 @@
 import { startServer } from './server'
+import { createLogger } from './logger'
+
+const logger = createLogger(__filename)
 
 function main() {
   startServer()
@@ -8,7 +11,7 @@ function main() {
 
 function shutdownGracefully() {
   return async (signal: string) => {
-    console.log(`Received ${signal}. Stopping the service...`)
+    logger.info(`Received ${signal}. Stopping the service...`)
     process.exit()
   }
 }
