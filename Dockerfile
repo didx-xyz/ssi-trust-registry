@@ -1,7 +1,7 @@
 FROM docker.io/node:18-alpine
 
 USER 0
-RUN apk add --update --no-cache tini
+RUN apk add --update --no-cache tini curl
 
 USER 1000
 WORKDIR /app

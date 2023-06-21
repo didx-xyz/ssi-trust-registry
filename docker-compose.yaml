@@ -9,3 +9,7 @@ services:
     command:
       - yarn
       - dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
