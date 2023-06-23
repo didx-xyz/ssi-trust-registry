@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - "main"
+      - main
     tags:
       - "v*"
   pull_request:
     branches:
-      - "main"
+      - main
 
 jobs:
   test:
@@ -25,6 +25,51 @@ jobs:
         with:
           node-version: 18
           cache: npm
-      - run: yarn install
+      - run: yarn install --frozen-lockfile
       - run: yarn build
       - run: yarn test
+
+  build:
+    name: Build and push
+    timeout-minutes: 15
+    needs: test
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+
+    # Don't build dependabot, don't build PRs
+    if: ${{ github.triggering_actor != 'dependabot[bot]' && github.event_name != 'pull_request' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-cicd
+
+      - uses: docker/setup-buildx-action@v2
+
+      - uses: aws-actions/amazon-ecr-login@v1
+        id: login-ecr
+
+      - uses: docker/metadata-action@v4
+        id: meta
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/ssi-trust-registry
+          tags: |
+            type=sha,prefix={{branch}}-,priority=601
+            type=ref,event=branch,priority=600
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - uses: docker/build-push-action@v4
+        with:
+          platforms: linux/amd64,linux/arm64/v8
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
