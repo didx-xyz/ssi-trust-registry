@@ -5,13 +5,16 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "format:check": "prettier --check .",
-    "format:update": "prettier --write .",
-    "lint": "eslint .",
+    "format:check": "prettier --check . --ignore-path .gitignore",
+    "format:update": "prettier --write . --ignore-path .gitignore",
+    "lint": "eslint . --ignore-path .gitignore",
+    "types:check": "tsc --noEmit",
+    "validate": "yarn format:check && yarn lint && yarn types:check",
     "test": "jest",
     "test:watch": "yarn test --watchAll",
     "dev": "ts-node-dev --respawn --transpile-only ./src/main.ts",
-    "start": "rm -rf build && yarn build && node ./build/main.js"
+    "start": "rm -rf build && yarn build && node ./build/main.js",
+    "postinstall": "node -e \"process.env.NODE_ENV !== 'production' && require('husky').install()\""
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
@@ -20,6 +23,7 @@
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.3",
     "jest": "^29.5.0",
     "prettier": "^2.8.8",
     "ts-jest": "^29.1.0",
