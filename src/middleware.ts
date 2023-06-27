@@ -1,7 +1,11 @@
-import type { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import expressHttpContext from 'express-http-context'
 import morgan from 'morgan'
 import { v4 as uuidv4 } from 'uuid'
+import fs from 'node:fs'
+import path from 'node:path'
+import yaml from 'yaml'
+import swaggerUi from 'swagger-ui-express'
 import { createLogger } from './logger'
 
 const logger = createLogger(__filename)
@@ -70,4 +74,24 @@ export function httpLogger(
   } else {
     morganMiddleware(req, res, next)
   }
+}
+
+export function generateSwaggerDocs(): Record<string, unknown> {
+  const apiDocsFile = fs.readFileSync(
+    path.join('build', 'api-docs.yaml'),
+    'utf-8'
+  )
+  return yaml.parse(apiDocsFile)
+}
+
+export function swaggerDocs(
+  port: number,
+  openApiDocs: Record<string, unknown>
+): [RequestHandler[], RequestHandler] {
+  const uiOptions = {
+    swaggerOptions: {
+      url: `http://localhost:${port}/api/docs-json`,
+    },
+  }
+  return [swaggerUi.serve, swaggerUi.setup(openApiDocs, uiOptions)]
 }

@@ -4,9 +4,11 @@ import fs from 'node:fs/promises'
 import {
   asyncHandler,
   errorHandler,
+  generateSwaggerDocs,
   httpContext,
   httpContextRequestId,
   httpLogger,
+  swaggerDocs,
 } from './middleware'
 import { createLogger } from './logger'
 
@@ -22,6 +24,14 @@ export function startServer(): Promise<Server> {
     app.use(httpLogger)
 
     app.set('json spaces', 2)
+
+    if (process.env.NODE_ENV !== 'production') {
+      const swaggerDocsJson = generateSwaggerDocs()
+      app.use('/api/docs', ...swaggerDocs(port, swaggerDocsJson))
+      app.get('/api/docs-json', (_, res) => {
+        res.json(swaggerDocsJson)
+      })
+    }
 
     app.get('/health', (req, res) => {
       res.status(200).send('OK')
