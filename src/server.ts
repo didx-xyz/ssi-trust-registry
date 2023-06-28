@@ -17,6 +17,7 @@ const logger = createLogger(__filename)
 export function startServer(): Promise<Server> {
   return new Promise((resolve, reject) => {
     const port = 3000
+    const url = 'http://localhost'
     const app = express()
 
     app.use(httpContext)
@@ -54,7 +55,7 @@ export function startServer(): Promise<Server> {
       if (error) {
         reject(error)
       } else {
-        console.log(`Server is running on port ${port}`)
+        console.log(`Server is running on ${url}:${port}`)
         resolve(server)
       }
     })
