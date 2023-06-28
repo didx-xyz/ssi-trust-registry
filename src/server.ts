@@ -4,13 +4,13 @@ import fs from 'node:fs/promises'
 import {
   asyncHandler,
   errorHandler,
-  generateSwaggerDocs,
   httpContext,
   httpContextRequestId,
   httpLogger,
   swaggerDocs,
 } from './middleware'
 import { createLogger } from './logger'
+import { generateSwaggerDocs } from './api-doc'
 
 const logger = createLogger(__filename)
 
@@ -27,8 +27,8 @@ export function startServer(): Promise<Server> {
     app.set('json spaces', 2)
 
     if (process.env.NODE_ENV !== 'production') {
-      const swaggerDocsJson = generateSwaggerDocs()
-      app.use('/api/docs', ...swaggerDocs(port, swaggerDocsJson))
+      const swaggerDocsJson = JSON.parse(JSON.stringify(generateSwaggerDocs()))
+      app.use('/api/docs', ...swaggerDocs(url, port, swaggerDocsJson))
       app.get('/api/docs-json', (_, res) => {
         res.json(swaggerDocsJson)
       })
