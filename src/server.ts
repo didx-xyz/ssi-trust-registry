@@ -7,14 +7,17 @@ import {
   httpContext,
   httpContextRequestId,
   httpLogger,
+  swaggerDocs,
 } from './middleware'
 import { createLogger } from './logger'
+import { generateSwaggerDocs } from './api-doc'
 
 const logger = createLogger(__filename)
 
 export function startServer(): Promise<Server> {
   return new Promise((resolve, reject) => {
     const port = 3000
+    const url = 'http://localhost'
     const app = express()
 
     app.use(httpContext)
@@ -22,6 +25,14 @@ export function startServer(): Promise<Server> {
     app.use(httpLogger)
 
     app.set('json spaces', 2)
+
+    if (process.env.NODE_ENV !== 'production') {
+      const swaggerDocsJson = JSON.parse(JSON.stringify(generateSwaggerDocs()))
+      app.use('/api/docs', ...swaggerDocs(url, port, swaggerDocsJson))
+      app.get('/api/docs-json', (_, res) => {
+        res.json(swaggerDocsJson)
+      })
+    }
 
     app.get('/health', (req, res) => {
       res.status(200).send('OK')
@@ -44,7 +55,7 @@ export function startServer(): Promise<Server> {
       if (error) {
         reject(error)
       } else {
-        console.log(`Server is running on port ${port}`)
+        console.log(`Server is running on ${url}:${port}`)
         resolve(server)
       }
     })

@@ -1,51 +1,17 @@
 {
   "entities": [
     {
-      "id": "bd368051-0843-4efe-b7e3-24ed6c5fdd9f",
-      "name": "Yoma10",
-      "did": "did:sov:9yyYk3D6mmk9NtzEG1QZkK",
-      "logo_url": "https://yoma.africa/images/sample.png3",
-      "domain": "www.3.xyz",
-      "registered_at": "2023-05-24T17:58:31",
-      "updated_at": "2023-05-24T17:58:31"
-    },
-    {
       "id": "8fa665b6-7fc5-4b0b-baee-6221b1844ec8",
-      "name": "Yoma123",
-      "did": "did:sov:Enmy7mgJopSsELLXd9G91d",
-      "logo_url": "https://yoma.africa/images/sample.png1",
-      "domain": "www.abc.xyz12",
+      "name": "Absa",
+      "did": "did:sov:2NPnMDv5Lh57gVZ3p3SYu3",
+      "logo_url": "https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg",
+      "domain": "www.absa.africa",
       "registered_at": "2023-05-24T18:14:24",
-      "updated_at": "2023-05-24T18:41:08",
-      "roles": ["issuer"],
-      "credentials": [
-        "test_schema4:Enmy7mgJopSsELLXd9G91d:3:CL:24:default",
-        "test_schema5:Enmy7mgJopSsELLXd9G91d:3:CL:27:default",
-        "Proof of Person:Enmy7mgJopSsELLXd9G91d:3:CL:30:default"
-      ]
-    },
-    {
-      "id": "fb38e13f-63e0-4cb6-980c-8c2fc04cbfae",
-      "name": "Yoma",
-      "did": "did:sov:DZFXtbRTEud9YLKN7bBmDb",
-      "logo_url": "https://yoma.africa/images/sample.pngkhjjkh",
-      "domain": "www.abc.xyz67868869",
-      "registered_at": "2023-05-24T21:39:52",
-      "updated_at": "2023-05-24T21:40:50",
-      "roles": ["verifier"]
+      "updated_at": "2023-05-24T18:14:24",
+      "role": "issuer",
+      "credentials": ["2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1"]
     }
   ],
-  "schemas": [
-    "Mnj3wB4tgrww6RETzZVx64:2:test_schema:0.3.0",
-    "Mnj3wB4tgrww6RETzZVx64:2:test_schema1:0.3.0",
-    "BrAQHowoF4rxmr92T8mjWB:2:test_schema:0.3.0",
-    "BrAQHowoF4rxmr92T8mjWB:2:test_schema1:0.3.0",
-    "BrAQHowoF4rxmr92T8mjWB:2:test_schema2:0.3.0",
-    "BrAQHowoF4rxmr92T8mjWB:2:test_schema3:0.3.0",
-    "BrAQHowoF4rxmr92T8mjWB:2:test_schema4:0.3.0",
-    "BrAQHowoF4rxmr92T8mjWB:2:test_schema5:0.3.0",
-    "BrAQHowoF4rxmr92T8mjWB:2:Proof of Person:0.3.0",
-    "Cmj9d7pwxEj2fYrKpNmtGx:2:test_schema:0.3.0"
-  ],
+  "schemas": ["2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0"],
   "verification policies": []
 }
