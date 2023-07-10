@@ -2,16 +2,9 @@ import type { Logger } from 'winston'
 import winston from 'winston'
 import httpContext from 'express-http-context'
 import path from 'node:path'
+import { config } from './config'
 
-const config = {
-  logger: {
-    logLevel: 'http',
-    outputFormat: 'cli',
-  },
-}
 const { combine, timestamp, json, colorize, printf } = winston.format
-
-export type LogLevel = 'error' | 'warn' | 'info' | 'http' | 'debug' | 'verbose'
 
 const requestId = winston.format((info) => {
   info.requestId = httpContext.get('requestId')

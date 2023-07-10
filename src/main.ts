@@ -1,10 +1,13 @@
+import 'dotenv/config'
 import { startServer } from './server'
 import { createLogger } from './logger'
+import { config } from './config'
 
 const logger = createLogger(__filename)
 
 function main() {
-  startServer()
+  logger.info('Starting app with the following config:', config)
+  startServer(config)
   process.on('SIGINT', shutdownGracefully())
   process.on('SIGTERM', shutdownGracefully())
 }

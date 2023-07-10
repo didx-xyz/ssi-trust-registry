@@ -14,10 +14,14 @@ import { generateSwaggerDocs } from './api-doc'
 
 const logger = createLogger(__filename)
 
-export function startServer(): Promise<Server> {
+interface ServerConfig {
+  port: number
+  url: string
+}
+
+export function startServer(config: ServerConfig): Promise<Server> {
   return new Promise((resolve, reject) => {
-    const port = 3000
-    const url = 'http://localhost'
+    const { port, url } = config
     const app = express()
 
     app.use(httpContext)
