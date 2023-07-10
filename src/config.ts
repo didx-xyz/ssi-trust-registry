@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-console.log('env', process.env.NODE_ENV)
-
 const ConfigSchema = z.object({
   port: z.coerce.number(),
   url: z.string(),

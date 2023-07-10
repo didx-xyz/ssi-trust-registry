@@ -8,8 +8,6 @@ WORKDIR /app
 COPY --chown=1000:1000 yarn.lock package.json ./
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
-
-RUN yarn config set strict-ssl false
 RUN yarn install --frozen-lockfile
 
 COPY --chown=1000:1000 . .
