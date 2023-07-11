@@ -20,4 +20,58 @@ describe('main', () => {
     const payload = await result.text()
     expect(payload).toEqual(`OK`)
   })
+
+  test('invalid submission fails with 400 error', async () => {
+    const result = await fetch(`http://localhost:${port}/submission`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+    const status = result.status
+    const response = await result.json()
+    expect(status).toEqual(400)
+    expect(response.error).toEqual([
+      {
+        code: 'invalid_type',
+        expected: 'string',
+        received: 'undefined',
+        path: ['name'],
+        message: 'Required',
+      },
+      {
+        code: 'invalid_type',
+        expected: 'string',
+        received: 'undefined',
+        path: ['did'],
+        message: 'Required',
+      },
+      {
+        code: 'invalid_type',
+        expected: 'string',
+        received: 'undefined',
+        path: ['logo_url'],
+        message: 'Required',
+      },
+      {
+        code: 'invalid_type',
+        expected: 'string',
+        received: 'undefined',
+        path: ['domain'],
+        message: 'Required',
+      },
+      {
+        expected: "'issuer' | 'verifier'",
+        received: 'undefined',
+        code: 'invalid_type',
+        path: ['role'],
+        message: 'Required',
+      },
+      {
+        code: 'invalid_type',
+        expected: 'array',
+        received: 'undefined',
+        path: ['credentials'],
+        message: 'Required',
+      },
+    ])
+  })
 })

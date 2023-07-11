@@ -11,6 +11,8 @@ import {
 } from './middleware'
 import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
+import { parseSubmission } from './submission'
+import { ZodError } from 'zod'
 
 const logger = createLogger(__filename)
 
@@ -24,6 +26,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
     const { port, url } = config
     const app = express()
 
+    app.use(express.json())
     app.use(httpContext)
     app.use(httpContextRequestId)
     app.use(httpLogger)
@@ -50,6 +53,32 @@ export function startServer(config: ServerConfig): Promise<Server> {
           encoding: 'utf8',
         })
         res.status(200).json(JSON.parse(registryContent))
+      })
+    )
+
+    app.post(
+      '/submission',
+      asyncHandler(async (req, res) => {
+        const payload = req.body
+        logger.info(
+          `Processing submission:\n ${JSON.stringify(payload, null, 2)}`
+        )
+        try {
+          parseSubmission(payload)
+        } catch (error) {
+          if (error instanceof ZodError) {
+            logger.error(
+              `Could not parse submission: \n ${JSON.stringify(
+                error.issues,
+                null,
+                2
+              )}`
+            )
+            res.status(400).json({ error: error.issues })
+          } else {
+            throw error
+          }
+        }
       })
     )
 
