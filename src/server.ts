@@ -1,6 +1,7 @@
 import express from 'express'
 import { Server } from 'node:http'
 import fs from 'node:fs/promises'
+import { ZodError } from 'zod'
 import {
   asyncHandler,
   errorHandler,
@@ -11,8 +12,7 @@ import {
 } from './middleware'
 import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
-import { parseSubmission } from './submission'
-import { ZodError } from 'zod'
+import { addSubmission, parseSubmission } from './submission'
 
 const logger = createLogger(__filename)
 
@@ -64,7 +64,8 @@ export function startServer(config: ServerConfig): Promise<Server> {
           `Processing submission:\n ${JSON.stringify(payload, null, 2)}`
         )
         try {
-          parseSubmission(payload)
+          const submission = await addSubmission(parseSubmission(payload))
+          res.status(201).json(submission)
         } catch (error) {
           if (error instanceof ZodError) {
             logger.error(

@@ -37,7 +37,7 @@ export function errorHandler(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ): void {
-  console.error('Error handler caught an error:', error, error.message)
+  logger.error('Error handler caught an error:', error, error.message)
   res.status(500)
   res.json({ error: error.message || 'Unexpected error' })
 }
