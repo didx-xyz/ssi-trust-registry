@@ -11,12 +11,12 @@ const logger = createLogger(__filename)
  * @see https://zellwk.com/blog/async-await-express/
  */
 export function asyncHandler(
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>,
 ) {
   return async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       await fn(req, res, next)
@@ -35,7 +35,7 @@ export function errorHandler(
   res: Response,
   // The parameter `next` must be defined for the function to be called as middleware
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction
+  next: NextFunction,
 ): void {
   logger.error('Error handler caught an error:', error, error.message)
   res.status(500)
@@ -46,7 +46,7 @@ export const httpContext = expressHttpContext.middleware
 export function httpContextRequestId(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   const requestId = req.header('X-Request-ID') || uuidv4()
   expressHttpContext.set('requestId', requestId)
@@ -59,12 +59,12 @@ const morganMiddleware = morgan(
     stream: {
       write: (message) => logger.http(message.trim()),
     },
-  }
+  },
 )
 export function httpLogger(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   if (req.url === '/health' || req.headers.upgrade === 'websocket') {
     next()
@@ -76,7 +76,7 @@ export function httpLogger(
 export function swaggerDocs(
   url: string,
   port: number,
-  openApiDocs: Record<string, unknown>
+  openApiDocs: Record<string, unknown>,
 ): [RequestHandler[], RequestHandler] {
   const uiOptions = {
     swaggerOptions: {

@@ -51,7 +51,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
         logger.info('Reading the registry from the file.')
         const registry = await getRegistry()
         res.status(200).json(registry)
-      })
+      }),
     )
 
     app.get(
@@ -60,7 +60,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
         logger.info('Reading the registry from the file.')
         const submissions = await getAllSubmissions()
         res.status(200).json(submissions)
-      })
+      }),
     )
 
     app.post(
@@ -68,7 +68,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
       asyncHandler(async (req, res) => {
         const payload = req.body
         logger.info(
-          `Processing submission:\n ${JSON.stringify(payload, null, 2)}`
+          `Processing submission:\n ${JSON.stringify(payload, null, 2)}`,
         )
         try {
           const submission = await addSubmission(parseSubmission(payload))
@@ -79,15 +79,15 @@ export function startServer(config: ServerConfig): Promise<Server> {
               `Could not parse submission: \n ${JSON.stringify(
                 error.issues,
                 null,
-                2
-              )}`
+                2,
+              )}`,
             )
             res.status(400).json({ error: error.issues })
           } else {
             throw error
           }
         }
-      })
+      }),
     )
 
     app.use(errorHandler)

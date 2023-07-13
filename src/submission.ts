@@ -6,13 +6,13 @@ import fs from 'node:fs/promises'
 extendZodWithOpenApi(z)
 
 export function parseSubmission(
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ): SubmissionDto {
   return SubmissionDto.parse(payload)
 }
 
 export async function addSubmission(
-  submissionDto: SubmissionDto
+  submissionDto: SubmissionDto,
 ): Promise<Submission> {
   if (await getSubmissionByDid(submissionDto.did)) {
     throw new Error('Submission with the same DID already exisits')
@@ -65,7 +65,7 @@ async function saveSubmission(submission: Submission) {
   submissions.push(submission)
   await fs.writeFile(
     './src/db/submissions.json',
-    JSON.stringify(submissions, null, 2)
+    JSON.stringify(submissions, null, 2),
   )
 }
 

@@ -19,7 +19,7 @@ const cliOutputFormat = combine(
     const requestId = log.requestId ? ` [requestId=${log.requestId}]` : ''
     return `[${log.timestamp}] [${log.filename}] [${log.level}]${requestId}: ${log.message}`
   }),
-  colorize({ all: true })
+  colorize({ all: true }),
 )
 
 export function createLogger(filePath: string): Logger {
