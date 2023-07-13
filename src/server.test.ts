@@ -4,12 +4,12 @@ import { Server } from 'http'
 import fs from 'node:fs/promises'
 
 describe('api', () => {
-  let port: number
+  const port = 3000
+  const url = 'http://localhost'
   let server: Server
 
   beforeAll(async () => {
-    server = await startServer()
-    port = (server.address() as AddressInfo).port
+    server = await startServer({ port: 3000, url: 'http://localhost' })
   })
 
   afterAll(async () => {
@@ -47,7 +47,7 @@ describe('api', () => {
       // backup prod database
       await fs.copyFile(
         './src/db/submissions.json',
-        './src/db/submissions.json.backup'
+        './src/db/submissions.json.backup',
       )
     })
 
@@ -55,7 +55,7 @@ describe('api', () => {
       // restore prod database
       await fs.copyFile(
         './src/db/submissions.json.backup',
-        './src/db/submissions.json'
+        './src/db/submissions.json',
       )
       await fs.unlink('./src/db/submissions.json.backup')
     })
@@ -120,20 +120,20 @@ describe('api', () => {
       await post(`http://localhost:${port}/submissions`, absaSubmission)
       const result = await post(
         `http://localhost:${port}/submissions`,
-        absaSubmission
+        absaSubmission,
       )
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(500)
       expect(response.error).toEqual(
-        'Submission with the same DID already exisits'
+        'Submission with the same DID already exisits',
       )
     })
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
       const result = await post(
         `http://localhost:${port}/submissions`,
-        yomaSubmission
+        yomaSubmission,
       )
       const status = result.status
       const response = await result.json()
