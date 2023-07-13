@@ -1,15 +1,14 @@
 import fetch from 'node-fetch'
 import { startServer } from './server'
 import { Server } from 'http'
-import { AddressInfo } from 'net'
 
 describe('main', () => {
-  let port: number
+  const port = 3000
+  const url = 'http://localhost'
   let server: Server
 
   beforeAll(async () => {
-    server = await startServer()
-    port = (server.address() as AddressInfo).port
+    server = await startServer({ port: 3000, url: 'http://localhost' })
   })
 
   afterAll(() => {
@@ -17,7 +16,7 @@ describe('main', () => {
   })
 
   test('health endpoint works', async () => {
-    const result = await fetch(`http://localhost:${port}/health`)
+    const result = await fetch(`${url}:${port}/health`)
     const payload = await result.text()
     expect(payload).toEqual(`OK`)
   })
