@@ -44,19 +44,29 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
-      await fs.copyFile('./src/registry.json', './src/registry.json.tmp')
+      // backup prod database
+      await fs.copyFile(
+        './src/db/submissions.json',
+        './src/db/submissions.json.backup'
+      )
     })
 
     afterAll(async () => {
-      await fs.unlink('./src/registry.json.tmp')
+      // restore prod database
+      await fs.copyFile(
+        './src/db/submissions.json.backup',
+        './src/db/submissions.json'
+      )
+      await fs.unlink('./src/db/submissions.json.backup')
     })
 
-    afterEach(async () => {
-      await fs.copyFile('./src/registry.json.tmp', './src/registry.json')
+    beforeEach(async () => {
+      // clear database
+      await fs.writeFile('./src/db/submissions.json', '[]')
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
-      const result = await post(`http://localhost:${port}/submission`, {})
+      const result = await post(`http://localhost:${port}/submissions`, {})
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -107,8 +117,9 @@ describe('api', () => {
     })
 
     test('submissions with exisiting DID fails with 500 error', async () => {
+      await post(`http://localhost:${port}/submissions`, absaSubmission)
       const result = await post(
-        `http://localhost:${port}/submission`,
+        `http://localhost:${port}/submissions`,
         absaSubmission
       )
       const status = result.status
@@ -121,7 +132,7 @@ describe('api', () => {
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
       const result = await post(
-        `http://localhost:${port}/submission`,
+        `http://localhost:${port}/submissions`,
         yomaSubmission
       )
       const status = result.status
@@ -130,26 +141,20 @@ describe('api', () => {
       expect(response.id).toEqual(expect.any(String))
     })
 
-    test('correct submissions succeeds and adds it to the list of entities', async () => {
-      await post(`http://localhost:${port}/submission`, yomaSubmission)
+    test('correct submissions succeeds and adds it to the list', async () => {
+      await post(`http://localhost:${port}/submissions`, absaSubmission)
 
-      const result = await fetch(`http://localhost:${port}/registry`)
+      const result = await fetch(`http://localhost:${port}/submissions`)
       const status = result.status
-      const response = await result.json()
+      const submissions = await result.json()
       expect(status).toEqual(200)
-      expect(response.entities.length).toBe(2)
-      expect(response.entities).toEqual([
+      expect(submissions.length).toBe(1)
+      expect(submissions).toEqual([
         {
           ...absaSubmission,
-          id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
-          registered_at: '2023-05-24T18:14:24',
-          updated_at: '2023-05-24T18:14:24',
-        },
-        {
-          ...yomaSubmission,
-          id: expect.any(String), // TODO check uuid format
-          createdAt: expect.any(String), // TODO check date time format
-          updatedAt: expect.any(String), // TODO check date time format
+          id: expect.any(String),
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
         },
       ])
     })

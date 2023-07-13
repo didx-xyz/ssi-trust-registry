@@ -1,6 +1,5 @@
 import express from 'express'
 import { Server } from 'node:http'
-import fs from 'node:fs/promises'
 import { ZodError } from 'zod'
 import {
   asyncHandler,
@@ -12,7 +11,8 @@ import {
 } from './middleware'
 import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
-import { addSubmission, parseSubmission } from './submission'
+import { addSubmission, getAllSubmissions, parseSubmission } from './submission'
+import { getRegistry } from './registry'
 
 const logger = createLogger(__filename)
 
@@ -49,15 +49,22 @@ export function startServer(config: ServerConfig): Promise<Server> {
       '/registry',
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
-        const registryContent = await fs.readFile('./src/registry.json', {
-          encoding: 'utf8',
-        })
-        res.status(200).json(JSON.parse(registryContent))
+        const registry = await getRegistry()
+        res.status(200).json(registry)
+      })
+    )
+
+    app.get(
+      '/submissions',
+      asyncHandler(async (req, res) => {
+        logger.info('Reading the registry from the file.')
+        const submissions = await getAllSubmissions()
+        res.status(200).json(submissions)
       })
     )
 
     app.post(
-      '/submission',
+      '/submissions',
       asyncHandler(async (req, res) => {
         const payload = req.body
         logger.info(

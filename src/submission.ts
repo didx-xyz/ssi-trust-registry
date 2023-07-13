@@ -56,18 +56,22 @@ const Submission = SubmissionDto.extend({
 type Submission = z.infer<typeof Submission>
 
 async function getSubmissionByDid(did: string) {
-  const registryContent = await fs.readFile('./src/registry.json', {
-    encoding: 'utf8',
-  })
-  const registry = JSON.parse(registryContent)
-  return registry.entities.find((entry: any) => entry.did === did)
+  const submissions = await getAllSubmissions()
+  return submissions.find((s: any) => s.did === did)
 }
 
 async function saveSubmission(submission: Submission) {
-  const registryContent = await fs.readFile('./src/registry.json', {
+  const submissions = await getAllSubmissions()
+  submissions.push(submission)
+  await fs.writeFile(
+    './src/db/submissions.json',
+    JSON.stringify(submissions, null, 2)
+  )
+}
+
+export async function getAllSubmissions() {
+  const submissionsContent = await fs.readFile('./src/db/submissions.json', {
     encoding: 'utf8',
   })
-  const registry = JSON.parse(registryContent)
-  registry.entities.push(submission)
-  await fs.writeFile('./src/registry.json', JSON.stringify(registry, null, 2))
+  return JSON.parse(submissionsContent)
 }
