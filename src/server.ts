@@ -3,6 +3,7 @@ import { Server } from 'node:http'
 import { ZodError } from 'zod'
 import {
   asyncHandler,
+  disableInProduction,
   errorHandler,
   httpContext,
   httpContextRequestId,
@@ -56,6 +57,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
 
     app.get(
       '/submissions',
+      disableInProduction,
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
         const submissions = await getAllSubmissions()
@@ -65,6 +67,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
 
     app.post(
       '/submissions',
+      disableInProduction,
       asyncHandler(async (req, res) => {
         const payload = req.body
         logger.info(

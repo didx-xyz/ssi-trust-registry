@@ -85,3 +85,16 @@ export function swaggerDocs(
   }
   return [swaggerUi.serve, swaggerUi.setup(openApiDocs, uiOptions)]
 }
+
+export function disableInProduction(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (process.env.NODE_ENV === 'production') {
+    logger.info(`Endpoint ${req.path} is disabled in production.`)
+    res.status(500).json({ error: 'Endpoint is disabled' })
+  } else {
+    next()
+  }
+}

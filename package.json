@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf build && tsc",
     "format:check": "prettier --check . --ignore-path .gitignore",
     "format:update": "prettier --write . --ignore-path .gitignore",
     "lint": "eslint . --ignore-path .gitignore",
@@ -14,7 +14,7 @@
     "test:watch": "yarn test --watchAll",
     "postinstall": "node -e \"process.env.NODE_ENV !== 'production' && require('husky').install()\"",
     "dev": "ts-node-dev --respawn --transpile-only ./src/main.ts",
-    "start": "rm -rf build && yarn build && node ./build/main.js"
+    "start": "NODE_ENV=production node ./build/main.js"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
