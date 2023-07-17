@@ -1,8 +1,9 @@
 import express from 'express'
 import { Server } from 'node:http'
-import fs from 'node:fs/promises'
+import { ZodError } from 'zod'
 import {
   asyncHandler,
+  disableInProduction,
   errorHandler,
   httpContext,
   httpContextRequestId,
@@ -11,6 +12,8 @@ import {
 } from './middleware'
 import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
+import { addSubmission, getAllSubmissions, parseSubmission } from './submission'
+import { getRegistry } from './registry'
 
 const logger = createLogger(__filename)
 
@@ -24,6 +27,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
     const { port, url } = config
     const app = express()
 
+    app.use(express.json())
     app.use(httpContext)
     app.use(httpContextRequestId)
     app.use(httpLogger)
@@ -46,11 +50,47 @@ export function startServer(config: ServerConfig): Promise<Server> {
       '/registry',
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
-        const registryContent = await fs.readFile('./src/registry.json', {
-          encoding: 'utf8',
-        })
-        res.status(200).json(JSON.parse(registryContent))
-      })
+        const registry = await getRegistry()
+        res.status(200).json(registry)
+      }),
+    )
+
+    app.get(
+      '/submissions',
+      disableInProduction,
+      asyncHandler(async (req, res) => {
+        logger.info('Reading the registry from the file.')
+        const submissions = await getAllSubmissions()
+        res.status(200).json(submissions)
+      }),
+    )
+
+    app.post(
+      '/submissions',
+      disableInProduction,
+      asyncHandler(async (req, res) => {
+        const payload = req.body
+        logger.info(
+          `Processing submission:\n ${JSON.stringify(payload, null, 2)}`,
+        )
+        try {
+          const submission = await addSubmission(parseSubmission(payload))
+          res.status(201).json(submission)
+        } catch (error) {
+          if (error instanceof ZodError) {
+            logger.error(
+              `Could not parse submission: \n ${JSON.stringify(
+                error.issues,
+                null,
+                2,
+              )}`,
+            )
+            res.status(400).json({ error: error.issues })
+          } else {
+            throw error
+          }
+        }
+      }),
     )
 
     app.use(errorHandler)
