@@ -13,3 +13,37 @@ services:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 15s
       timeout: 5s
+    environment:
+      - URL=0.0.0.0
+      - PORT=3000
+    networks:
+      - ssi-trust-registry
+      - host
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=ssi-trust-registry
+      - POSTGRES_PASSWORD=ssi-trust-registry
+      - POSTGRES_DB=ssi-trust-registry
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'ssi-trust-registry']
+      interval: 15s
+      timeout: 5s
+    networks:
+      - ssi-trust-registry
+      - host
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
+
+networks:
+  ssi-trust-registry:
+  host:
