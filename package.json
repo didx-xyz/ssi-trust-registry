@@ -31,7 +31,7 @@
     "yaml": "^2.3.1"
   },
   "dependencies": {
-    "@asteasolutions/zod-to-openapi": "^5.2.0",
+    "@asteasolutions/zod-to-openapi": "^5.3.1",
     "@types/jest": "^29.5.3",
     "@types/morgan": "^1.9.4",
     "@types/node-fetch": "^2.6.4",
