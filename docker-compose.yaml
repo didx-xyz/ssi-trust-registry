@@ -18,7 +18,6 @@ services:
       - PORT=3000
     networks:
       - ssi-trust-registry
-      - host
     depends_on:
       postgres:
         condition: service_healthy
@@ -32,18 +31,40 @@ services:
       - POSTGRES_PASSWORD=ssi-trust-registry
       - POSTGRES_DB=ssi-trust-registry
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'ssi-trust-registry']
+      test:
+        [
+          'CMD',
+          'pg_isready',
+          '--username',
+          'ssi-trust-registry',
+          '--dbname',
+          'ssi-trust-registry',
+        ]
       interval: 15s
       timeout: 5s
     networks:
       - ssi-trust-registry
-      - host
     volumes:
       - postgres:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4:7
+    container_name: pgadmin
+    ports:
+      - 8080:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin
+    networks:
+      - ssi-trust-registry
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres:
+  pgadmin:
 
 networks:
   ssi-trust-registry:
-  host:
