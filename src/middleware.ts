@@ -4,6 +4,7 @@ import morgan from 'morgan'
 import { v4 as uuidv4 } from 'uuid'
 import swaggerUi from 'swagger-ui-express'
 import { createLogger } from './logger'
+import { ZodError } from 'zod'
 
 const logger = createLogger(__filename)
 
@@ -38,8 +39,14 @@ export function errorHandler(
   next: NextFunction,
 ): void {
   logger.error('Error handler caught an error:', error, error.message)
-  res.status(500)
-  res.json({ error: error.message || 'Unexpected error' })
+  if (error instanceof ZodError) {
+    logger.error(
+      `Could not parse submission: \n ${JSON.stringify(error.issues, null, 2)}`,
+    )
+    res.status(400).json({ error: error.issues })
+  } else {
+    res.status(500).json({ error: error.message || 'Unexpected error' })
+  }
 }
 
 export const httpContext = expressHttpContext.middleware

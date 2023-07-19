@@ -1,19 +1,18 @@
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import fs from 'node:fs/promises'
+import {
+  getSubmissionByDid,
+  saveSubmission,
+  getAllSubmissions as getAll,
+} from './filesystemRepository'
 
 extendZodWithOpenApi(z)
 
-export function parseSubmission(
-  payload: Record<string, unknown>,
-): SubmissionDto {
-  return SubmissionDto.parse(payload)
-}
-
 export async function addSubmission(
-  submissionDto: SubmissionDto,
+  payload: Record<string, unknown>,
 ): Promise<Submission> {
+  const submissionDto = parseSubmission(payload)
   if (await getSubmissionByDid(submissionDto.did)) {
     throw new Error('Submission with the same DID already exisits')
   }
@@ -25,6 +24,14 @@ export async function addSubmission(
   }
   await saveSubmission(submission)
   return submission
+}
+
+export async function getAllSubmissions() {
+  return getAll()
+}
+
+function parseSubmission(payload: Record<string, unknown>): SubmissionDto {
+  return SubmissionDto.parse(payload)
 }
 
 const SubmissionDto = z
@@ -53,25 +60,4 @@ const Submission = SubmissionDto.extend({
   updatedAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
 }).openapi('Submission')
 
-type Submission = z.infer<typeof Submission>
-
-async function getSubmissionByDid(did: string) {
-  const submissions = await getAllSubmissions()
-  return submissions.find((s: any) => s.did === did)
-}
-
-async function saveSubmission(submission: Submission) {
-  const submissions = await getAllSubmissions()
-  submissions.push(submission)
-  await fs.writeFile(
-    './src/db/submissions.json',
-    JSON.stringify(submissions, null, 2),
-  )
-}
-
-export async function getAllSubmissions() {
-  const submissionsContent = await fs.readFile('./src/db/submissions.json', {
-    encoding: 'utf8',
-  })
-  return JSON.parse(submissionsContent)
-}
+export type Submission = z.infer<typeof Submission>
