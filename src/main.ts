@@ -2,8 +2,8 @@ import 'dotenv/config'
 import { startServer } from './server'
 import { createLogger } from './logger'
 import { config } from './config'
-import { connectToDatabase } from './database'
-import { init } from './submission/mongoRepository'
+import { closeConnection, connectToDatabase } from './database'
+import { initSubmissions } from './submission/mongoRepository'
 
 const logger = createLogger(__filename)
 
@@ -16,7 +16,7 @@ async function main() {
     )}`,
   )
   const database = await connectToDatabase()
-  init(database)
+  initSubmissions(database)
   startServer(config)
   process.on('SIGINT', shutdownGracefully())
   process.on('SIGTERM', shutdownGracefully())
@@ -25,6 +25,7 @@ async function main() {
 function shutdownGracefully() {
   return async (signal: string) => {
     logger.info(`Received ${signal}. Stopping the service...`)
+    await closeConnection()
     process.exit()
   }
 }

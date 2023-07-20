@@ -5,7 +5,7 @@ import {
   getSubmissionByDid,
   saveSubmission,
   getAllSubmissions as getAll,
-} from './filesystemRepository'
+} from './mongoRepository'
 
 extendZodWithOpenApi(z)
 
@@ -27,7 +27,7 @@ export async function addSubmission(
 }
 
 export async function getAllSubmissions() {
-  return getAll()
+  return (await getAll()).map((d) => ({ ...d, _id: undefined }))
 }
 
 function parseSubmission(payload: Record<string, unknown>): SubmissionDto {

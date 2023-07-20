@@ -2,6 +2,8 @@ import fetch from 'node-fetch'
 import { startServer } from './server'
 import { Server } from 'http'
 import fs from 'node:fs/promises'
+import { closeConnection, connectToDatabase } from './database'
+import { deleteAll, initSubmissions } from './submission/mongoRepository'
 
 describe('api', () => {
   const port = 3000
@@ -44,6 +46,9 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
+      const database = await connectToDatabase()
+      initSubmissions(database)
+
       // backup prod database
       await fs.copyFile(
         './src/db/submissions.json',
@@ -58,10 +63,12 @@ describe('api', () => {
         './src/db/submissions.json',
       )
       await fs.unlink('./src/db/submissions.json.backup')
+      await closeConnection()
     })
 
     beforeEach(async () => {
       // clear database
+      await deleteAll()
       await fs.writeFile('./src/db/submissions.json', '[]')
     })
 

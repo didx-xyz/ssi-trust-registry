@@ -1,9 +1,12 @@
+import { createLogger } from '../logger'
 import type { Submission } from './service'
 import { Db } from 'mongodb'
 
+const logger = createLogger(__filename)
+
 let _database: Db
 
-export function init(database: Db) {
+export function initSubmissions(database: Db) {
   _database = database
 }
 
@@ -15,9 +18,29 @@ export async function getSubmissionByDid(did: string) {
 }
 
 export async function saveSubmission(submission: Submission) {
-  throw new Error('Not implemented yet')
+  const submissionsCollection = _database.collection('submissions')
+  const submissionData = {
+    ...submission,
+  }
+  const result = await submissionsCollection.insertOne(submissionData)
+  logger.info(
+    `Submission has been stored to database: ${JSON.stringify(
+      result,
+      null,
+      2,
+    )}`,
+  )
+  return result
 }
 
-export async function getAllSubmissions() {
-  throw new Error('Not implemented yet')
+export function getAllSubmissions() {
+  const submissionsCollection = _database.collection('submissions')
+  return submissionsCollection.find().toArray()
+}
+
+export async function deleteAll() {
+  const submissionsCollection = _database.collection('submissions')
+  if ((await submissionsCollection.countDocuments()) > 0) {
+    return submissionsCollection.drop()
+  }
 }
