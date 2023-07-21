@@ -1,7 +1,6 @@
 import fetch from 'node-fetch'
 import { startServer } from './server'
 import { Server } from 'http'
-import fs from 'node:fs/promises'
 import { config } from './config'
 import { closeConnection, connectToDatabase } from './database'
 import { deleteAll, initSubmissions } from './submission/mongoRepository'
@@ -51,27 +50,16 @@ describe('api', () => {
       initSubmissions(database)
       initRegistry(database)
       await deleteAll()
-      // backup prod database
-      await fs.copyFile(
-        './src/db/submissions.json',
-        './src/db/submissions.json.backup',
-      )
     })
 
     afterAll(async () => {
       // restore prod database
-      await fs.copyFile(
-        './src/db/submissions.json.backup',
-        './src/db/submissions.json',
-      )
-      await fs.unlink('./src/db/submissions.json.backup')
       await closeConnection()
     })
 
     beforeEach(async () => {
       // clear database
       await deleteAll()
-      await fs.writeFile('./src/db/submissions.json', '[]')
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {

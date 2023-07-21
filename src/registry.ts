@@ -27,7 +27,7 @@ export async function getRegistry() {
 }
 
 export async function loadRegistry() {
-  const registryContent = await fs.readFile('./src/db/registry.json', {
+  const registryContent = await fs.readFile('./src/data/registry.json', {
     encoding: 'utf8',
   })
   const registry = JSON.parse(registryContent)
