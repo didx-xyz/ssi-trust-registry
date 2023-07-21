@@ -2,8 +2,12 @@ import { MongoClient } from 'mongodb'
 
 let client: MongoClient
 
-export async function connectToDatabase() {
-  const mongoConnectionString = `mongodb://localhost:3005`
+interface DbConfig {
+  connectionString: string
+}
+
+export async function connectToDatabase(config: DbConfig) {
+  const mongoConnectionString = config.connectionString
   client = new MongoClient(mongoConnectionString)
   console.log('Connecting to database')
   await client.connect()

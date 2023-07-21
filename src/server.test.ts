@@ -2,16 +2,16 @@ import fetch from 'node-fetch'
 import { startServer } from './server'
 import { Server } from 'http'
 import fs from 'node:fs/promises'
+import { config } from './config'
 import { closeConnection, connectToDatabase } from './database'
 import { deleteAll, initSubmissions } from './submission/mongoRepository'
 
 describe('api', () => {
-  const port = 3000
-  const url = 'http://localhost'
+  const { port, url } = config.server
   let server: Server
 
   beforeAll(async () => {
-    server = await startServer({ port: 3000, url: 'http://localhost' })
+    server = await startServer({ port, url })
   })
 
   afterAll(async () => {
@@ -46,7 +46,10 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
-      const database = await connectToDatabase()
+      const dbConfig = {
+        connectionString: config.db.connectionString,
+      }
+      const database = await connectToDatabase(dbConfig)
       initSubmissions(database)
 
       // backup prod database

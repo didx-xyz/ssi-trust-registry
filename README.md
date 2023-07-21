@@ -27,3 +27,23 @@ Run Docker container
 ```sh
 docker run -d -p 3000:3000 --name ssi-trust-registry --env-file .env ssi-trust-registry
 ```
+
+## Tests
+
+There are integration tests that starts HTTP server and calls a database. We have to set some environment variables first. You can copy `.env.example` and update values according to the environment where your're running tests:
+
+```sh
+cp .env.example .env.test
+```
+
+Start the databse, you can use docker for that in the following way:
+
+```sh
+docker run --name mongo -p 4000:27017 -d mongo:6.0
+```
+
+Now, you can run tests:
+
+```
+yarn test
+```

@@ -18,6 +18,15 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
+    env:
+      PORT: 3000
+      URL: http://localhost
+      DB_CONNECTION_STRING: mongodb://localhost:4000
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 4000:27017
 
     steps:
       - uses: actions/checkout@v3

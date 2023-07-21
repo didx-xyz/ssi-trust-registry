@@ -1,7 +1,6 @@
-import 'dotenv/config'
+import { config } from './config'
 import { startServer } from './server'
 import { createLogger } from './logger'
-import { config } from './config'
 import { closeConnection, connectToDatabase } from './database'
 import { initSubmissions } from './submission/mongoRepository'
 
@@ -15,9 +14,10 @@ async function main() {
       2,
     )}`,
   )
-  const database = await connectToDatabase()
+
+  const database = await connectToDatabase(config.db)
   initSubmissions(database)
-  startServer(config)
+  startServer(config.server)
   process.on('SIGINT', shutdownGracefully())
   process.on('SIGTERM', shutdownGracefully())
 }
