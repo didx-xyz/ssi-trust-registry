@@ -18,6 +18,7 @@ const ConfigSchema = z.object({
   }),
   db: z.object({
     connectionString: z.string(),
+    name: z.string(),
   }),
 })
 
@@ -34,5 +35,6 @@ export const config: Config = ConfigSchema.parse({
   },
   db: {
     connectionString: process.env.DB_CONNECTION_STRING,
+    name: process.env.DB_NAME,
   },
 })

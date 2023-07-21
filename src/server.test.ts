@@ -5,6 +5,7 @@ import fs from 'node:fs/promises'
 import { config } from './config'
 import { closeConnection, connectToDatabase } from './database'
 import { deleteAll, initSubmissions } from './submission/mongoRepository'
+import { initRegistry } from './registry'
 
 describe('api', () => {
   const { port, url } = config.server
@@ -46,12 +47,10 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
-      const dbConfig = {
-        connectionString: config.db.connectionString,
-      }
-      const database = await connectToDatabase(dbConfig)
+      const database = await connectToDatabase(config.db)
       initSubmissions(database)
-
+      initRegistry(database)
+      await deleteAll()
       // backup prod database
       await fs.copyFile(
         './src/db/submissions.json',
@@ -167,6 +166,11 @@ describe('api', () => {
           updatedAt: expect.any(String),
         },
       ])
+
+      // Registry should be still empty
+      const registryResult = await fetch(`http://localhost:${port}/registry`)
+      const registry = await registryResult.json()
+      expect(registry).toEqual({ entities: [], registry: [] })
     })
   })
 })

@@ -3,6 +3,7 @@ import { startServer } from './server'
 import { createLogger } from './logger'
 import { closeConnection, connectToDatabase } from './database'
 import { initSubmissions } from './submission/mongoRepository'
+import { initRegistry, loadRegistry } from './registry'
 
 const logger = createLogger(__filename)
 
@@ -17,6 +18,8 @@ async function main() {
 
   const database = await connectToDatabase(config.db)
   initSubmissions(database)
+  initRegistry(database)
+  await loadRegistry()
   startServer(config.server)
   process.on('SIGINT', shutdownGracefully())
   process.on('SIGTERM', shutdownGracefully())
