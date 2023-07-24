@@ -38,3 +38,16 @@ export const config: Config = ConfigSchema.parse({
     name: process.env.DB_NAME,
   },
 })
+
+export function hideSecrets(config: Config) {
+  return {
+    ...config,
+    db: {
+      ...config.db,
+      connectionString: config.db.connectionString.replace(
+        /(?<=:)(?:(?!:).)*(?=@)/,
+        '*****',
+      ),
+    },
+  }
+}

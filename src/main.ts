@@ -1,4 +1,4 @@
-import { config } from './config'
+import { config, hideSecrets } from './config'
 import { startServer } from './server'
 import { createLogger } from './logger'
 import { close, connect } from './database'
@@ -10,7 +10,7 @@ const logger = createLogger(__filename)
 async function main() {
   logger.info(
     `Starting app with the following config: ${JSON.stringify(
-      config,
+      hideSecrets(config),
       null,
       2,
     )}`,
