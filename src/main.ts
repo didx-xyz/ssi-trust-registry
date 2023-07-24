@@ -1,7 +1,7 @@
 import { config } from './config'
 import { startServer } from './server'
 import { createLogger } from './logger'
-import { closeConnection, connectToDatabase } from './database'
+import { close, connect } from './database'
 import { initSubmissions } from './submission/mongoRepository'
 import { initRegistry, loadRegistry } from './registry'
 
@@ -16,7 +16,7 @@ async function main() {
     )}`,
   )
 
-  const database = await connectToDatabase(config.db)
+  const database = await connect(config.db)
   initSubmissions(database)
   initRegistry(database)
   await loadRegistry()
@@ -28,7 +28,7 @@ async function main() {
 function shutdownGracefully() {
   return async (signal: string) => {
     logger.info(`Received ${signal}. Stopping the service...`)
-    await closeConnection()
+    await close()
     process.exit()
   }
 }

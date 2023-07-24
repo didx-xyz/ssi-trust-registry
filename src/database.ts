@@ -10,7 +10,7 @@ interface DbConfig {
   name: string
 }
 
-export async function connectToDatabase(config: DbConfig) {
+export async function connect(config: DbConfig) {
   const { connectionString, name } = config
   logger.info('Connecting to database...')
   client = new MongoClient(connectionString)
@@ -23,6 +23,6 @@ export async function connectToDatabase(config: DbConfig) {
   return database
 }
 
-export function closeConnection() {
+export function close() {
   return client.close()
 }

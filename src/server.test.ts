@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 import { startServer } from './server'
 import { Server } from 'http'
 import { config } from './config'
-import { closeConnection, connectToDatabase } from './database'
+import { close, connect } from './database'
 import { deleteAll, initSubmissions } from './submission/mongoRepository'
 import { initRegistry } from './registry'
 
@@ -46,7 +46,7 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
-      const database = await connectToDatabase(config.db)
+      const database = await connect(config.db)
       initSubmissions(database)
       initRegistry(database)
       await deleteAll()
@@ -54,7 +54,7 @@ describe('api', () => {
 
     afterAll(async () => {
       // restore prod database
-      await closeConnection()
+      await close()
     })
 
     beforeEach(async () => {
