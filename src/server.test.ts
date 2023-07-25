@@ -1,15 +1,17 @@
 import fetch from 'node-fetch'
 import { startServer } from './server'
 import { Server } from 'http'
-import fs from 'node:fs/promises'
+import { config } from './config'
+import { close, connect } from './database'
+import { deleteAll, initSubmissions } from './submission/mongoRepository'
+import { initRegistry } from './registry'
 
 describe('api', () => {
-  const port = 3000
-  const url = 'http://localhost'
+  const { port, url } = config.server
   let server: Server
 
   beforeAll(async () => {
-    server = await startServer({ port: 3000, url: 'http://localhost' })
+    server = await startServer({ port, url })
   })
 
   afterAll(async () => {
@@ -44,25 +46,20 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
-      // backup prod database
-      await fs.copyFile(
-        './src/db/submissions.json',
-        './src/db/submissions.json.backup',
-      )
+      const database = await connect(config.db)
+      initSubmissions(database)
+      initRegistry(database)
+      await deleteAll()
     })
 
     afterAll(async () => {
       // restore prod database
-      await fs.copyFile(
-        './src/db/submissions.json.backup',
-        './src/db/submissions.json',
-      )
-      await fs.unlink('./src/db/submissions.json.backup')
+      await close()
     })
 
     beforeEach(async () => {
       // clear database
-      await fs.writeFile('./src/db/submissions.json', '[]')
+      await deleteAll()
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
@@ -157,6 +154,11 @@ describe('api', () => {
           updatedAt: expect.any(String),
         },
       ])
+
+      // Registry should be still empty
+      const registryResult = await fetch(`http://localhost:${port}/registry`)
+      const registry = await registryResult.json()
+      expect(registry).toEqual({ entities: [], registry: [] })
     })
   })
 })
