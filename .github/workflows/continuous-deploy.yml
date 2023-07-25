@@ -41,7 +41,7 @@ jobs:
       - uses: tailscale/github-action@main
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-          version: 1.46.0
+          version: 1.46.1
 
       - uses: docker/metadata-action@v4
         id: meta
