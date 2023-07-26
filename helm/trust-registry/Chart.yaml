@@ -1,0 +1,27 @@
+apiVersion: v2
+name: trust-registry
+description: A Helm chart to deploy the SSI Trust Registry in Kubernetes
+type: application
+version: 0.1.0
+
+keywords:
+  - ssi
+  - trust-registry
+  - did
+  - digital-identity
+
+maintainers:
+  - name: Robbie Blaine
+    email: robbie.blaine@didx.co.za
+
+dependencies:
+  # https://github.com/bitnami/charts/tree/main/bitnami/common
+  - name: common
+    version: 2.4.0
+    repository: oci://registry-1.docker.io/bitnamicharts
+  # https://github.com/bitnami/charts/tree/main/bitnami/mongodb
+  - name: mongodb
+    version: 13.16.0
+    repository: oci://registry-1.docker.io/bitnamicharts
+    alias: mongodb
+    condition: mongodb.enabled

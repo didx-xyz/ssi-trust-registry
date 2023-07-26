@@ -1,0 +1,23 @@
+environments:
+  dev:
+    values:
+      - namespace: trust-registry-dev
+---
+repositories:
+- name: bitnami
+  url: oci://registry-1.docker.io/bitnamicharts
+  oci: true
+---
+releases:
+- name: trust-registry
+  namespace: {{ .Values.namespace }}
+  chart: ./trust-registry
+  values:
+    - ./trust-registry/conf/{{ .Environment.Name }}/values.yaml
+---
+helmDefaults:
+  timeout: 60
+  wait: true
+  atomic: true
+  cleanupOnFail: true
+  createNamespace: false
