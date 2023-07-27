@@ -13,7 +13,7 @@ RUN yarn install --frozen-lockfile
 COPY --chown=1000:1000 . .
 RUN yarn build
 
-ENV URL=0.0.0.0
+ENV URL=http://0.0.0.0
 ENV PORT=3000
 
 EXPOSE 3000
