@@ -42,7 +42,7 @@
     "express-http-context": "^1.2.4",
     "mongodb": "^5.7.0",
     "morgan": "^1.10.0",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^3.3.2",
     "swagger-ui-express": "^5.0.0",
     "typescript": "^5.1.6",
     "uuid": "^9.0.0",
