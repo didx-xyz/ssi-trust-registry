@@ -15,10 +15,10 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@asteasolutions/zod-to-openapi@^5.3.1":
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/@asteasolutions/zod-to-openapi/-/zod-to-openapi-5.3.1.tgz#a9ed11d1439f26143bfd1a59c8a192be2cb124a1"
-  integrity sha512-7/a08FSsjeO6QGEn4EdEU2EkRK6M9Q2+JOlEQNqMzJZGIJ2frV/5op7UNcNcdrPz38RQYjdWMZiia2K80NrzwA==
+"@asteasolutions/zod-to-openapi@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@asteasolutions/zod-to-openapi/-/zod-to-openapi-5.4.0.tgz#da766c78bfc6e3ee8aa4853dd311f41132796a00"
+  integrity sha512-3Pa4/BGyPWCSLJCVPoIdMmVT9JtwZ7XFO4wTSScsUgG5AD5THOC9kPm1OX4FulLWKT3Glbp16Ad43PLrquZDvw==
   dependencies:
     openapi3-ts "^4.1.2"
 
