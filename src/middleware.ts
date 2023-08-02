@@ -40,9 +40,7 @@ export function errorHandler(
 ): void {
   logger.error('Error handler caught an error:', error, error.message)
   if (error instanceof ZodError) {
-    logger.error(
-      `Could not parse submission: \n ${JSON.stringify(error.issues, null, 2)}`,
-    )
+    logger.error(`Could not parse submission`, { metadata: error.issues })
     res.status(400).json({ error: error.issues })
   } else {
     res.status(500).json({ error: error.message || 'Unexpected error' })

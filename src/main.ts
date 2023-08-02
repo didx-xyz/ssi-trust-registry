@@ -8,13 +8,9 @@ import { initRegistry, loadRegistry } from './registry'
 const logger = createLogger(__filename)
 
 async function main() {
-  logger.info(
-    `Starting app with the following config: ${JSON.stringify(
-      hideSecrets(config),
-      null,
-      2,
-    )}`,
-  )
+  logger.info(`Starting app with the following config`, {
+    metadata: hideSecrets(config),
+  })
 
   const database = await connect(config.db)
   initSubmissions(database)
