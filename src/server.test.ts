@@ -4,7 +4,8 @@ import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
 import { deleteAll, initSubmissions } from './submission/mongoRepository'
-import { initRegistry } from './registry'
+import { initEntities } from './entity/mongoRepository'
+import { initSchemas } from './schema/mongoRepository'
 
 describe('api', () => {
   const { port, url } = config.server
@@ -48,7 +49,8 @@ describe('api', () => {
     beforeAll(async () => {
       const database = await connect(config.db)
       initSubmissions(database)
-      initRegistry(database)
+      initEntities(database)
+      initSchemas(database)
       await deleteAll()
     })
 
@@ -158,7 +160,7 @@ describe('api', () => {
       // Registry should be still empty
       const registryResult = await fetch(`http://localhost:${port}/registry`)
       const registry = await registryResult.json()
-      expect(registry).toEqual({ entities: [], registry: [] })
+      expect(registry).toEqual({ entities: [], schemas: [] })
     })
   })
 })

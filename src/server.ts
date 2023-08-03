@@ -12,7 +12,8 @@ import {
 import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
 import { addSubmission, getAllSubmissions } from './submission/service'
-import { getRegistry } from './registry'
+import { getAllEntities } from './entity/mongoRepository'
+import { getAllSchemas } from './schema/mongoRepository'
 
 const logger = createLogger(__filename)
 
@@ -49,7 +50,10 @@ export function startServer(config: ServerConfig): Promise<Server> {
       '/registry',
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
-        const registry = await getRegistry()
+        const registry = {
+          entities: await getAllEntities(),
+          schemas: await getAllSchemas(),
+        }
         res.status(200).json(registry)
       }),
     )
