@@ -69,7 +69,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
       disableInProduction,
       asyncHandler(async (req, res) => {
         const payload = req.body
-        logger.info(`Processing submission:`, { metadata: payload })
+        logger.info(`Processing submission:`, payload)
         const submission = await addSubmission(payload)
         res.status(201).json(submission)
       }),

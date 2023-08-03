@@ -11,10 +11,23 @@ const requestId = winston.format((info) => {
   return info
 })
 
-const jsonOutputFormat = combine(timestamp(), requestId(), json())
+const metadata = winston.format((info) => {
+  const additionalArgs = info[Symbol.for('splat')]
+  if (additionalArgs) {
+    if (additionalArgs.length === 1) {
+      info.metadata = additionalArgs[0]
+    } else {
+      info.metadata = additionalArgs
+    }
+  }
+  return info
+})
+
+const jsonOutputFormat = combine(timestamp(), requestId(), metadata(), json())
 const cliOutputFormat = combine(
   timestamp(),
   requestId(),
+  metadata(),
   printf((log) => {
     const requestId = log.requestId ? ` [requestId=${log.requestId}]` : ''
     const metadata = log.metadata
