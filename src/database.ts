@@ -17,9 +17,7 @@ export async function connect(config: DbConfig) {
   await client.connect()
   const database = client.db(name)
   logger.info(`Connected to database '${name}'`)
-  logger.debug(
-    `Database stats: ${JSON.stringify(await database.stats(), null, 2)}`,
-  )
+  logger.debug(`Database stats:`, { metadata: await database.stats() })
   return database
 }
 

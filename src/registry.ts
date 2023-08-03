@@ -37,26 +37,18 @@ export async function loadRegistry() {
     { id: 1 },
     { unique: true },
   )
-  logger.info(
-    `Index for registry document 'id' created: ${JSON.stringify(
-      createRegistryIdIndexResult,
-      null,
-      2,
-    )}`,
-  )
+  logger.info(`Index for registry document 'id' created:`, {
+    metadata: createRegistryIdIndexResult,
+  })
 
   try {
     const registryInsertionResult = await registryCollection.insertOne({
       id: 'registry-core-document',
       schemas: registry.schemas,
     })
-    logger.info(
-      `Registry has been stored: ${JSON.stringify(
-        registryInsertionResult,
-        null,
-        2,
-      )}`,
-    )
+    logger.info(`Registry has been stored`, {
+      metadata: registryInsertionResult,
+    })
   } catch (error) {
     if (
       error instanceof MongoServerError &&
@@ -73,25 +65,17 @@ export async function loadRegistry() {
     { id: 1 },
     { unique: true },
   )
-  logger.info(
-    `Index for subject document 'id' created: ${JSON.stringify(
-      createSubjectIdIndexResult,
-      null,
-      2,
-    )}`,
-  )
+  logger.info(`Index for subject document 'id' created`, {
+    metadata: createSubjectIdIndexResult,
+  })
 
   try {
     const subjectsInsertionResult = await subjectsCollection.insertMany(
       registry.entities,
     )
-    logger.info(
-      `Subjects has been stored: ${JSON.stringify(
-        subjectsInsertionResult,
-        null,
-        2,
-      )}`,
-    )
+    logger.info(`Subjects has been stored`, {
+      metadata: subjectsInsertionResult,
+    })
   } catch (error) {
     if (
       error instanceof MongoServerError &&

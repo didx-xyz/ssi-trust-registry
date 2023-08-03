@@ -23,13 +23,7 @@ export async function saveSubmission(submission: Submission) {
     ...submission,
   }
   const result = await submissionsCollection.insertOne(submissionData)
-  logger.info(
-    `Submission has been stored to database: ${JSON.stringify(
-      result,
-      null,
-      2,
-    )}`,
-  )
+  logger.info(`Submission has been stored to database`, { metadata: result })
   return result
 }
 

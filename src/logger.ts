@@ -17,7 +17,10 @@ const cliOutputFormat = combine(
   requestId(),
   printf((log) => {
     const requestId = log.requestId ? ` [requestId=${log.requestId}]` : ''
-    return `[${log.timestamp}] [${log.filename}] [${log.level}]${requestId}: ${log.message}`
+    const metadata = log.metadata
+      ? `\n${JSON.stringify(log.metadata, null, 2)}`
+      : ''
+    return `[${log.timestamp}] [${log.filename}] [${log.level}]${requestId}: ${log.message} ${metadata}`
   }),
   colorize({ all: true }),
 )
