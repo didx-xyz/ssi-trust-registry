@@ -1,30 +1,16 @@
-import fs from 'node:fs/promises'
-import { Db, MongoServerError } from 'mongodb'
+import { Collection, Db } from 'mongodb'
 import { createLogger } from '../logger'
+import { Entity } from './service'
 
 const logger = createLogger(__filename)
 
-const DUPLICATED_KEY_ERROR = 11000
-
 let _database: Db
+let _collection: Collection
 
-export function initEntities(database: Db) {
+export async function initEntities(database: Db) {
   _database = database
-}
-
-export async function getAllEntities() {
-  const subjectsCollection = _database.collection('subjects')
-  return subjectsCollection.find().toArray()
-}
-
-export async function loadEntities() {
-  const registryContent = await fs.readFile('./src/data/registry.json', {
-    encoding: 'utf8',
-  })
-  const registry = JSON.parse(registryContent)
-
-  const subjectsCollection = _database.collection('subjects')
-  const createSubjectIdIndexResult = await subjectsCollection.createIndex(
+  _collection = _database.collection('subjects')
+  const createSubjectIdIndexResult = await _collection.createIndex(
     { id: 1 },
     { unique: true },
   )
@@ -32,20 +18,30 @@ export async function loadEntities() {
     `Index for subject document 'id' created`,
     createSubjectIdIndexResult,
   )
+}
 
-  try {
-    const subjectsInsertionResult = await subjectsCollection.insertMany(
-      registry.entities,
-    )
-    logger.info(`Subjects has been stored`, subjectsInsertionResult)
-  } catch (error) {
-    if (
-      error instanceof MongoServerError &&
-      error.code === DUPLICATED_KEY_ERROR
-    ) {
-      logger.info(`Document with duplicated key has not been inserted`)
-    } else {
-      throw error
-    }
+export async function getAllEntities() {
+  return _collection.find().toArray()
+}
+
+export async function saveEntity(entity: Entity) {
+  const entityData = {
+    ...entity,
   }
+  return _collection.insertOne(entityData)
+}
+
+export async function updateEntity(entity: Entity) {
+  const entityData = {
+    ...entity,
+  }
+  const result = await _collection.updateOne(
+    { id: entity.id },
+    { $set: entityData },
+  )
+  return result
+}
+
+export async function findById(id: string) {
+  return _collection.findOne({ id })
 }

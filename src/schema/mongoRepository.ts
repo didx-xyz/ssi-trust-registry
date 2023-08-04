@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises'
-import { Db, MongoServerError } from 'mongodb'
+import { Collection, Db, MongoServerError } from 'mongodb'
 import { createLogger } from '../logger'
 
 const logger = createLogger(__filename)
@@ -7,14 +7,15 @@ const logger = createLogger(__filename)
 const DUPLICATED_KEY_ERROR = 11000
 
 let _database: Db
+let _collection: Collection
 
 export function initSchemas(database: Db) {
   _database = database
+  _collection = _database.collection('schemas')
 }
 
 export async function getAllSchemas() {
-  const registryCollection = _database.collection('schemas')
-  return registryCollection.find().toArray()
+  return _collection.find().toArray()
 }
 
 export async function loadSchemas() {
@@ -23,13 +24,12 @@ export async function loadSchemas() {
   })
   const registry = JSON.parse(registryContent)
 
-  const schemasCollection = _database.collection('schemas')
-  const createSchemaIdIndexResult = await schemasCollection.createIndex(
+  const createSchemaIdIndexResult = await _collection.createIndex(
     { id: 1 },
     { unique: true },
   )
   logger.info(
-    `Index for registry document 'id' created:`,
+    `Index for schema document 'id' created:`,
     createSchemaIdIndexResult,
   )
 
@@ -52,12 +52,11 @@ export async function loadSchemas() {
 }
 
 async function saveSchema(schema: string) {
-  const schemaCollection = _database.collection('schemas')
   const schemaData = {
     id: schema,
     schema,
   }
-  const result = await schemaCollection.insertOne(schemaData)
+  const result = await _collection.insertOne(schemaData)
   logger.info(`Schema has been stored to the database`, result)
   return result
 }

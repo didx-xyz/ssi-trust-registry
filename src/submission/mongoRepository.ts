@@ -1,40 +1,39 @@
 import { createLogger } from '../logger'
 import type { Submission } from './service'
-import { Db } from 'mongodb'
+import { Collection, Db } from 'mongodb'
 
 const logger = createLogger(__filename)
 
 let _database: Db
+let _collection: Collection
 
 export function initSubmissions(database: Db) {
   _database = database
+  _collection = _database.collection('submissions')
 }
 
 export async function getSubmissionByDid(did: string) {
   const query = { did }
-  const submissionsCollection = _database.collection('submissions')
-  const submission = await submissionsCollection.findOne(query)
+
+  const submission = await _collection.findOne(query)
   return submission
 }
 
 export async function saveSubmission(submission: Submission) {
-  const submissionsCollection = _database.collection('submissions')
   const submissionData = {
     ...submission,
   }
-  const result = await submissionsCollection.insertOne(submissionData)
+  const result = await _collection.insertOne(submissionData)
   logger.info(`Submission has been stored to the database`, result)
   return result
 }
 
 export function getAllSubmissions() {
-  const submissionsCollection = _database.collection('submissions')
-  return submissionsCollection.find().toArray()
+  return _collection.find().toArray()
 }
 
 export async function deleteAll() {
-  const submissionsCollection = _database.collection('submissions')
-  if ((await submissionsCollection.countDocuments()) > 0) {
-    return submissionsCollection.drop()
+  if ((await _collection.countDocuments()) > 0) {
+    return _collection.drop()
   }
 }

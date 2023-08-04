@@ -4,7 +4,8 @@ import { createLogger } from './logger'
 import { close, connect } from './database'
 import { initSubmissions } from './submission/mongoRepository'
 import { initSchemas, loadSchemas } from './schema/mongoRepository'
-import { initEntities, loadEntities } from './entity/mongoRepository'
+import { initEntities } from './entity/mongoRepository'
+import { loadEntities } from './entity/service'
 
 const logger = createLogger(__filename)
 
