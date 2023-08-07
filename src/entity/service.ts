@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
-import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import * as repository from './mongoRepository'
 import { createLogger } from '../logger'
 
@@ -22,7 +22,9 @@ export const EntityDto = z
     domain: z.string().openapi({
       example: 'www.absa.africa',
     }),
-    role: z.enum(['issuer', 'verifier']).openapi({ example: 'issuer' }),
+    role: z
+      .array(z.enum(['issuer', 'verifier']))
+      .openapi({ example: ['issuer', 'verifier'] }),
     credentials: z
       .array(z.string())
       .openapi({ example: ['2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1'] }),
@@ -41,21 +43,19 @@ export async function loadEntities() {
   const registry = JSON.parse(registryContent)
   const results = await Promise.allSettled(
     registry.entities.map(async (e: EntityDto) => {
-      logger.debug('Importing entity', e)
+      logger.info('Importing entity', e)
       if (await exists(e)) {
         logger.debug('Entity already exists, updating...')
-        await updateEntity(e)
+        return updateEntity(e)
       } else {
         logger.debug('Entity does not exist, creating...')
-        await addEntity(e)
+        return addEntity(e)
       }
     }),
   )
   results.forEach((r) => {
-    if (r.status === 'fulfilled') {
-      logger.info('Entity has been added', r.value)
-    } else {
-      logger.info('Adding entity failed with the following error', r.reason)
+    if (r.status !== 'fulfilled') {
+      logger.info('Entity import failed with the following error', r.reason)
     }
   })
 }
@@ -65,7 +65,7 @@ async function exists(entity: EntityDto) {
 }
 
 async function addEntity(payload: Record<string, unknown>): Promise<void> {
-  const entityDto = parseEntity(payload)
+  const entityDto = EntityDto.parse(payload)
   const entity = {
     ...entityDto,
     createdAt: new Date().toISOString(),
@@ -76,7 +76,7 @@ async function addEntity(payload: Record<string, unknown>): Promise<void> {
 }
 
 async function updateEntity(payload: Record<string, unknown>): Promise<void> {
-  const entityDto = parseEntity(payload)
+  const entityDto = EntityDto.parse(payload)
   const existingEntity = await repository.findById(entityDto.id)
   if (!existingEntity) {
     throw new Error('Trying to update an Entity that does not exists')
@@ -88,8 +88,4 @@ async function updateEntity(payload: Record<string, unknown>): Promise<void> {
   }
   const result = await repository.updateEntity(entity)
   logger.info('Entity has been updated', result)
-}
-
-function parseEntity(payload: Record<string, unknown>): EntityDto {
-  return EntityDto.parse(payload)
 }
