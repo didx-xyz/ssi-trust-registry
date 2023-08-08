@@ -12,14 +12,14 @@ export function initSubmissions(database: Db) {
   _collection = _database.collection('submissions')
 }
 
-export async function getSubmissionByDid(did: string) {
+export async function findSubmissionByDid(did: string) {
   const query = { did }
 
   const submission = await _collection.findOne(query)
   return submission
 }
 
-export async function saveSubmission(submission: Submission) {
+export async function addSubmission(submission: Submission) {
   const submissionData = {
     ...submission,
   }

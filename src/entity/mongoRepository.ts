@@ -24,7 +24,7 @@ export async function getAllEntities() {
   return _collection.find().toArray()
 }
 
-export async function saveEntity(entity: Entity) {
+export async function addEntity(entity: Entity) {
   const entityData = {
     ...entity,
   }

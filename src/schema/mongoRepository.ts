@@ -24,7 +24,7 @@ export async function getAllSchemas() {
   return _collection.find().toArray()
 }
 
-export async function saveSchema(schema: Schema) {
+export async function addSchema(schema: Schema) {
   const schemaData = {
     ...schema,
   }

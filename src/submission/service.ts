@@ -1,19 +1,15 @@
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  getSubmissionByDid,
-  saveSubmission,
-  getAllSubmissions as getAll,
-} from './mongoRepository'
+import * as repository from './mongoRepository'
 
 extendZodWithOpenApi(z)
 
 export async function addSubmission(
   payload: Record<string, unknown>,
 ): Promise<Submission> {
-  const submissionDto = parseSubmission(payload)
-  if (await getSubmissionByDid(submissionDto.did)) {
+  const submissionDto = SubmissionDto.parse(payload)
+  if (await repository.findSubmissionByDid(submissionDto.did)) {
     throw new Error('Submission with the same DID already exisits')
   }
   const submission = {
@@ -22,16 +18,15 @@ export async function addSubmission(
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
-  await saveSubmission(submission)
+  await repository.addSubmission(submission)
   return submission
 }
 
 export async function getAllSubmissions() {
-  return (await getAll()).map((d) => ({ ...d, _id: undefined }))
-}
-
-function parseSubmission(payload: Record<string, unknown>): SubmissionDto {
-  return SubmissionDto.parse(payload)
+  return (await repository.getAllSubmissions()).map((d) => ({
+    ...d,
+    _id: undefined,
+  }))
 }
 
 const SubmissionDto = z

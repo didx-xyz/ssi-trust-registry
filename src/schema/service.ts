@@ -59,7 +59,7 @@ async function addSchema(payload: Record<string, unknown>): Promise<void> {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
-  const result = await repository.saveSchema(schema)
+  const result = await repository.addSchema(schema)
   logger.info('Schema has been created', result)
 }
 

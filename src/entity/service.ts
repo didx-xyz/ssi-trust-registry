@@ -71,7 +71,7 @@ async function addEntity(payload: Record<string, unknown>): Promise<void> {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
-  const result = await repository.saveEntity(entity)
+  const result = await repository.addEntity(entity)
   logger.info('Entity has been created', result)
 }
 
