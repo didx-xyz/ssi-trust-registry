@@ -3,10 +3,10 @@ import { startServer } from './server'
 import { createLogger } from './logger'
 import { close, connect } from './database'
 import { initSubmissions } from './submission/mongoRepository'
-import { initSchemas } from './schema/mongoRepository'
-import { loadSchemas } from './schema/service'
-import { initEntities } from './entity/mongoRepository'
-import { loadEntities } from './entity/service'
+import { createSchemaService } from './schema/service'
+import { createEntityRepository } from './entity/mongoRepository'
+import { createEntityService } from './entity/service'
+import { createSchemaRepository } from './schema/mongoRepository'
 
 const logger = createLogger(__filename)
 
@@ -15,11 +15,21 @@ async function main() {
 
   const database = await connect(config.db)
   initSubmissions(database)
-  await initSchemas(database)
-  await initEntities(database)
-  await loadSchemas()
-  await loadEntities()
-  startServer(config.server)
+
+  const schemaRepository = await createSchemaRepository(database)
+  const schemaService = await createSchemaService(schemaRepository)
+  const entityRepository = await createEntityRepository(database)
+  const entityService = await createEntityService(entityRepository)
+
+  await schemaService.loadSchemas()
+  await entityService.loadEntities()
+
+  const context = {
+    entityService,
+    schemaService,
+  }
+
+  startServer(config.server, context)
   process.on('SIGINT', shutdownGracefully())
   process.on('SIGTERM', shutdownGracefully())
 }

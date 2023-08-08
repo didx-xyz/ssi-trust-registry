@@ -12,8 +12,8 @@ import {
 import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
 import { addSubmission, getAllSubmissions } from './submission/service'
-import { getAllEntities } from './entity/mongoRepository'
-import { getAllSchemas } from './schema/mongoRepository'
+import { EntityService } from './entity/service'
+import { SchemaService } from './schema/service'
 
 const logger = createLogger(__filename)
 
@@ -22,7 +22,15 @@ interface ServerConfig {
   url: string
 }
 
-export function startServer(config: ServerConfig): Promise<Server> {
+interface Context {
+  entityService: EntityService
+  schemaService: SchemaService
+}
+
+export function startServer(
+  config: ServerConfig,
+  context: Context,
+): Promise<Server> {
   return new Promise((resolve, reject) => {
     const { port, url } = config
     const app = express()
@@ -51,8 +59,8 @@ export function startServer(config: ServerConfig): Promise<Server> {
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
         const registry = {
-          entities: await getAllEntities(),
-          schemas: await getAllSchemas(),
+          entities: await context.entityService.getAllEntities(),
+          schemas: await context.schemaService.getAllSchemas(),
         }
         res.status(200).json(registry)
       }),

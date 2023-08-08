@@ -4,15 +4,23 @@ import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
 import { deleteAll, initSubmissions } from './submission/mongoRepository'
-import { initEntities } from './entity/mongoRepository'
-import { initSchemas } from './schema/mongoRepository'
+import { createSchemaRepository } from './schema/mongoRepository'
+import { createSchemaService } from './schema/service'
+import { createEntityRepository } from './entity/mongoRepository'
+import { createEntityService } from './entity/service'
 
 describe('api', () => {
   const { port, url } = config.server
   let server: Server
 
   beforeAll(async () => {
-    server = await startServer({ port, url })
+    const database = await connect(config.db)
+    const schemaRepository = await createSchemaRepository(database)
+    const schemaService = await createSchemaService(schemaRepository)
+    const entityRepository = await createEntityRepository(database)
+    const entityService = await createEntityService(entityRepository)
+    initSubmissions(database)
+    server = await startServer({ port, url }, { entityService, schemaService })
   })
 
   afterAll(async () => {
@@ -47,10 +55,6 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
-      const database = await connect(config.db)
-      initSubmissions(database)
-      initEntities(database)
-      initSchemas(database)
       await deleteAll()
     })
 

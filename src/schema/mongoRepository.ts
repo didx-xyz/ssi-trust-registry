@@ -1,16 +1,16 @@
+import partial from 'lodash.partial'
 import { Collection, Db } from 'mongodb'
 import { createLogger } from '../logger'
-import { Schema } from './service'
+import { Schema, SchemaRepository } from './service'
 
 const logger = createLogger(__filename)
 
-let _database: Db
-let _collection: Collection
+export async function createSchemaRepository(
+  database: Db,
+): Promise<SchemaRepository> {
+  const collection = database.collection('schemas')
 
-export async function initSchemas(database: Db) {
-  _database = database
-  _collection = _database.collection('schemas')
-  const createSchemaIdIndexResult = await _collection.createIndex(
+  const createSchemaIdIndexResult = await collection.createIndex(
     { id: 1 },
     { unique: true },
   )
@@ -18,30 +18,39 @@ export async function initSchemas(database: Db) {
     `Index for schema document 'id' created:`,
     createSchemaIdIndexResult,
   )
+
+  return {
+    getAllSchemas: partial(getAllSchemas, collection),
+    findBySchemaId: partial(findBySchemaId, collection),
+    addSchema: partial(addSchema, collection),
+    updateSchema: partial(updateSchema, collection),
+  }
 }
 
-export async function getAllSchemas() {
-  return _collection.find().toArray()
+export async function getAllSchemas(collection: Collection) {
+  return collection.find().toArray()
 }
 
-export async function addSchema(schema: Schema) {
+export async function findBySchemaId(collection: Collection, schemaId: string) {
+  const result = collection.findOne({ schemaId })
+  return result && Schema.parse(result)
+}
+
+export async function addSchema(collection: Collection, schema: Schema) {
   const schemaData = {
     ...schema,
   }
-  return _collection.insertOne(schemaData)
+  await collection.insertOne(schemaData)
+  return schema
 }
 
-export async function updateSchema(schema: Schema) {
+export async function updateSchema(collection: Collection, schema: Schema) {
   const schemaData = {
     ...schema,
   }
-  const result = await _collection.updateOne(
+  await collection.updateOne(
     { schemaId: schema.schemaId },
     { $set: schemaData },
   )
-  return result
-}
-
-export async function findBySchemaId(schemaId: string) {
-  return _collection.findOne({ schemaId })
+  return schema
 }

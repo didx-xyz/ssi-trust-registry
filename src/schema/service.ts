@@ -1,11 +1,30 @@
 import fs from 'node:fs/promises'
 import { z } from 'zod'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
+import partial from 'lodash.partial'
 import { createLogger } from '../logger'
-import * as repository from './mongoRepository'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
+
+export async function createSchemaService(repository: SchemaRepository) {
+  return {
+    loadSchemas: partial(loadSchemas, repository),
+    getAllSchemas: partial(getAllSchemas, repository),
+  }
+}
+
+export interface SchemaService {
+  loadSchemas: () => Promise<void>
+  getAllSchemas: () => Promise<any>
+}
+
+export interface SchemaRepository {
+  getAllSchemas: () => Promise<any>
+  findBySchemaId: (id: string) => Promise<Schema | null>
+  addSchema: (schema: Schema) => Promise<Schema>
+  updateSchema: (schema: Schema) => Promise<Schema>
+}
 
 export type Schema = z.infer<typeof Schema>
 export type SchemaDto = z.infer<typeof SchemaDto>
@@ -24,7 +43,11 @@ export const Schema = SchemaDto.extend({
   updatedAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
 }).openapi('SchemaResponse')
 
-export async function loadSchemas() {
+async function getAllSchemas(repository: SchemaRepository) {
+  return repository.getAllSchemas()
+}
+
+async function loadSchemas(repository: SchemaRepository) {
   const registryContent = await fs.readFile('./src/data/registry.json', {
     encoding: 'utf8',
   })
@@ -32,12 +55,12 @@ export async function loadSchemas() {
   const results = await Promise.allSettled(
     registry.schemas.map(async (s: SchemaDto) => {
       logger.info('Importing schema', s)
-      if (await exists(s)) {
+      if (await exists(repository, s)) {
         logger.debug('Schema already exists, updating...')
-        return updateSchema(s)
+        return updateSchema(repository, s)
       } else {
         logger.debug('Schema does not exist, creating...')
-        return addSchema(s)
+        return addSchema(repository, s)
       }
     }),
   )
@@ -48,11 +71,14 @@ export async function loadSchemas() {
   })
 }
 
-async function exists(schema: SchemaDto) {
+function exists(repository: SchemaRepository, schema: SchemaDto) {
   return repository.findBySchemaId(schema.schemaId)
 }
 
-async function addSchema(payload: Record<string, unknown>): Promise<void> {
+async function addSchema(
+  repository: SchemaRepository,
+  payload: Record<string, unknown>,
+): Promise<void> {
   const schemaDto = SchemaDto.parse(payload)
   const schema = {
     ...schemaDto,
@@ -63,7 +89,10 @@ async function addSchema(payload: Record<string, unknown>): Promise<void> {
   logger.info('Schema has been created', result)
 }
 
-async function updateSchema(payload: Record<string, unknown>): Promise<void> {
+async function updateSchema(
+  repository: SchemaRepository,
+  payload: Record<string, unknown>,
+): Promise<void> {
   const schemaDto = SchemaDto.parse(payload)
   const existingSchema = await repository.findBySchemaId(schemaDto.schemaId)
   if (!existingSchema) {
