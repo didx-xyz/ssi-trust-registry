@@ -1,39 +1,44 @@
-import { createLogger } from '../logger'
-import type { Submission } from './service'
+import partial from 'lodash.partial'
 import { Collection, Db } from 'mongodb'
+import { createLogger } from '../logger'
+import { Submission, SubmissionRepository } from './service'
 
 const logger = createLogger(__filename)
 
-let _database: Db
-let _collection: Collection
-
-export function initSubmissions(database: Db) {
-  _database = database
-  _collection = _database.collection('submissions')
+export async function createSubmissionsRepository(
+  database: Db,
+): Promise<SubmissionRepository> {
+  const collection = database.collection('submissions')
+  return {
+    getAllSubmissions: partial(getAllSubmissions, collection),
+    findSubmissionByDid: partial(findSubmissionByDid, collection),
+    addSubmission: partial(addSubmission, collection),
+    deleteAll: partial(deleteAll, collection),
+  }
 }
 
-export async function findSubmissionByDid(did: string) {
-  const query = { did }
-
-  const submission = await _collection.findOne(query)
-  return submission
+async function getAllSubmissions(collection: Collection) {
+  const result = await collection.find().toArray()
+  return result.map((s) => Submission.parse(s))
 }
 
-export async function addSubmission(submission: Submission) {
+async function findSubmissionByDid(collection: Collection, did: string) {
+  const submission = await collection.findOne({ did })
+  return submission && Submission.parse(submission)
+}
+
+async function addSubmission(collection: Collection, submission: Submission) {
   const submissionData = {
     ...submission,
   }
-  const result = await _collection.insertOne(submissionData)
-  logger.info(`Submission has been stored to the database`, result)
-  return result
+  const result = await collection.insertOne(submissionData)
+  logger.info(`Submission inserted to the database`, result)
+  return submission
 }
 
-export function getAllSubmissions() {
-  return _collection.find().toArray()
-}
-
-export async function deleteAll() {
-  if ((await _collection.countDocuments()) > 0) {
-    return _collection.drop()
+async function deleteAll(collection: Collection) {
+  if ((await collection.countDocuments()) > 0) {
+    return collection.drop()
   }
+  return false
 }

@@ -3,24 +3,35 @@ import { startServer } from './server'
 import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
-import { deleteAll, initSubmissions } from './submission/mongoRepository'
 import { createSchemaRepository } from './schema/mongoRepository'
 import { createSchemaService } from './schema/service'
 import { createEntityRepository } from './entity/mongoRepository'
 import { createEntityService } from './entity/service'
+import { createSubmissionsRepository } from './submission/mongoRepository'
+import {
+  SubmissionRepository,
+  createSubmissionService,
+} from './submission/service'
 
 describe('api', () => {
   const { port, url } = config.server
   let server: Server
+  let submissionRepository: SubmissionRepository
 
   beforeAll(async () => {
     const database = await connect(config.db)
+    submissionRepository = await createSubmissionsRepository(database)
+    const submissionService = await createSubmissionService(
+      submissionRepository,
+    )
     const schemaRepository = await createSchemaRepository(database)
     const schemaService = await createSchemaService(schemaRepository)
     const entityRepository = await createEntityRepository(database)
     const entityService = await createEntityService(entityRepository)
-    initSubmissions(database)
-    server = await startServer({ port, url }, { entityService, schemaService })
+    server = await startServer(
+      { port, url },
+      { entityService, schemaService, submissionService },
+    )
   })
 
   afterAll(async () => {
@@ -55,7 +66,7 @@ describe('api', () => {
     }
 
     beforeAll(async () => {
-      await deleteAll()
+      await submissionRepository.deleteAll()
     })
 
     afterAll(async () => {
@@ -65,7 +76,7 @@ describe('api', () => {
 
     beforeEach(async () => {
       // clear database
-      await deleteAll()
+      await submissionRepository.deleteAll()
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {

@@ -99,8 +99,8 @@ async function addEntity(
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
-  const result = await repository.addEntity(entity)
-  logger.info('Entity has been created', result)
+  await repository.addEntity(entity)
+  logger.info('Entity has been created', entity.id)
 }
 
 async function updateEntity(
