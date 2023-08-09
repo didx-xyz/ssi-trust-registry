@@ -77,6 +77,6 @@ async function addSubmission(
     updatedAt: new Date().toISOString(),
   }
   await repository.addSubmission(submission)
-  logger.info('Entity has been created', submission.id)
+  logger.info(`Submission ${submission.id} has been added`)
   return submission
 }

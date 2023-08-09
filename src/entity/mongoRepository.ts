@@ -28,7 +28,8 @@ export async function createEntityRepository(
 }
 
 async function getAllEntities(collection: Collection) {
-  return collection.find().toArray()
+  const result = await collection.find().toArray()
+  return result.map((s) => Entity.parse(s))
 }
 
 async function findById(collection: Collection, id: string) {

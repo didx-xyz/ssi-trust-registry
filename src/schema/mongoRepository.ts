@@ -28,7 +28,8 @@ export async function createSchemaRepository(
 }
 
 export async function getAllSchemas(collection: Collection) {
-  return collection.find().toArray()
+  const result = await collection.find().toArray()
+  return result.map((s) => Schema.parse(s))
 }
 
 export async function findBySchemaId(collection: Collection, schemaId: string) {

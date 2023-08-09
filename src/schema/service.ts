@@ -16,11 +16,11 @@ export async function createSchemaService(repository: SchemaRepository) {
 
 export interface SchemaService {
   loadSchemas: () => Promise<void>
-  getAllSchemas: () => Promise<any>
+  getAllSchemas: () => Promise<Schema[]>
 }
 
 export interface SchemaRepository {
-  getAllSchemas: () => Promise<any>
+  getAllSchemas: () => Promise<Schema[]>
   findBySchemaId: (id: string) => Promise<Schema | null>
   addSchema: (schema: Schema) => Promise<Schema>
   updateSchema: (schema: Schema) => Promise<Schema>
@@ -85,8 +85,8 @@ async function addSchema(
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
-  const result = await repository.addSchema(schema)
-  logger.info('Schema has been created', result)
+  await repository.addSchema(schema)
+  logger.info(`Schema ${schema.schemaId} has been added`)
 }
 
 async function updateSchema(
@@ -103,6 +103,6 @@ async function updateSchema(
     ...schemaDto,
     updatedAt: new Date().toISOString(),
   }
-  const result = await repository.updateSchema(schema)
-  logger.info('Schema has been updated', result)
+  await repository.updateSchema(schema)
+  logger.info(`Schema ${schema.schemaId} has been updated`)
 }

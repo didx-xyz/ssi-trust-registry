@@ -11,18 +11,18 @@ export async function createEntityService(
   repository: EntityRepository,
 ): Promise<EntityService> {
   return {
-    loadEntities: partial(loadEntities, repository),
     getAllEntities: partial(getAllEntities, repository),
+    loadEntities: partial(loadEntities, repository),
   }
 }
 
 export interface EntityService {
+  getAllEntities: () => Promise<Entity[]>
   loadEntities: () => Promise<void>
-  getAllEntities: () => Promise<any>
 }
 
 export interface EntityRepository {
-  getAllEntities: () => Promise<any>
+  getAllEntities: () => Promise<Entity[]>
   findById: (id: string) => Promise<Entity | null>
   addEntity: (entity: Entity) => Promise<Entity>
   updateEntity: (entity: Entity) => Promise<Entity>
@@ -100,7 +100,7 @@ async function addEntity(
     updatedAt: new Date().toISOString(),
   }
   await repository.addEntity(entity)
-  logger.info('Entity has been created', entity.id)
+  logger.info(`Entity ${entity.id} has been added`)
 }
 
 async function updateEntity(
@@ -117,6 +117,6 @@ async function updateEntity(
     ...entityDto,
     updatedAt: new Date().toISOString(),
   }
-  const result = await repository.updateEntity(entity)
-  logger.info('Entity has been updated', result)
+  await repository.updateEntity(entity)
+  logger.info(`Entity ${entity.id} has been updated`)
 }
