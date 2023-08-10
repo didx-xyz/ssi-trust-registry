@@ -6,11 +6,14 @@
       "did": "did:sov:2NPnMDv5Lh57gVZ3p3SYu3",
       "logo_url": "https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg",
       "domain": "www.absa.africa",
-      "registered_at": "2023-05-24T18:14:24",
-      "updated_at": "2023-05-24T18:14:24",
-      "role": "issuer",
-      "credentials": ["2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1"]
+      "role": ["issuer"],
+      "credentials": ["2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0"]
     }
   ],
-  "schemas": ["2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0"]
+  "schemas": [
+    {
+      "schemaId": "2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0",
+      "name": "Digital Identity"
+    }
+  ]
 }

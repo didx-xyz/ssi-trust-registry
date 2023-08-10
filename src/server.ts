@@ -11,8 +11,9 @@ import {
 } from './middleware'
 import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
-import { addSubmission, getAllSubmissions } from './submission/service'
-import { getRegistry } from './registry'
+import { EntityService } from './entity/service'
+import { SchemaService } from './schema/service'
+import { SubmissionService } from './submission/service'
 
 const logger = createLogger(__filename)
 
@@ -21,7 +22,16 @@ interface ServerConfig {
   url: string
 }
 
-export function startServer(config: ServerConfig): Promise<Server> {
+interface Context {
+  entityService: EntityService
+  schemaService: SchemaService
+  submissionService: SubmissionService
+}
+
+export function startServer(
+  config: ServerConfig,
+  context: Context,
+): Promise<Server> {
   return new Promise((resolve, reject) => {
     const { port, url } = config
     const app = express()
@@ -49,7 +59,10 @@ export function startServer(config: ServerConfig): Promise<Server> {
       '/registry',
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
-        const registry = await getRegistry()
+        const registry = {
+          entities: await context.entityService.getAllEntities(),
+          schemas: await context.schemaService.getAllSchemas(),
+        }
         res.status(200).json(registry)
       }),
     )
@@ -59,7 +72,7 @@ export function startServer(config: ServerConfig): Promise<Server> {
       disableInProduction,
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
-        const submissions = await getAllSubmissions()
+        const submissions = await context.submissionService.getAllSubmissions()
         res.status(200).json(submissions)
       }),
     )
@@ -70,7 +83,9 @@ export function startServer(config: ServerConfig): Promise<Server> {
       asyncHandler(async (req, res) => {
         const payload = req.body
         logger.info(`Processing submission:`, payload)
-        const submission = await addSubmission(payload)
+        const submission = await context.submissionService.addSubmission(
+          payload,
+        )
         res.status(201).json(submission)
       }),
     )

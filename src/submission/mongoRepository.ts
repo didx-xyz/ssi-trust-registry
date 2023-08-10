@@ -1,40 +1,44 @@
+import partial from 'lodash.partial'
+import { Collection, Db } from 'mongodb'
 import { createLogger } from '../logger'
-import type { Submission } from './service'
-import { Db } from 'mongodb'
+import { Submission, SubmissionRepository } from './service'
 
 const logger = createLogger(__filename)
 
-let _database: Db
-
-export function initSubmissions(database: Db) {
-  _database = database
+export async function createSubmissionsRepository(
+  database: Db,
+): Promise<SubmissionRepository> {
+  const collection = database.collection('submissions')
+  return {
+    getAllSubmissions: partial(getAllSubmissions, collection),
+    findSubmissionByDid: partial(findSubmissionByDid, collection),
+    addSubmission: partial(addSubmission, collection),
+    deleteAll: partial(deleteAll, collection),
+  }
 }
 
-export async function getSubmissionByDid(did: string) {
-  const query = { did }
-  const submissionsCollection = _database.collection('submissions')
-  const submission = await submissionsCollection.findOne(query)
-  return submission
+async function getAllSubmissions(collection: Collection) {
+  const result = await collection.find().toArray()
+  return result.map((s) => Submission.parse(s))
 }
 
-export async function saveSubmission(submission: Submission) {
-  const submissionsCollection = _database.collection('submissions')
+async function findSubmissionByDid(collection: Collection, did: string) {
+  const submission = await collection.findOne({ did })
+  return submission && Submission.parse(submission)
+}
+
+async function addSubmission(collection: Collection, submission: Submission) {
   const submissionData = {
     ...submission,
   }
-  const result = await submissionsCollection.insertOne(submissionData)
-  logger.info(`Submission has been stored to database`, result)
-  return result
+  const result = await collection.insertOne(submissionData)
+  logger.info(`Submission inserted to the database`, result)
+  return submission
 }
 
-export function getAllSubmissions() {
-  const submissionsCollection = _database.collection('submissions')
-  return submissionsCollection.find().toArray()
-}
-
-export async function deleteAll() {
-  const submissionsCollection = _database.collection('submissions')
-  if ((await submissionsCollection.countDocuments()) > 0) {
-    return submissionsCollection.drop()
+async function deleteAll(collection: Collection) {
+  if ((await collection.countDocuments()) > 0) {
+    return collection.drop()
   }
+  return false
 }

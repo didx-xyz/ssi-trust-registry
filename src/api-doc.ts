@@ -3,7 +3,13 @@ import {
   OpenApiGeneratorV3,
 } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
-import { RegistrySchema } from './registry'
+import { Entity } from './entity/service'
+import { Schema } from './schema/service'
+
+const RegistrySchema = z.object({
+  entities: z.array(Entity),
+  schemas: z.array(Schema),
+})
 
 export function generateSwaggerDocs() {
   const registry = new OpenAPIRegistry()
