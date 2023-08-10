@@ -3,49 +3,6 @@ replicaCount: 1
 image:
   tag: latest
 
-initContainers:
-  - name: nc-mongo
-    image: busybox
-    imagePullPolicy: Always
-    command:
-      - sh
-      - -c
-      - |
-        until nc -w 3 -z ${MONGO_HOST} ${MONGO_PORT}; do
-          echo "Waiting for mongo to start..."
-          sleep 3
-        done
-    env:
-      - name: MONGO_HOST
-        valueFrom:
-          secretKeyRef:
-            name: mongo-connect
-            key: dbHost
-      - name: MONGO_PORT
-        valueFrom:
-          secretKeyRef:
-            name: mongo-connect
-            key: dbPort
-  - name: download-certs
-    image: busybox
-    imagePullPolicy: Always
-    command:
-      - sh
-      - -c
-      - |
-        wget -O /certs/global-bundle.pem \
-          https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
-    volumeMounts:
-      - name: certs
-        mountPath: /certs
-extraVolumes:
-  - name: certs
-    emptyDir: {}
-extraVolumeMounts:
-  - name: certs
-    mountPath: /certs
-    readOnly: true
-
 extraEnvVars:
   dbConnectionString:
     valueFrom:
