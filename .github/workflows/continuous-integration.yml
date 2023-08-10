@@ -36,12 +36,32 @@ jobs:
       - run: yarn build
       - run: yarn test
 
-  build:
+  prod-build:
+    name: Production Build
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: production
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+
+  docker-build:
     name: Build and push
-    needs: test
+    needs: [test, prod-build]
     permissions:
       packages: write
     runs-on: ubuntu-latest
+
+    concurrency:
+      group: build-${{ github.ref }}
+      cancel-in-progress: true
 
     # Don't build dependabot, don't build PRs
     if: ${{ github.triggering_actor != 'dependabot[bot]' && github.event_name != 'pull_request' }}
