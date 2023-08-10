@@ -67,8 +67,8 @@ async function loadEntities(repository: EntityRepository) {
   })
   const registry = JSON.parse(registryContent)
   const results = await Promise.allSettled(
-    registry.entities.map(async (e: EntityDto) => {
-      logger.info('Importing entity', e)
+    registry.entities.map(async (e: EntityDto, i: number) => {
+      logger.info(`Importing entity at index ${i}`, e)
       if (await exists(repository, e)) {
         logger.debug('Entity already exists, updating...')
         return updateEntity(repository, e)
@@ -78,9 +78,12 @@ async function loadEntities(repository: EntityRepository) {
       }
     }),
   )
-  results.forEach((r) => {
+  results.forEach((r, i) => {
     if (r.status !== 'fulfilled') {
-      logger.info('Entity import failed with the following error', r.reason)
+      logger.error(
+        `Import of entity at index ${i} failed with the following error`,
+        r.reason,
+      )
     }
   })
 }

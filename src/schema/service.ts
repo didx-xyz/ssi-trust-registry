@@ -53,8 +53,8 @@ async function loadSchemas(repository: SchemaRepository) {
   })
   const registry = JSON.parse(registryContent)
   const results = await Promise.allSettled(
-    registry.schemas.map(async (s: SchemaDto) => {
-      logger.info('Importing schema', s)
+    registry.schemas.map(async (s: SchemaDto, i: number) => {
+      logger.info(`Importing schema at index ${i}`, s)
       if (await exists(repository, s)) {
         logger.debug('Schema already exists, updating...')
         return updateSchema(repository, s)
@@ -64,9 +64,12 @@ async function loadSchemas(repository: SchemaRepository) {
       }
     }),
   )
-  results.forEach((r) => {
+  results.forEach((r, i) => {
     if (r.status !== 'fulfilled') {
-      logger.info('Schema import failed with the following error', r.reason)
+      logger.error(
+        `Import of schema at index ${i} failed with the following error`,
+        r.reason,
+      )
     }
   })
 }

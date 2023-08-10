@@ -33,7 +33,7 @@ export async function getAllSchemas(collection: Collection) {
 }
 
 export async function findBySchemaId(collection: Collection, schemaId: string) {
-  const result = collection.findOne({ schemaId })
+  const result = await collection.findOne({ schemaId })
   return result && Schema.parse(result)
 }
 
