@@ -54,25 +54,25 @@ extraEnvVars: {}
   #         name: mongo-connect
   #         key: dbConnectionString
 
-initContainers: []
-  # - name: nc-mongo
-  #   image: busybox
-  #   imagePullPolicy: Always
-  #   command:
-  #     - sh
-  #     - -c
-  #     - |
-  #       until nc -w 3 -z {{ .Values.db.host }} {{ .Values.db.port }}; do
-  #         echo "Waiting for mongo to start..."
-  #         sleep 3
-  #       done
+initContainers:
+  - name: nc-mongo
+    image: busybox
+    imagePullPolicy: Always
+    command:
+      - sh
+      - -c
+      - |-
+        until nc -w 3 -z {{ .Values.db.host }} {{ .Values.db.port }}; do
+          echo "Waiting for mongo to start..."
+          sleep 3
+        done
   # - name: download-certs
   #   image: busybox
   #   imagePullPolicy: Always
   #   command:
   #     - sh
   #     - -c
-  #     - |
+  #     - |-
   #       wget -O /certs/global-bundle.pem \
   #         https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
   #   volumeMounts:

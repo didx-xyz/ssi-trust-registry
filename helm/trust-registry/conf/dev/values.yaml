@@ -10,6 +10,8 @@ extraEnvVars:
         name: mongo-connect
         key: dbConnectionString
 
+initContainers: []
+
 ingress:
   internal:
     enabled: true
