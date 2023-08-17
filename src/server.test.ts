@@ -3,38 +3,33 @@ import { startServer } from './server'
 import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
-import { createSchemaRepository } from './schema/mongoRepository'
-import { createSchemaService } from './schema/service'
-import { createEntityRepository } from './entity/mongoRepository'
-import { createEntityService } from './entity/service'
-import { createSubmissionsRepository } from './submission/mongoRepository'
-import {
-  SubmissionRepository,
-  createSubmissionService,
-} from './submission/service'
+import { SchemaRepository, SchemaService } from './schema/service'
+import { EntityService } from './entity/service'
+import { SubmissionRepository } from './submission/service'
+import { createAppContext } from './context'
+
+const { port, url } = config.server
 
 describe('api', () => {
-  const { port, url } = config.server
   let server: Server
   let submissionRepository: SubmissionRepository
+  let entityService: EntityService
+  let schemaRepository: SchemaRepository
+  let schemaService: SchemaService
 
   beforeAll(async () => {
     const database = await connect(config.db)
-    submissionRepository = await createSubmissionsRepository(database)
-    const submissionService = await createSubmissionService(
-      submissionRepository,
-    )
-    const schemaRepository = await createSchemaRepository(database)
-    const schemaService = await createSchemaService(schemaRepository)
-    const entityRepository = await createEntityRepository(database)
-    const entityService = await createEntityService(entityRepository)
-    server = await startServer(
-      { port, url },
-      { entityService, schemaService, submissionService },
-    )
+    const context = await createAppContext({ database })
+    submissionRepository = context.submissionRepository
+    schemaRepository = context.schemaRepository
+    schemaService = context.schemaService
+    server = await startServer({ port, url }, context)
   })
 
   afterAll(async () => {
+    await schemaRepository.deleteAll()
+    await submissionRepository.deleteAll()
+    await close()
     server.close()
   })
 
@@ -65,17 +60,7 @@ describe('api', () => {
       credentials: ['Enmy7mgJopSsELLXd9G91d:3:CL:24:default'],
     }
 
-    beforeAll(async () => {
-      await submissionRepository.deleteAll()
-    })
-
-    afterAll(async () => {
-      // restore prod database
-      await close()
-    })
-
     beforeEach(async () => {
-      // clear database
       await submissionRepository.deleteAll()
     })
 
@@ -173,12 +158,98 @@ describe('api', () => {
       ])
 
       // Registry should be still empty
-      const registryResult = await fetch(`http://localhost:${port}/registry`)
-      const registry = await registryResult.json()
+      const registry = await fetchRegistry()
       expect(registry).toEqual({ entities: [], schemas: [] })
     })
   })
+
+  describe('schemas', () => {
+    beforeEach(async () => {
+      await schemaRepository.deleteAll()
+    })
+
+    test('load schema to the registry', async () => {
+      const testSchemas = [
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Digital Identity',
+        },
+      ]
+      await schemaService.loadSchemas(testSchemas)
+
+      const registry = await fetchRegistry()
+      expect(registry.schemas).toEqual([
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Digital Identity',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('update schema with an existing ID', async () => {
+      const testSchemas = [
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Digital Identity',
+        },
+      ]
+      const updatedTestSchemaas = [
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Updated Digital Identity',
+        },
+      ]
+      await schemaService.loadSchemas(testSchemas)
+      await schemaService.loadSchemas(updatedTestSchemaas)
+
+      const registry = await fetchRegistry()
+      expect(registry.schemas).toEqual([
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Updated Digital Identity',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('load of invalid schema fails', async () => {
+      const testSchemas = [
+        {
+          name: 'Digital Identity',
+        },
+      ]
+
+      await expect(() =>
+        schemaService.loadSchemas(testSchemas),
+      ).rejects.toThrow(
+        JSON.stringify(
+          [
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['schemaId'],
+              message: 'Required',
+            },
+          ],
+          null,
+          2,
+        ),
+      )
+      const registry = await fetchRegistry()
+      expect(registry.schemas).toEqual([])
+    })
+  })
 })
+
+function fetchRegistry() {
+  return fetch(`http://localhost:${port}/registry`).then((response) =>
+    response.json(),
+  )
+}
 
 function post(endpoint: string, payload: Record<string, unknown>) {
   return fetch(endpoint, {
