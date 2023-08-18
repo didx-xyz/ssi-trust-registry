@@ -18,7 +18,7 @@ export async function createEntityService(
 
 export interface EntityService {
   getAllEntities: () => Promise<Entity[]>
-  loadEntities: () => Promise<void>
+  loadEntities: (schemas: Record<string, unknown>[]) => Promise<void>
 }
 
 export interface EntityRepository {
@@ -26,6 +26,7 @@ export interface EntityRepository {
   findById: (id: string) => Promise<Entity | null>
   addEntity: (entity: Entity) => Promise<Entity>
   updateEntity: (entity: Entity) => Promise<Entity>
+  deleteAll: () => Promise<boolean>
 }
 
 export type Entity = z.infer<typeof Entity>
@@ -61,22 +62,23 @@ async function getAllEntities(repository: EntityRepository) {
   return repository.getAllEntities()
 }
 
-async function loadEntities(repository: EntityRepository) {
-  const registryContent = await fs.readFile('./src/data/registry.json', {
-    encoding: 'utf8',
-  })
-  const registry = JSON.parse(registryContent)
+async function loadEntities(
+  repository: EntityRepository,
+  entities: Record<string, unknown>[],
+) {
   const results = await Promise.allSettled(
-    registry.entities.map(async (e: EntityDto, i: number) => {
-      logger.info(`Importing entity at index ${i}`, e)
-      if (await exists(repository, e)) {
-        logger.debug('Entity already exists, updating...')
-        return updateEntity(repository, e)
-      } else {
-        logger.debug('Entity does not exist, creating...')
-        return addEntity(repository, e)
-      }
-    }),
+    entities
+      .map((e) => EntityDto.parse(e))
+      .map(async (e: EntityDto, i: number) => {
+        logger.info(`Importing entity at index ${i}`, e)
+        if (await exists(repository, e)) {
+          logger.debug('Entity already exists, updating...')
+          return updateEntity(repository, e)
+        } else {
+          logger.debug('Entity does not exist, creating...')
+          return addEntity(repository, e)
+        }
+      }),
   )
   results.forEach((r, i) => {
     if (r.status !== 'fulfilled') {
@@ -94,9 +96,8 @@ async function exists(repository: EntityRepository, entity: EntityDto) {
 
 async function addEntity(
   repository: EntityRepository,
-  payload: Record<string, unknown>,
+  entityDto: EntityDto,
 ): Promise<void> {
-  const entityDto = EntityDto.parse(payload)
   const entity = {
     ...entityDto,
     createdAt: new Date().toISOString(),
@@ -108,9 +109,8 @@ async function addEntity(
 
 async function updateEntity(
   repository: EntityRepository,
-  payload: Record<string, unknown>,
+  entityDto: EntityDto,
 ): Promise<void> {
-  const entityDto = EntityDto.parse(payload)
   const existingEntity = await repository.findById(entityDto.id)
   if (!existingEntity) {
     throw new Error('Trying to update an Entity that does not exists')

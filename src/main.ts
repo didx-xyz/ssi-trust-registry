@@ -18,7 +18,7 @@ async function main() {
   })
   const registry = JSON.parse(registryContent)
   await context.schemaService.loadSchemas(registry.schemas)
-  await context.entityService.loadEntities()
+  await context.entityService.loadEntities(registry.entities)
 
   startServer(config.server, context)
   process.on('SIGINT', shutdownGracefully())

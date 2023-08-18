@@ -24,6 +24,7 @@ export async function createEntityRepository(
     findById: partial(findById, collection),
     addEntity: partial(addEntity, collection),
     updateEntity: partial(updateEntity, collection),
+    deleteAll: partial(deleteAll, collection),
   }
 }
 
@@ -51,4 +52,11 @@ async function updateEntity(collection: Collection, entity: Entity) {
   }
   await collection.updateOne({ id: entity.id }, { $set: entityData })
   return entity
+}
+
+async function deleteAll(collection: Collection) {
+  if ((await collection.countDocuments()) > 0) {
+    return collection.drop()
+  }
+  return false
 }

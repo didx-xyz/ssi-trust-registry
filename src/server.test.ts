@@ -4,7 +4,7 @@ import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
 import { SchemaRepository, SchemaService } from './schema/service'
-import { EntityService } from './entity/service'
+import { EntityRepository, EntityService } from './entity/service'
 import { SubmissionRepository } from './submission/service'
 import { createAppContext } from './context'
 
@@ -13,6 +13,7 @@ const { port, url } = config.server
 describe('api', () => {
   let server: Server
   let submissionRepository: SubmissionRepository
+  let entityRepository: EntityRepository
   let entityService: EntityService
   let schemaRepository: SchemaRepository
   let schemaService: SchemaService
@@ -22,11 +23,14 @@ describe('api', () => {
     const context = await createAppContext({ database })
     submissionRepository = context.submissionRepository
     schemaRepository = context.schemaRepository
+    entityRepository = context.entityRepository
+    entityService = context.entityService
     schemaService = context.schemaService
     server = await startServer({ port, url }, context)
   })
 
   afterAll(async () => {
+    await entityRepository.deleteAll()
     await schemaRepository.deleteAll()
     await submissionRepository.deleteAll()
     await close()
@@ -195,14 +199,14 @@ describe('api', () => {
           name: 'Digital Identity',
         },
       ]
-      const updatedTestSchemaas = [
+      const updatedTestSchemas = [
         {
           schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
           name: 'Updated Digital Identity',
         },
       ]
       await schemaService.loadSchemas(testSchemas)
-      await schemaService.loadSchemas(updatedTestSchemaas)
+      await schemaService.loadSchemas(updatedTestSchemas)
 
       const registry = await fetchRegistry()
       expect(registry.schemas).toEqual([
@@ -218,8 +222,10 @@ describe('api', () => {
     test('load of invalid schema fails', async () => {
       const testSchemas = [
         {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
           name: 'Digital Identity',
         },
+        {},
       ]
 
       await expect(() =>
@@ -234,6 +240,13 @@ describe('api', () => {
               path: ['schemaId'],
               message: 'Required',
             },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['name'],
+              message: 'Required',
+            },
           ],
           null,
           2,
@@ -241,6 +254,125 @@ describe('api', () => {
       )
       const registry = await fetchRegistry()
       expect(registry.schemas).toEqual([])
+    })
+  })
+
+  describe('entities', () => {
+    const absaEntity = {
+      id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
+      name: 'Absa',
+      did: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3',
+      logo_url:
+        'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
+      domain: 'www.absa.africa',
+      role: ['issuer', 'verifier'],
+      credentials: ['2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0'],
+    }
+
+    beforeEach(async () => {
+      await entityRepository.deleteAll()
+    })
+
+    test('load entity to the registry', async () => {
+      const testEntities = [absaEntity]
+      await entityService.loadEntities(testEntities)
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([
+        {
+          ...absaEntity,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('update entity with an existing ID', async () => {
+      const testEntities = [absaEntity]
+      const updatedTestEntities = [
+        {
+          ...absaEntity,
+          name: 'Updated Absa',
+        },
+      ]
+      await entityService.loadEntities(testEntities)
+      await entityService.loadEntities(updatedTestEntities)
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([
+        {
+          ...absaEntity,
+          name: 'Updated Absa',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('load of invalid entity fails and no entity is stored', async () => {
+      const testEntities = [absaEntity, {}]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow(
+        JSON.stringify(
+          [
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['id'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['name'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['did'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['logo_url'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['domain'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'array',
+              received: 'undefined',
+              path: ['role'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'array',
+              received: 'undefined',
+              path: ['credentials'],
+              message: 'Required',
+            },
+          ],
+          null,
+          2,
+        ),
+      )
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([])
     })
   })
 })
