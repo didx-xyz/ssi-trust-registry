@@ -36,7 +36,12 @@ export const EntityDto = z
   .object({
     id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
     name: z.string().openapi({ example: 'Absa' }),
-    did: z.string().openapi({ example: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3' }),
+    dids: z.array(z.string()).openapi({
+      example: [
+        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
+      ],
+    }),
     logo_url: z.string().openapi({
       example:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
@@ -64,24 +69,33 @@ async function getAllEntities(repository: EntityRepository) {
 
 async function loadEntities(
   repository: EntityRepository,
-  entities: Record<string, unknown>[],
+  entityPayloads: Record<string, unknown>[],
 ) {
+  const entityDtos = entityPayloads.map((e) => {
+    const entityDto = EntityDto.parse(e)
+    const invalidDid = entityDto.dids.find((did) => !did.startsWith('did:'))
+    if (invalidDid) {
+      throw new Error(`DID ${invalidDid} is not fully quilifed`)
+    }
+    return entityDto
+  })
+
   const results = await Promise.allSettled(
-    entities
-      .map((e) => EntityDto.parse(e))
-      .map(async (e: EntityDto, i: number) => {
-        logger.info(`Importing entity at index ${i}`, e)
-        if (await exists(repository, e)) {
-          logger.debug('Entity already exists, updating...')
-          return updateEntity(repository, e)
-        } else {
-          logger.debug('Entity does not exist, creating...')
-          return addEntity(repository, e)
-        }
-      }),
+    entityDtos.map(async (e: EntityDto, i: number) => {
+      logger.info(`Importing entity at index ${i}`, e)
+      if (await exists(repository, e)) {
+        logger.debug('Entity already exists, updating...')
+        return updateEntity(repository, e)
+      } else {
+        logger.debug('Entity does not exist, creating...')
+        return addEntity(repository, e)
+      }
+    }),
   )
   results.forEach((r, i) => {
     if (r.status !== 'fulfilled') {
+      console.log(r.reason)
+      console.log(typeof r.reason)
       logger.error(
         `Import of entity at index ${i} failed with the following error`,
         r.reason,

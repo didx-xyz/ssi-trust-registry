@@ -259,14 +259,17 @@ describe('api', () => {
 
   describe('entities', () => {
     const absaEntity = {
-      id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
+      id: 'bb7e7d3d-bf7c-4e08-8d9f-84057cc838bb',
       name: 'Absa',
-      did: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3',
+      dids: [
+        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
+      ],
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
       role: ['issuer', 'verifier'],
-      credentials: ['2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0'],
+      credentials: ['C279iyCR8wtKiPC8o9iPmb:2:e-KYC:8.0.0'],
     }
 
     beforeEach(async () => {
@@ -333,9 +336,9 @@ describe('api', () => {
             },
             {
               code: 'invalid_type',
-              expected: 'string',
+              expected: 'array',
               received: 'undefined',
-              path: ['did'],
+              path: ['dids'],
               message: 'Required',
             },
             {
@@ -371,6 +374,17 @@ describe('api', () => {
           2,
         ),
       )
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([])
+    })
+
+    test('unqualified did throws and error', async () => {
+      const testEntities = [{ ...absaEntity, dids: ['C279iyCR8wtKiPC8o9iPmb'] }]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow('DID C279iyCR8wtKiPC8o9iPmb is not fully quilifed')
+
       const registry = await fetchRegistry()
       expect(registry.entities).toEqual([])
     })
