@@ -259,7 +259,7 @@ describe('api', () => {
 
   describe('entities', () => {
     const absaEntity = {
-      id: 'bb7e7d3d-bf7c-4e08-8d9f-84057cc838bb',
+      id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
       name: 'Absa',
       dids: [
         'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
@@ -387,6 +387,29 @@ describe('api', () => {
 
       const registry = await fetchRegistry()
       expect(registry.entities).toEqual([])
+    })
+
+    test('each did must be unique', async () => {
+      await entityService.loadEntities([absaEntity])
+
+      const testEntities = [
+        { ...absaEntity, id: 'bb7e7d3d-bf7c-4e08-8d9f-84057cc838bb' },
+      ]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow(
+        'DID did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3 already exists',
+      )
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([
+        {
+          ...absaEntity,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
     })
   })
 })

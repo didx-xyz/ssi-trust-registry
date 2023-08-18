@@ -3,7 +3,10 @@
     {
       "id": "8fa665b6-7fc5-4b0b-baee-6221b1844ec8",
       "name": "Absa",
-      "did": "did:sov:2NPnMDv5Lh57gVZ3p3SYu3",
+      "dids": [
+        "did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3",
+        "did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb"
+      ],
       "logo_url": "https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg",
       "domain": "www.absa.africa",
       "role": ["issuer"],

@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises'
 import { z } from 'zod'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import partial from 'lodash.partial'
@@ -24,6 +23,7 @@ export interface EntityService {
 export interface EntityRepository {
   getAllEntities: () => Promise<Entity[]>
   findById: (id: string) => Promise<Entity | null>
+  findByDid: (did: string) => Promise<Entity | null>
   addEntity: (entity: Entity) => Promise<Entity>
   updateEntity: (entity: Entity) => Promise<Entity>
   deleteAll: () => Promise<boolean>
@@ -80,28 +80,22 @@ async function loadEntities(
     return entityDto
   })
 
-  const results = await Promise.allSettled(
-    entityDtos.map(async (e: EntityDto, i: number) => {
-      logger.info(`Importing entity at index ${i}`, e)
-      if (await exists(repository, e)) {
-        logger.debug('Entity already exists, updating...')
-        return updateEntity(repository, e)
-      } else {
-        logger.debug('Entity does not exist, creating...')
-        return addEntity(repository, e)
+  for (const e of entityDtos) {
+    logger.info(`Importing entity ${e.id}`, e)
+    if (await exists(repository, e)) {
+      logger.debug('Entity already exists, updating...')
+      return updateEntity(repository, e)
+    } else {
+      for (const did of e.dids) {
+        const didExists = await repository.findByDid(did)
+        if (didExists) {
+          throw new Error(`DID ${did} already exists`)
+        }
       }
-    }),
-  )
-  results.forEach((r, i) => {
-    if (r.status !== 'fulfilled') {
-      console.log(r.reason)
-      console.log(typeof r.reason)
-      logger.error(
-        `Import of entity at index ${i} failed with the following error`,
-        r.reason,
-      )
+      logger.debug('Entity does not exist, creating...')
+      return addEntity(repository, e)
     }
-  })
+  }
 }
 
 async function exists(repository: EntityRepository, entity: EntityDto) {

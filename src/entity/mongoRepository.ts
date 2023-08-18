@@ -22,6 +22,7 @@ export async function createEntityRepository(
   return {
     getAllEntities: partial(getAllEntities, collection),
     findById: partial(findById, collection),
+    findByDid: partial(findByDid, collection),
     addEntity: partial(addEntity, collection),
     updateEntity: partial(updateEntity, collection),
     deleteAll: partial(deleteAll, collection),
@@ -35,6 +36,11 @@ async function getAllEntities(collection: Collection) {
 
 async function findById(collection: Collection, id: string) {
   const result = await collection.findOne({ id })
+  return result && Entity.parse(result)
+}
+
+async function findByDid(collection: Collection, did: string) {
+  const result = await collection.findOne({ dids: did })
   return result && Entity.parse(result)
 }
 
