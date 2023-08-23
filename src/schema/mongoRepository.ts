@@ -24,7 +24,6 @@ export async function createSchemaRepository(
     findBySchemaId: partial(findBySchemaId, collection),
     addSchema: partial(addSchema, collection),
     updateSchema: partial(updateSchema, collection),
-    deleteAll: partial(deleteAll, collection),
   }
 }
 
@@ -55,11 +54,4 @@ export async function updateSchema(collection: Collection, schema: Schema) {
     { $set: schemaData },
   )
   return schema
-}
-
-async function deleteAll(collection: Collection) {
-  if ((await collection.countDocuments()) > 0) {
-    return collection.drop()
-  }
-  return false
 }

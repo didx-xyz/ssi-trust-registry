@@ -13,7 +13,6 @@ export async function createSubmissionsRepository(
     getAllSubmissions: partial(getAllSubmissions, collection),
     findSubmissionByDid: partial(findSubmissionByDid, collection),
     addSubmission: partial(addSubmission, collection),
-    deleteAll: partial(deleteAll, collection),
   }
 }
 
@@ -34,11 +33,4 @@ async function addSubmission(collection: Collection, submission: Submission) {
   const result = await collection.insertOne(submissionData)
   logger.info(`Submission inserted to the database`, result)
   return submission
-}
-
-async function deleteAll(collection: Collection) {
-  if ((await collection.countDocuments()) > 0) {
-    return collection.drop()
-  }
-  return false
 }

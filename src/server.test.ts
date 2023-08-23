@@ -3,36 +3,29 @@ import { startServer } from './server'
 import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
-import { SchemaRepository, SchemaService } from './schema/service'
-import { EntityRepository, EntityService } from './entity/service'
-import { SubmissionRepository } from './submission/service'
+import { SchemaService } from './schema/service'
+import { EntityService } from './entity/service'
 import { createAppContext } from './context'
+import { Db } from 'mongodb'
 
 const { port, url } = config.server
 
 describe('api', () => {
   let server: Server
-  let submissionRepository: SubmissionRepository
-  let entityRepository: EntityRepository
+  let database: Db
   let entityService: EntityService
-  let schemaRepository: SchemaRepository
   let schemaService: SchemaService
 
   beforeAll(async () => {
-    const database = await connect(config.db)
+    database = await connect(config.db)
     const context = await createAppContext({ database })
-    submissionRepository = context.submissionRepository
-    schemaRepository = context.schemaRepository
-    entityRepository = context.entityRepository
     entityService = context.entityService
     schemaService = context.schemaService
     server = await startServer({ port, url }, context)
   })
 
   afterAll(async () => {
-    await entityRepository.deleteAll()
-    await schemaRepository.deleteAll()
-    await submissionRepository.deleteAll()
+    await database.dropDatabase()
     await close()
     server.close()
   })
@@ -65,7 +58,7 @@ describe('api', () => {
     }
 
     beforeEach(async () => {
-      await submissionRepository.deleteAll()
+      await database.dropDatabase()
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
@@ -169,7 +162,7 @@ describe('api', () => {
 
   describe('schemas', () => {
     beforeEach(async () => {
-      await schemaRepository.deleteAll()
+      await database.dropDatabase()
     })
 
     test('load schema to the registry', async () => {
@@ -273,7 +266,7 @@ describe('api', () => {
     }
 
     beforeEach(async () => {
-      await entityRepository.deleteAll()
+      await database.dropDatabase()
     })
 
     test('load entity to the registry', async () => {

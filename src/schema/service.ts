@@ -23,7 +23,6 @@ export interface SchemaRepository {
   findBySchemaId: (id: string) => Promise<Schema | null>
   addSchema: (schema: Schema) => Promise<Schema>
   updateSchema: (schema: Schema) => Promise<Schema>
-  deleteAll: () => Promise<boolean>
 }
 
 export type Schema = z.infer<typeof Schema>

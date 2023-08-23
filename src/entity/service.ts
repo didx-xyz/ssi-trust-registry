@@ -26,7 +26,6 @@ export interface EntityRepository {
   findByDid: (did: string) => Promise<Entity | null>
   addEntity: (entity: Entity) => Promise<Entity>
   updateEntity: (entity: Entity) => Promise<Entity>
-  deleteAll: () => Promise<boolean>
 }
 
 export type Entity = z.infer<typeof Entity>
