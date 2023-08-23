@@ -4,6 +4,7 @@ import { startServer } from './server'
 import { createLogger } from './logger'
 import { close, connect } from './database'
 import { createAppContext } from './context'
+import { initAgent } from './did-resolver/agent'
 
 const logger = createLogger(__filename)
 
@@ -11,6 +12,9 @@ async function main() {
   logger.info(`Starting app with the following config`, hideSecrets(config))
 
   const database = await connect(config.db)
+
+  await initAgent()
+
   const context = await createAppContext({ database })
 
   const registryContent = await fs.readFile('./src/data/registry.json', {
