@@ -25,7 +25,6 @@ export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (submission: Submission) => Promise<Submission>
   findSubmissionByDid: (did: string) => Promise<Submission | null>
-  deleteAll: () => Promise<boolean>
 }
 
 export const SubmissionDto = z

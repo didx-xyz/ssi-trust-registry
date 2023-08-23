@@ -1,13 +1,9 @@
+import fs from 'node:fs/promises'
 import { config, hideSecrets } from './config'
 import { startServer } from './server'
 import { createLogger } from './logger'
 import { close, connect } from './database'
-import { createSchemaService } from './schema/service'
-import { createEntityRepository } from './entity/mongoRepository'
-import { createEntityService } from './entity/service'
-import { createSchemaRepository } from './schema/mongoRepository'
-import { createSubmissionService } from './submission/service'
-import { createSubmissionsRepository } from './submission/mongoRepository'
+import { createAppContext } from './context'
 
 const logger = createLogger(__filename)
 
@@ -15,22 +11,14 @@ async function main() {
   logger.info(`Starting app with the following config`, hideSecrets(config))
 
   const database = await connect(config.db)
+  const context = await createAppContext({ database })
 
-  const submissionRepository = await createSubmissionsRepository(database)
-  const submissionService = await createSubmissionService(submissionRepository)
-  const schemaRepository = await createSchemaRepository(database)
-  const schemaService = await createSchemaService(schemaRepository)
-  const entityRepository = await createEntityRepository(database)
-  const entityService = await createEntityService(entityRepository)
-
-  await schemaService.loadSchemas()
-  await entityService.loadEntities()
-
-  const context = {
-    submissionService,
-    entityService,
-    schemaService,
-  }
+  const registryContent = await fs.readFile('./src/data/registry.json', {
+    encoding: 'utf8',
+  })
+  const registry = JSON.parse(registryContent)
+  await context.schemaService.loadSchemas(registry.schemas)
+  await context.entityService.loadEntities(registry.entities)
 
   startServer(config.server, context)
   process.on('SIGINT', shutdownGracefully())

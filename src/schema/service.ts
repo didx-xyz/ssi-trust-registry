@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises'
 import { z } from 'zod'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import partial from 'lodash.partial'
@@ -15,7 +14,7 @@ export async function createSchemaService(repository: SchemaRepository) {
 }
 
 export interface SchemaService {
-  loadSchemas: () => Promise<void>
+  loadSchemas: (schemas: Record<string, unknown>[]) => Promise<void>
   getAllSchemas: () => Promise<Schema[]>
 }
 
@@ -47,22 +46,23 @@ async function getAllSchemas(repository: SchemaRepository) {
   return repository.getAllSchemas()
 }
 
-async function loadSchemas(repository: SchemaRepository) {
-  const registryContent = await fs.readFile('./src/data/registry.json', {
-    encoding: 'utf8',
-  })
-  const registry = JSON.parse(registryContent)
+async function loadSchemas(
+  repository: SchemaRepository,
+  schemas: Record<string, unknown>[],
+) {
   const results = await Promise.allSettled(
-    registry.schemas.map(async (s: SchemaDto, i: number) => {
-      logger.info(`Importing schema at index ${i}`, s)
-      if (await exists(repository, s)) {
-        logger.debug('Schema already exists, updating...')
-        return updateSchema(repository, s)
-      } else {
-        logger.debug('Schema does not exist, creating...')
-        return addSchema(repository, s)
-      }
-    }),
+    schemas
+      .map((s) => SchemaDto.parse(s))
+      .map(async (s: SchemaDto, i: number) => {
+        logger.info(`Importing schema at index ${i}`, s)
+        if (await exists(repository, s)) {
+          logger.debug('Schema already exists, updating...')
+          return updateSchema(repository, s)
+        } else {
+          logger.debug('Schema does not exist, creating...')
+          return addSchema(repository, s)
+        }
+      }),
   )
   results.forEach((r, i) => {
     if (r.status !== 'fulfilled') {
@@ -80,9 +80,8 @@ function exists(repository: SchemaRepository, schema: SchemaDto) {
 
 async function addSchema(
   repository: SchemaRepository,
-  payload: Record<string, unknown>,
+  schemaDto: SchemaDto,
 ): Promise<void> {
-  const schemaDto = SchemaDto.parse(payload)
   const schema = {
     ...schemaDto,
     createdAt: new Date().toISOString(),
@@ -94,9 +93,8 @@ async function addSchema(
 
 async function updateSchema(
   repository: SchemaRepository,
-  payload: Record<string, unknown>,
+  schemaDto: SchemaDto,
 ): Promise<void> {
-  const schemaDto = SchemaDto.parse(payload)
   const existingSchema = await repository.findBySchemaId(schemaDto.schemaId)
   if (!existingSchema) {
     throw new Error('Trying to update an Schema that does not exists')

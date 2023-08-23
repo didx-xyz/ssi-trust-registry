@@ -3,38 +3,30 @@ import { startServer } from './server'
 import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
-import { createSchemaRepository } from './schema/mongoRepository'
-import { createSchemaService } from './schema/service'
-import { createEntityRepository } from './entity/mongoRepository'
-import { createEntityService } from './entity/service'
-import { createSubmissionsRepository } from './submission/mongoRepository'
-import {
-  SubmissionRepository,
-  createSubmissionService,
-} from './submission/service'
+import { SchemaService } from './schema/service'
+import { EntityService } from './entity/service'
+import { createAppContext } from './context'
+import { Db } from 'mongodb'
+
+const { port, url } = config.server
 
 describe('api', () => {
-  const { port, url } = config.server
   let server: Server
-  let submissionRepository: SubmissionRepository
+  let database: Db
+  let entityService: EntityService
+  let schemaService: SchemaService
 
   beforeAll(async () => {
-    const database = await connect(config.db)
-    submissionRepository = await createSubmissionsRepository(database)
-    const submissionService = await createSubmissionService(
-      submissionRepository,
-    )
-    const schemaRepository = await createSchemaRepository(database)
-    const schemaService = await createSchemaService(schemaRepository)
-    const entityRepository = await createEntityRepository(database)
-    const entityService = await createEntityService(entityRepository)
-    server = await startServer(
-      { port, url },
-      { entityService, schemaService, submissionService },
-    )
+    database = await connect(config.db)
+    const context = await createAppContext({ database })
+    entityService = context.entityService
+    schemaService = context.schemaService
+    server = await startServer({ port, url }, context)
   })
 
   afterAll(async () => {
+    await database.dropDatabase()
+    await close()
     server.close()
   })
 
@@ -65,18 +57,8 @@ describe('api', () => {
       credentials: ['Enmy7mgJopSsELLXd9G91d:3:CL:24:default'],
     }
 
-    beforeAll(async () => {
-      await submissionRepository.deleteAll()
-    })
-
-    afterAll(async () => {
-      // restore prod database
-      await close()
-    })
-
     beforeEach(async () => {
-      // clear database
-      await submissionRepository.deleteAll()
+      await database.dropDatabase()
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
@@ -173,12 +155,263 @@ describe('api', () => {
       ])
 
       // Registry should be still empty
-      const registryResult = await fetch(`http://localhost:${port}/registry`)
-      const registry = await registryResult.json()
+      const registry = await fetchRegistry()
       expect(registry).toEqual({ entities: [], schemas: [] })
     })
   })
+
+  describe('schemas', () => {
+    beforeEach(async () => {
+      await database.dropDatabase()
+    })
+
+    test('load schema to the registry', async () => {
+      const testSchemas = [
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Digital Identity',
+        },
+      ]
+      await schemaService.loadSchemas(testSchemas)
+
+      const registry = await fetchRegistry()
+      expect(registry.schemas).toEqual([
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Digital Identity',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('update schema with an existing ID', async () => {
+      const testSchemas = [
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Digital Identity',
+        },
+      ]
+      const updatedTestSchemas = [
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Updated Digital Identity',
+        },
+      ]
+      await schemaService.loadSchemas(testSchemas)
+      await schemaService.loadSchemas(updatedTestSchemas)
+
+      const registry = await fetchRegistry()
+      expect(registry.schemas).toEqual([
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Updated Digital Identity',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('load of invalid schema fails', async () => {
+      const testSchemas = [
+        {
+          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          name: 'Digital Identity',
+        },
+        {},
+      ]
+
+      await expect(() =>
+        schemaService.loadSchemas(testSchemas),
+      ).rejects.toThrow(
+        JSON.stringify(
+          [
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['schemaId'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['name'],
+              message: 'Required',
+            },
+          ],
+          null,
+          2,
+        ),
+      )
+      const registry = await fetchRegistry()
+      expect(registry.schemas).toEqual([])
+    })
+  })
+
+  describe('entities', () => {
+    const absaEntity = {
+      id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
+      name: 'Absa',
+      dids: [
+        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
+      ],
+      logo_url:
+        'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
+      domain: 'www.absa.africa',
+      role: ['issuer', 'verifier'],
+      credentials: ['C279iyCR8wtKiPC8o9iPmb:2:e-KYC:8.0.0'],
+    }
+
+    beforeEach(async () => {
+      await database.dropDatabase()
+    })
+
+    test('load entity to the registry', async () => {
+      const testEntities = [absaEntity]
+      await entityService.loadEntities(testEntities)
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([
+        {
+          ...absaEntity,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('update entity with an existing ID', async () => {
+      const testEntities = [absaEntity]
+      const updatedTestEntities = [
+        {
+          ...absaEntity,
+          name: 'Updated Absa',
+        },
+      ]
+      await entityService.loadEntities(testEntities)
+      await entityService.loadEntities(updatedTestEntities)
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([
+        {
+          ...absaEntity,
+          name: 'Updated Absa',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+
+    test('load of invalid entity fails and no entity is stored', async () => {
+      const testEntities = [absaEntity, {}]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow(
+        JSON.stringify(
+          [
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['id'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['name'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'array',
+              received: 'undefined',
+              path: ['dids'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['logo_url'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['domain'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'array',
+              received: 'undefined',
+              path: ['role'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'array',
+              received: 'undefined',
+              path: ['credentials'],
+              message: 'Required',
+            },
+          ],
+          null,
+          2,
+        ),
+      )
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([])
+    })
+
+    test('unqualified did throws and error', async () => {
+      const testEntities = [{ ...absaEntity, dids: ['C279iyCR8wtKiPC8o9iPmb'] }]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow('DID C279iyCR8wtKiPC8o9iPmb is not fully quilifed')
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([])
+    })
+
+    test('each did must be unique', async () => {
+      await entityService.loadEntities([absaEntity])
+
+      const testEntities = [
+        { ...absaEntity, id: 'bb7e7d3d-bf7c-4e08-8d9f-84057cc838bb' },
+      ]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow(
+        'DID did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3 already exists',
+      )
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([
+        {
+          ...absaEntity,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
+  })
 })
+
+function fetchRegistry() {
+  return fetch(`http://localhost:${port}/registry`).then((response) =>
+    response.json(),
+  )
+}
 
 function post(endpoint: string, payload: Record<string, unknown>) {
   return fetch(endpoint, {

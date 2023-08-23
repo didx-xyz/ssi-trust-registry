@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises'
 import { z } from 'zod'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import partial from 'lodash.partial'
@@ -18,12 +17,13 @@ export async function createEntityService(
 
 export interface EntityService {
   getAllEntities: () => Promise<Entity[]>
-  loadEntities: () => Promise<void>
+  loadEntities: (schemas: Record<string, unknown>[]) => Promise<void>
 }
 
 export interface EntityRepository {
   getAllEntities: () => Promise<Entity[]>
   findById: (id: string) => Promise<Entity | null>
+  findByDid: (did: string) => Promise<Entity | null>
   addEntity: (entity: Entity) => Promise<Entity>
   updateEntity: (entity: Entity) => Promise<Entity>
 }
@@ -35,7 +35,12 @@ export const EntityDto = z
   .object({
     id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
     name: z.string().openapi({ example: 'Absa' }),
-    did: z.string().openapi({ example: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3' }),
+    dids: z.array(z.string()).openapi({
+      example: [
+        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
+      ],
+    }),
     logo_url: z.string().openapi({
       example:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
@@ -61,31 +66,35 @@ async function getAllEntities(repository: EntityRepository) {
   return repository.getAllEntities()
 }
 
-async function loadEntities(repository: EntityRepository) {
-  const registryContent = await fs.readFile('./src/data/registry.json', {
-    encoding: 'utf8',
-  })
-  const registry = JSON.parse(registryContent)
-  const results = await Promise.allSettled(
-    registry.entities.map(async (e: EntityDto, i: number) => {
-      logger.info(`Importing entity at index ${i}`, e)
-      if (await exists(repository, e)) {
-        logger.debug('Entity already exists, updating...')
-        return updateEntity(repository, e)
-      } else {
-        logger.debug('Entity does not exist, creating...')
-        return addEntity(repository, e)
-      }
-    }),
-  )
-  results.forEach((r, i) => {
-    if (r.status !== 'fulfilled') {
-      logger.error(
-        `Import of entity at index ${i} failed with the following error`,
-        r.reason,
-      )
+async function loadEntities(
+  repository: EntityRepository,
+  entityPayloads: Record<string, unknown>[],
+) {
+  const entityDtos = entityPayloads.map((e) => {
+    const entityDto = EntityDto.parse(e)
+    const invalidDid = entityDto.dids.find((did) => !did.startsWith('did:'))
+    if (invalidDid) {
+      throw new Error(`DID ${invalidDid} is not fully quilifed`)
     }
+    return entityDto
   })
+
+  for (const e of entityDtos) {
+    logger.info(`Importing entity ${e.id}`, e)
+    if (await exists(repository, e)) {
+      logger.debug('Entity already exists, updating...')
+      return updateEntity(repository, e)
+    } else {
+      for (const did of e.dids) {
+        const didExists = await repository.findByDid(did)
+        if (didExists) {
+          throw new Error(`DID ${did} already exists`)
+        }
+      }
+      logger.debug('Entity does not exist, creating...')
+      return addEntity(repository, e)
+    }
+  }
 }
 
 async function exists(repository: EntityRepository, entity: EntityDto) {
@@ -94,9 +103,8 @@ async function exists(repository: EntityRepository, entity: EntityDto) {
 
 async function addEntity(
   repository: EntityRepository,
-  payload: Record<string, unknown>,
+  entityDto: EntityDto,
 ): Promise<void> {
-  const entityDto = EntityDto.parse(payload)
   const entity = {
     ...entityDto,
     createdAt: new Date().toISOString(),
@@ -108,9 +116,8 @@ async function addEntity(
 
 async function updateEntity(
   repository: EntityRepository,
-  payload: Record<string, unknown>,
+  entityDto: EntityDto,
 ): Promise<void> {
-  const entityDto = EntityDto.parse(payload)
   const existingEntity = await repository.findById(entityDto.id)
   if (!existingEntity) {
     throw new Error('Trying to update an Entity that does not exists')
