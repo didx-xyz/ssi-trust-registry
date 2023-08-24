@@ -6,9 +6,6 @@ services:
     container_name: trust-registry
     ports:
       - 3000:3000
-    command:
-      - yarn
-      - dev
     healthcheck:
       test: curl -f http://localhost:3000/health
       interval: 15s
@@ -24,7 +21,7 @@ services:
       mongo:
         condition: service_healthy
   mongo:
-    image: mongo:6.0
+    image: mongo:7.0
     container_name: mongo
     ports:
       - 27017:27017
