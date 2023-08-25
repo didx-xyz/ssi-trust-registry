@@ -7,6 +7,7 @@ import { SchemaService } from './schema/service'
 import { EntityService } from './entity/service'
 import { createAppContext } from './context'
 import { Db } from 'mongodb'
+import { correctDids } from './__tests__/fixtures'
 
 const { port, url } = config.server
 
@@ -18,7 +19,8 @@ describe('api', () => {
 
   beforeAll(async () => {
     database = await connect(config.db)
-    const context = await createAppContext({ database })
+    const didResolver = await createFakeDidResolver(correctDids)
+    const context = await createAppContext({ database, didResolver })
     entityService = context.entityService
     schemaService = context.schemaService
     server = await startServer({ port, url }, context)
@@ -404,6 +406,27 @@ describe('api', () => {
         },
       ])
     })
+
+    test('each DID is resolvable', async () => {
+      await entityService.loadEntities([absaEntity])
+
+      const testEntities = [
+        { ...absaEntity, dids: ['did:indy:sovrin:abcdefgh'] },
+      ]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow('DID did:indy:sovrin:abcdefgh is not resolvable')
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([
+        {
+          ...absaEntity,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ])
+    })
   })
 })
 
@@ -421,4 +444,12 @@ function post(endpoint: string, payload: Record<string, unknown>) {
     },
     body: JSON.stringify(payload),
   })
+}
+
+async function createFakeDidResolver(correctDids: Record<string, any>) {
+  return {
+    resolveDid: (did: string) => {
+      return correctDids[did]
+    },
+  }
 }

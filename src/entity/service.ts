@@ -2,16 +2,18 @@ import { z } from 'zod'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import partial from 'lodash.partial'
 import { createLogger } from '../logger'
+import { DidResolver } from '../did-resolver/did-resolver'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
 
 export async function createEntityService(
   repository: EntityRepository,
+  didResolver: DidResolver,
 ): Promise<EntityService> {
   return {
     getAllEntities: partial(getAllEntities, repository),
-    loadEntities: partial(loadEntities, repository),
+    loadEntities: partial(loadEntities, repository, didResolver),
   }
 }
 
@@ -68,6 +70,7 @@ async function getAllEntities(repository: EntityRepository) {
 
 async function loadEntities(
   repository: EntityRepository,
+  didResolver: DidResolver,
   entityPayloads: Record<string, unknown>[],
 ) {
   const entityDtos = entityPayloads.map((e) => {
@@ -81,6 +84,14 @@ async function loadEntities(
 
   for (const e of entityDtos) {
     logger.info(`Importing entity ${e.id}`, e)
+
+    for (const did of e.dids) {
+      const didDocument = await didResolver.resolveDid(did)
+      if (!didDocument) {
+        throw new Error(`DID ${did} is not resolvable`)
+      }
+    }
+
     if (await exists(repository, e)) {
       logger.debug('Entity already exists, updating...')
       return updateEntity(repository, e)
