@@ -1,4 +1,4 @@
-export const correctDids: Record<string, any> = {
+export const correctDids: Record<string, unknown> = {
   'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3': {
     '@context': [
       'https://w3id.org/did/v1',
