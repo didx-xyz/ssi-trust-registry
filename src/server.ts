@@ -83,9 +83,8 @@ export function startServer(
       asyncHandler(async (req, res) => {
         const payload = req.body
         logger.info(`Processing submission:`, payload)
-        const submission = await context.submissionService.addSubmission(
-          payload,
-        )
+        const submission =
+          await context.submissionService.addSubmission(payload)
         res.status(201).json(submission)
       }),
     )

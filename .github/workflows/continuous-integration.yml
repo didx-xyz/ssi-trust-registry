@@ -22,7 +22,7 @@ jobs:
       DB_NAME: test_registry
     services:
       mongo:
-        image: mongo:6.0
+        image: mongo:7.0
         ports:
           - 4000:27017
 

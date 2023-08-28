@@ -6,10 +6,11 @@ docker_build(
   live_update=[
     sync('./', '/app'),
     run('yarn install', trigger=['./package.json', './yarn.lock']),
-    run('touch ./src/main.ts', trigger=['./src'])
+    run('yarn build', trigger=['./src']),
+    restart_container()
   ],
   build_args={
-    'NODE_ENV': 'development'
+    'NODE_ENV': 'production'
   }
 )
 
