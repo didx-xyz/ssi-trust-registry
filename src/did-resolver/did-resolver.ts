@@ -72,21 +72,15 @@ async function initAgent() {
   logger.info('Agent initialized')
 
   return agent
-  // await resolveDid(agent, 'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3')
-  // await resolveDid(agent, 'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb')
 }
 
 async function resolveDid(agent: Agent, did: string) {
-  logger.info(`Resolving did ${did}`)
-  performance.mark(`resolve-${did}-start`)
+  logger.info(`Resolving DID ${did}`)
+  const start = performance.now()
   const didResolutionResult = await agent.dids.resolve(did)
-  performance.mark(`resolve-${did}-end`)
-  performance.measure(
-    `resolve-${did}`,
-    `resolve-${did}-start`,
-    `resolve-${did}-end`,
-  )
-  logger.info('Did resolution result', didResolutionResult)
+  const end = performance.now()
+  logger.info('DID resolution result', didResolutionResult)
+  logger.info(`DID ${did} resolved in ${Math.round(end - start)} ms`)
   if (didResolutionResult.didDocument) {
     return didResolutionResult.didDocument
   }
