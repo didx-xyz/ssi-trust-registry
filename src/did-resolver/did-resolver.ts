@@ -67,7 +67,7 @@ async function initAgent() {
       }),
     },
   })
-  logger.info('Initializng agent')
+  logger.info('Initializing agent')
   await agent.initialize()
   logger.info('Agent initialized')
 
