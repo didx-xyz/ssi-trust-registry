@@ -18,8 +18,8 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "5.0.0",
@@ -31,7 +31,13 @@
     "yaml": "^2.3.1"
   },
   "dependencies": {
+    "@aries-framework/askar": "0.4.0",
+    "@aries-framework/core": "0.4.0",
+    "@aries-framework/indy-vdr": "0.4.0",
+    "@aries-framework/node": "0.4.0",
     "@asteasolutions/zod-to-openapi": "^5.5.0",
+    "@hyperledger/aries-askar-nodejs": "0.1.0",
+    "@hyperledger/indy-vdr-nodejs": "0.1.0",
     "@types/jest": "^29.5.3",
     "@types/lodash.partial": "^4.2.7",
     "@types/morgan": "^1.9.4",
@@ -50,5 +56,8 @@
     "uuid": "^9.0.0",
     "winston": "^3.10.0",
     "zod": "^3.22.2"
+  },
+  "resolutions": {
+    "ref-napi": "npm:@2060.io/ref-napi"
   }
 }
