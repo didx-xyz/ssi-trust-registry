@@ -1,7 +1,13 @@
 FROM docker.io/node:18-alpine
 
 USER 0
-RUN apk add --update --no-cache tini curl
+RUN apk add --update --no-cache \
+  tini \ 
+  curl \
+  g++ \
+  gcc \
+  make \
+  python3
 
 USER 1000
 WORKDIR /app
