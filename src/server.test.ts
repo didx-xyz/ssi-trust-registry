@@ -4,7 +4,7 @@ import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
 import { SchemaService, exampleSchemaDto } from './schema/service'
-import { EntityService } from './entity/service'
+import { EntityService, exampleEntityDto } from './entity/service'
 import { createAppContext } from './context'
 import { Db } from 'mongodb'
 import { correctDids } from './__tests__/fixtures'
@@ -163,12 +163,7 @@ describe('api', () => {
   })
 
   describe('schemas', () => {
-    const testSchemas = [
-      {
-        schemaId: exampleSchemaDto.schemaId,
-        name: exampleSchemaDto.name,
-      },
-    ]
+    const testSchemas = [{ ...exampleSchemaDto }]
 
     beforeEach(async () => {
       await database.dropDatabase()
@@ -266,22 +261,12 @@ describe('api', () => {
   })
 
   describe('entities', () => {
-    const absaEntity = {
-      id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
-      name: 'Absa',
-      dids: [
-        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
-        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
-      ],
-      logo_url:
-        'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
-      domain: 'www.absa.africa',
-      role: ['issuer', 'verifier'],
-      credentials: ['C279iyCR8wtKiPC8o9iPmb:2:e-KYC:8.0.0'],
-    }
+    const testSchemas = [{ ...exampleSchemaDto }]
+    const absaEntity = { ...exampleEntityDto }
 
     beforeEach(async () => {
       await database.dropDatabase()
+      await schemaService.loadSchemas(testSchemas)
     })
 
     test('load entity to the registry', async () => {
@@ -439,6 +424,26 @@ describe('api', () => {
           updatedAt: expect.any(String),
         },
       ])
+    })
+
+    test('all schemas in credentials must exists in registry', async () => {
+      const testEntities = [
+        {
+          ...absaEntity,
+          credentials: [
+            'did:indy:sovrin:staging:nonexistingschemaid123/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+          ],
+        },
+      ]
+
+      await expect(() =>
+        entityService.loadEntities(testEntities),
+      ).rejects.toThrow(
+        'Schema ID did:indy:sovrin:staging:nonexistingschemaid123/anoncreds/v0/SCHEMA/e-KYC/1.0.0 does not exists in trust registry',
+      )
+
+      const registry = await fetchRegistry()
+      expect(registry.entities).toEqual([])
     })
   })
 })

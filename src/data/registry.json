@@ -10,7 +10,9 @@
       "logo_url": "https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg",
       "domain": "www.absa.africa",
       "role": ["issuer"],
-      "credentials": ["2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0"]
+      "credentials": [
+        "did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0"
+      ]
     }
   ],
   "schemas": [

@@ -19,7 +19,11 @@ export async function createAppContext(io: IO) {
   const schemaRepository = await createSchemaRepository(database)
   const schemaService = await createSchemaService(schemaRepository)
   const entityRepository = await createEntityRepository(database)
-  const entityService = await createEntityService(entityRepository, didResolver)
+  const entityService = await createEntityService(
+    entityRepository,
+    schemaRepository,
+    didResolver,
+  )
 
   return {
     submissionRepository,
