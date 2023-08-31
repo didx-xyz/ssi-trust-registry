@@ -64,7 +64,7 @@ describe('api', () => {
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
-      const result = await post(`http://localhost:${port}/submissions`, {})
+      const result = await post(`http://localhost:${port}/api/submissions`, {})
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -115,9 +115,9 @@ describe('api', () => {
     })
 
     test('submissions with exisiting DID fails with 500 error', async () => {
-      await post(`http://localhost:${port}/submissions`, absaSubmission)
+      await post(`http://localhost:${port}/api/submissions`, absaSubmission)
       const result = await post(
-        `http://localhost:${port}/submissions`,
+        `http://localhost:${port}/api/submissions`,
         absaSubmission,
       )
       const status = result.status
@@ -130,7 +130,7 @@ describe('api', () => {
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
       const result = await post(
-        `http://localhost:${port}/submissions`,
+        `http://localhost:${port}/api/submissions`,
         yomaSubmission,
       )
       const status = result.status
@@ -140,9 +140,9 @@ describe('api', () => {
     })
 
     test('correct submissions succeeds and adds it to the list', async () => {
-      await post(`http://localhost:${port}/submissions`, absaSubmission)
+      await post(`http://localhost:${port}/api/submissions`, absaSubmission)
 
-      const result = await fetch(`http://localhost:${port}/submissions`)
+      const result = await fetch(`http://localhost:${port}/api/submissions`)
       const status = result.status
       const submissions = await result.json()
       expect(status).toEqual(200)
@@ -431,7 +431,7 @@ describe('api', () => {
 })
 
 function fetchRegistry() {
-  return fetch(`http://localhost:${port}/registry`).then((response) =>
+  return fetch(`http://localhost:${port}/api/registry`).then((response) =>
     response.json(),
   )
 }

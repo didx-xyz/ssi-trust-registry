@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "trust-registry.fullname" . }}:{{ .Values.service.port }}/registry']
+      args: ['{{ include "trust-registry.fullname" . }}:{{ .Values.service.port }}/api/registry']
   restartPolicy: Never
