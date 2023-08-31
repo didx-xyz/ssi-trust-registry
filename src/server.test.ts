@@ -3,7 +3,7 @@ import { startServer } from './server'
 import { Server } from 'http'
 import { config } from './config'
 import { close, connect } from './database'
-import { SchemaService } from './schema/service'
+import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService } from './entity/service'
 import { createAppContext } from './context'
 import { Db } from 'mongodb'
@@ -163,24 +163,25 @@ describe('api', () => {
   })
 
   describe('schemas', () => {
+    const testSchemas = [
+      {
+        schemaId: exampleSchemaDto.schemaId,
+        name: exampleSchemaDto.name,
+      },
+    ]
+
     beforeEach(async () => {
       await database.dropDatabase()
     })
 
     test('load schema to the registry', async () => {
-      const testSchemas = [
-        {
-          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
-          name: 'Digital Identity',
-        },
-      ]
       await schemaService.loadSchemas(testSchemas)
 
       const registry = await fetchRegistry()
       expect(registry.schemas).toEqual([
         {
-          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
-          name: 'Digital Identity',
+          schemaId: exampleSchemaDto.schemaId,
+          name: exampleSchemaDto.name,
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
         },
@@ -188,15 +189,9 @@ describe('api', () => {
     })
 
     test('update schema with an existing ID', async () => {
-      const testSchemas = [
-        {
-          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
-          name: 'Digital Identity',
-        },
-      ]
       const updatedTestSchemas = [
         {
-          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          schemaId: exampleSchemaDto.schemaId,
           name: 'Updated Digital Identity',
         },
       ]
@@ -206,7 +201,7 @@ describe('api', () => {
       const registry = await fetchRegistry()
       expect(registry.schemas).toEqual([
         {
-          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
+          schemaId: exampleSchemaDto.schemaId,
           name: 'Updated Digital Identity',
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
@@ -215,16 +210,16 @@ describe('api', () => {
     })
 
     test('load of invalid schema fails', async () => {
-      const testSchemas = [
+      const testSchemasWithInvalidSchema = [
         {
-          schemaId: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0',
-          name: 'Digital Identity',
+          schemaId: exampleSchemaDto.schemaId,
+          name: exampleSchemaDto.name,
         },
         {},
       ]
 
       await expect(() =>
-        schemaService.loadSchemas(testSchemas),
+        schemaService.loadSchemas(testSchemasWithInvalidSchema),
       ).rejects.toThrow(
         JSON.stringify(
           [
@@ -247,6 +242,24 @@ describe('api', () => {
           2,
         ),
       )
+      const registry = await fetchRegistry()
+      expect(registry.schemas).toEqual([])
+    })
+
+    test('unqualified schema fails', async () => {
+      const testSchemasWithInvalidSchemaId = [
+        {
+          schemaId: 'C279iyCR8wtKiPC8o9iPmb:2:e-KYC:1.0.0',
+          name: exampleSchemaDto.name,
+        },
+      ]
+
+      await expect(() =>
+        schemaService.loadSchemas(testSchemasWithInvalidSchemaId),
+      ).rejects.toThrow(
+        `Schema ID C279iyCR8wtKiPC8o9iPmb:2:e-KYC:1.0.0 is not fully qualified`,
+      )
+
       const registry = await fetchRegistry()
       expect(registry.schemas).toEqual([])
     })

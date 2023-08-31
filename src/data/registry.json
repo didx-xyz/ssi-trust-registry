@@ -15,7 +15,7 @@
   ],
   "schemas": [
     {
-      "schemaId": "2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0",
+      "schemaId": "did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0",
       "name": "Digital Identity"
     }
   ]
