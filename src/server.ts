@@ -43,10 +43,13 @@ export function startServer(
 
     app.set('json spaces', 2)
 
+    const apiRouter = express.Router()
+    app.use('/api', apiRouter)
+
     if (process.env.NODE_ENV !== 'production') {
       const swaggerDocsJson = JSON.parse(JSON.stringify(generateSwaggerDocs()))
-      app.use('/api/docs', ...swaggerDocs(url, port, swaggerDocsJson))
-      app.get('/api/docs-json', (_, res) => {
+      apiRouter.use('/docs', ...swaggerDocs(url, port, swaggerDocsJson))
+      apiRouter.get('/docs-json', (_, res) => {
         res.json(swaggerDocsJson)
       })
     }
@@ -55,7 +58,7 @@ export function startServer(
       res.status(200).send('OK')
     })
 
-    app.get(
+    apiRouter.get(
       '/registry',
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
@@ -67,7 +70,7 @@ export function startServer(
       }),
     )
 
-    app.get(
+    apiRouter.get(
       '/submissions',
       disableInProduction,
       asyncHandler(async (req, res) => {
@@ -77,7 +80,7 @@ export function startServer(
       }),
     )
 
-    app.post(
+    apiRouter.post(
       '/submissions',
       disableInProduction,
       asyncHandler(async (req, res) => {

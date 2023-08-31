@@ -92,4 +92,4 @@ jobs:
       - name: Test Health
         run: curl --silent --show-error --fail ${{ vars.PUBLIC_URL }}/health
       - name: Test Registry
-        run: curl --silent --show-error --fail ${{ vars.PUBLIC_URL }}/registry
+        run: curl --silent --show-error --fail ${{ vars.PUBLIC_URL }}/api/registry
