@@ -11,11 +11,11 @@ export async function createSchemaRepository(
   const collection = database.collection('schemas')
 
   const createSchemaIdIndexResult = await collection.createIndex(
-    { id: 1 },
+    { schemaId: 1 },
     { unique: true },
   )
   logger.info(
-    `Index for schema document 'id' created:`,
+    `Index for schema document 'schemaId' created:`,
     createSchemaIdIndexResult,
   )
 

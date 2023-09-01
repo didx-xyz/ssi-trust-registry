@@ -28,12 +28,16 @@ export interface SchemaRepository {
 export type Schema = z.infer<typeof Schema>
 export type SchemaDto = z.infer<typeof SchemaDto>
 
+export const exampleSchemaDto = {
+  schemaId:
+    'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+  name: 'Digital Identity',
+}
+
 export const SchemaDto = z
   .object({
-    schemaId: z
-      .string()
-      .openapi({ example: '2NPnMDv5Lh57gVZ3p3SYu3:2:e-KYC:1.0.0' }),
-    name: z.string().openapi({ example: 'Digital Identity' }),
+    schemaId: z.string().openapi({ example: exampleSchemaDto.schemaId }),
+    name: z.string().openapi({ example: exampleSchemaDto.name }),
   })
   .openapi('SchemaRequest')
 
@@ -48,30 +52,26 @@ async function getAllSchemas(repository: SchemaRepository) {
 
 async function loadSchemas(
   repository: SchemaRepository,
-  schemas: Record<string, unknown>[],
+  schemaPayloads: Record<string, unknown>[],
 ) {
-  const results = await Promise.allSettled(
-    schemas
-      .map((s) => SchemaDto.parse(s))
-      .map(async (s: SchemaDto, i: number) => {
-        logger.info(`Importing schema at index ${i}`, s)
-        if (await exists(repository, s)) {
-          logger.debug('Schema already exists, updating...')
-          return updateSchema(repository, s)
-        } else {
-          logger.debug('Schema does not exist, creating...')
-          return addSchema(repository, s)
-        }
-      }),
-  )
-  results.forEach((r, i) => {
-    if (r.status !== 'fulfilled') {
-      logger.error(
-        `Import of schema at index ${i} failed with the following error`,
-        r.reason,
-      )
+  const schemaDtos = schemaPayloads.map((e) => {
+    const schemaDto = SchemaDto.parse(e)
+    if (!isFullyQualifiedSchemaId(schemaDto.schemaId)) {
+      throw new Error(`Schema ID ${schemaDto.schemaId} is not fully qualified`)
     }
+    return schemaDto
   })
+
+  for (const s of schemaDtos) {
+    logger.info(`Importing schema ${s.schemaId}`, s)
+    if (await exists(repository, s)) {
+      logger.debug('Schema already exists, updating...')
+      return updateSchema(repository, s)
+    } else {
+      logger.debug('Schema does not exist, creating...')
+      return addSchema(repository, s)
+    }
+  }
 }
 
 function exists(repository: SchemaRepository, schema: SchemaDto) {
@@ -106,4 +106,15 @@ async function updateSchema(
   }
   await repository.updateSchema(schema)
   logger.info(`Schema ${schema.schemaId} has been updated`)
+}
+
+function isFullyQualifiedSchemaId(schemaId: string) {
+  const didIndyAnonCredsBase =
+    /(did:indy:((?:[a-z][_a-z0-9-]*)(?::[a-z][_a-z0-9-]*)?):([1-9A-HJ-NP-Za-km-z]{21,22}))\/anoncreds\/v0/
+
+  const didIndySchemaIdRegex = new RegExp(
+    `^${didIndyAnonCredsBase.source}/SCHEMA/(.+)/([0-9.]+)$`,
+  )
+
+  return schemaId.match(didIndySchemaIdRegex)
 }

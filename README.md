@@ -8,6 +8,13 @@ After some initial discussion between ABSA and DIDx regaring development of a Tr
 
 For more detailed information regarding the current discussion and implementation requirements read the [HackMD Write Up](https://hackmd.io/heOazbtvSi2B18I7YWkGIg?view)
 
+## Schemas
+
+We require fully qualified schemas. You can find how the unqualified should be transformed to fully qualified and vice-versa at the following links:
+
+- [Indy DID Method spec](https://hyperledger.github.io/indy-did-method/#schema)
+- [JavaScript implementation](https://gist.github.com/jakubkoci/26cb093d274bf61d982b4c56e05d9ebc)
+
 ## Run
 
 Build Docker image
