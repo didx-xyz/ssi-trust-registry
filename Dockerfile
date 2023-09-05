@@ -1,9 +1,10 @@
-FROM docker.io/node:18-alpine
+###
+# Builder
+###
+FROM docker.io/node:18-slim AS builder
 
 USER 0
-RUN apk add --update --no-cache \
-  tini \ 
-  curl \
+RUN apt-get update && apt-get install -y \
   g++ \
   gcc \
   make \
@@ -18,6 +19,21 @@ RUN yarn install --frozen-lockfile
 
 COPY --chown=1000:1000 . .
 RUN yarn build
+
+###
+# Runner
+###
+FROM docker.io/node:18-slim AS runner
+
+USER 0
+RUN apt-get update && apt-get install -y  \
+  curl \
+  tini \
+  && rm -rf /var/lib/apt/lists/*
+
+USER 1000
+WORKDIR /app
+COPY --chown=1000:1000 --from=builder /app /app
 
 ENV URL=http://0.0.0.0
 ENV PORT=3000
