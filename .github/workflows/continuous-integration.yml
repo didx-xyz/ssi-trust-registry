@@ -39,24 +39,9 @@ jobs:
       - run: yarn build
       - run: yarn test
 
-  prod-build:
-    name: Production Build
-    runs-on: ubuntu-latest
-
-    env:
-      NODE_ENV: production
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - run: yarn install --frozen-lockfile
-      - run: yarn build
-
   docker-build:
     name: Build and push
-    needs: [test, prod-build]
+    needs: test
     permissions:
       packages: write
     runs-on: ubuntu-latest
