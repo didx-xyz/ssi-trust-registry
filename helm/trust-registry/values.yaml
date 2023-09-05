@@ -22,8 +22,8 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  fsGroup: 1000
 securityContext:
   runAsUser: 1000
   runAsNonRoot: true
@@ -78,10 +78,14 @@ initContainers:
   #   volumeMounts:
   #     - name: certs
   #       mountPath: /certs
-extraVolumes: []
+extraVolumes:
+  - name: afj
+    emptyDir: {}
   # - name: certs
   #   emptyDir: {}
-extraVolumeMounts: []
+extraVolumeMounts:
+  - name: afj
+    mountPath: /home/node/.afj
   # - name: certs
   #   mountPath: /certs
   #   readOnly: true
