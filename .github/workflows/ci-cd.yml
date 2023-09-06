@@ -8,8 +8,14 @@ on:
     tags:
       - 'v*'
   pull_request:
+    # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
     branches:
       - main
+    types:
+      - opened # default
+      - reopened # default
+      - synchronize # default
+      - ready_for_review
 
 env:
   REGISTRY: ghcr.io/${{ github.repository_owner }}
