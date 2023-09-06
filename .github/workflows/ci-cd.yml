@@ -1,0 +1,201 @@
+name: CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      PORT: 3000
+      URL: http://localhost
+      DB_CONNECTION_STRING: mongodb://localhost:4000
+      DB_NAME: test_registry
+    services:
+      mongo:
+        image: mongo:7.0
+        ports:
+          - 4000:27017
+
+    concurrency:
+      group: ${{ github.workflow }}-test-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: yarn test
+
+  build:
+    name: Docker build and push
+    needs: test
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ${{ github.workflow }}-build-${{ github.ref }}
+      cancel-in-progress: true
+
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
+      - uses: docker/metadata-action@v4
+        id: meta
+        with:
+          images: ${{ env.REGISTRY }}/ssi-trust-registry
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=sha,prefix=pr-${{ github.event.pull_request.number }}-,priority=601,enable=${{ github.event_name == 'pull_request' }}
+            type=sha,prefix={{branch}}-,priority=601,enable=${{ github.event_name != 'pull_request' }}
+            type=ref,event=branch,priority=600
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      - uses: docker/build-push-action@v4
+        with:
+          platforms: linux/amd64 # linux/arm64/v8 is too slow to build (right now)
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  compose:
+    name: Compose Test
+    needs: build
+    permissions:
+      packages: read
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ needs.build.outputs.version }}
+
+    concurrency:
+      group: ${{ github.workflow }}-compose-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose pull
+      - run: docker compose up -d
+      - name: Wait for trust-registry to be healthy
+        run: |-
+          #!/bin/bash
+
+          # Thank you Mr. Jippity
+          # Maximum time to wait in seconds
+          timeout=120
+
+          # Start a timer
+          start_time=$(date +%s)
+
+          # Use 'until' to keep checking until the timeout is reached
+          until [ $(( $(date +%s) - start_time )) -ge $timeout ]; do
+            # Check if the 'trust-registry' container is running
+            if docker ps --format "{{.Names}}" | grep -q 'trust-registry'; then
+              # Check the health status of the 'trust-registry' container
+              container_health=$(docker inspect --format='{{.State.Health.Status}}' trust-registry 2>/dev/null)
+
+              if [ "$container_health" == "healthy" ]; then
+                echo "Container 'trust-registry' is healthy."
+                exit 0
+              fi
+            fi
+
+            # Wait for a moment before checking again
+            sleep 1
+          done
+
+          # Timeout reached, so exit with an error
+          echo "Timeout reached. Container 'trust-registry' is not healthy."
+          exit 1
+
+      # Run a few tests
+      - run: curl --silent --show-error --fail http://localhost:3000/health
+      - run: curl --silent --show-error --fail http://localhost:3000/api/registry
+
+      - name: MongoDB logs
+        if: always()
+        run: docker logs mongo
+      - name: Trust Registry logs
+        if: always()
+        run: docker logs trust-registry
+
+  deploy:
+    name: Deploy to EKS
+    needs: [compose, build]
+    permissions:
+      id-token: write
+      contents: read
+      checks: read
+    runs-on: ubuntu-latest
+    env:
+      TAILSCALE_VERSION: 1.48.1
+      HELMFILE_VERSION: v0.156.0
+      HELM_VERSION: v3.12.3
+
+    concurrency:
+      group: ${{ github.workflow }}-deploy-${{ github.ref }}
+      cancel-in-progress: false
+    environment:
+      name: dev
+      url: ${{ vars.PUBLIC_URL }}
+
+    # Don't deploy if triggering actor is dependabot
+    if: github.triggering_actor != 'dependabot[bot]'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: unfor19/install-aws-cli-action@v1
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: af-south-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-cicd
+      - run: aws eks update-kubeconfig --name ${{ secrets.CLUSTER }}
+      - uses: tailscale/github-action@main
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          version: ${{ env.TAILSCALE_VERSION }}
+
+      - name: Helmfile Apply
+        uses: helmfile/helmfile-action@v1.2.0
+        with:
+          helmfile-args: |
+            apply \
+              --environment ${{ vars.ENVIRONMENT }} \
+              -f ./helm/trust-registry.yaml \
+              --set image.tag=${{ needs.build.outputs.version }} \
+              --skip-deps
+          helmfile-version: ${{ env.HELMFILE_VERSION }}
+          helm-version: ${{ env.HELM_VERSION }}
+
+      - name: Test Health
+        run: curl --silent --show-error --fail ${{ vars.PUBLIC_URL }}/health
+      - name: Test Registry
+        run: curl --silent --show-error --fail ${{ vars.PUBLIC_URL }}/api/registry
