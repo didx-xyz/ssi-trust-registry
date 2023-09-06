@@ -166,8 +166,7 @@ jobs:
             apply \
               --environment ${{ vars.ENVIRONMENT }} \
               -f ./helm/trust-registry.yaml \
-              --set image.tag=${{ needs.build.outputs.version }} \
-              --skip-deps
+              --set image.tag=${{ needs.build.outputs.version }}
           helmfile-version: ${{ env.HELMFILE_VERSION }}
           helm-version: ${{ env.HELM_VERSION }}
 
