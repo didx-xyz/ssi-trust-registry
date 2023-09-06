@@ -71,8 +71,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
       - uses: docker/build-push-action@v4
         with:
-          # Only build `linux/amd64` on PR
-          platforms: ${{ github.event_name != 'pull_request' && 'linux/amd64,linux/arm64/v8' || 'linux/amd64' }}
+          platforms: linux/amd64 # linux/arm64/v8 is too slow to build (right now)
           # Don't push on PR
           push: ${{ github.event_name != 'pull_request' }}
           # Load into Docker daemon on PR
