@@ -16,6 +16,9 @@ on:
       - reopened # default
       - synchronize # default
       - ready_for_review
+  release:
+    types:
+      - released
 
 env:
   REGISTRY: ghcr.io/${{ github.repository_owner }}
@@ -135,10 +138,10 @@ jobs:
       HELM_VERSION: v3.12.3
 
     concurrency:
-      group: ${{ github.workflow }}-deploy-${{ github.ref }}
+      group: ${{ github.workflow }}-deploy-${{ github.event_name == 'release' && 'prod' || 'dev' }}
       cancel-in-progress: false
     environment:
-      name: dev
+      name: ${{ github.event_name == 'release' && 'prod' || 'dev' }}
       url: ${{ vars.PUBLIC_URL }}
 
     # Don't deploy if triggering actor is dependabot
