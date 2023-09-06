@@ -167,7 +167,8 @@ jobs:
       url: ${{ vars.PUBLIC_URL }}
 
     # Don't deploy if triggering actor is dependabot
-    if: github.triggering_actor != 'dependabot[bot]'
+    # Only deploy if PR is Ready for Review
+    if: github.triggering_actor != 'dependabot[bot]' && github.event.pull_request.draft == false
 
     steps:
       - uses: actions/checkout@v4
