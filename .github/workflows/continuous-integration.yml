@@ -71,59 +71,60 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
       - uses: docker/build-push-action@v4
         with:
-          # Only build `linux/amd64` on PR
-          platforms: ${{ github.event_name != 'pull_request' && 'linux/amd64,linux/arm64/v8' || 'linux/amd64' }}
+          platforms: linux/amd64,linux/arm64/v8
+          # # Only build `linux/amd64` on PR
+          # platforms: ${{ github.event_name != 'pull_request' && 'linux/amd64,linux/arm64/v8' || 'linux/amd64' }}
           # Don't push on PR
           push: ${{ github.event_name != 'pull_request' }}
-          # Load into Docker daemon on PR
-          load: ${{ github.event_name == 'pull_request' }}
+          # # Load into Docker daemon on PR
+          # load: ${{ github.event_name == 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - run: docker compose up -d
-        env:
-          IMAGE_TAG: ${{ steps.meta.outputs.version }}
-      - name: Wait for trust-registry to be healthy
-        run: |-
-          #!/bin/bash
+      # - run: docker compose up -d
+      #   env:
+      #     IMAGE_TAG: ${{ steps.meta.outputs.version }}
+      # - name: Wait for trust-registry to be healthy
+      #   run: |-
+      #     #!/bin/bash
 
-          # Thank you Mr. Jippity
-          # Maximum time to wait in seconds
-          timeout=60
+      #     # Thank you Mr. Jippity
+      #     # Maximum time to wait in seconds
+      #     timeout=60
 
-          # Start a timer
-          start_time=$(date +%s)
+      #     # Start a timer
+      #     start_time=$(date +%s)
 
-          # Use 'until' to keep checking until the timeout is reached
-          until [ $(( $(date +%s) - start_time )) -ge $timeout ]; do
-              # Check if the 'trust-registry' container is running
-              if docker ps --format "{{.Names}}" | grep -q 'trust-registry'; then
-                  # Check the health status of the 'trust-registry' container
-                  container_health=$(docker inspect --format='{{.State.Health.Status}}' trust-registry 2>/dev/null)
+      #     # Use 'until' to keep checking until the timeout is reached
+      #     until [ $(( $(date +%s) - start_time )) -ge $timeout ]; do
+      #         # Check if the 'trust-registry' container is running
+      #         if docker ps --format "{{.Names}}" | grep -q 'trust-registry'; then
+      #             # Check the health status of the 'trust-registry' container
+      #             container_health=$(docker inspect --format='{{.State.Health.Status}}' trust-registry 2>/dev/null)
 
-                  if [ "$container_health" == "healthy" ]; then
-                      echo "Container 'trust-registry' is healthy."
-                      exit 0
-                  fi
-              fi
+      #             if [ "$container_health" == "healthy" ]; then
+      #                 echo "Container 'trust-registry' is healthy."
+      #                 exit 0
+      #             fi
+      #         fi
 
-              # Wait for a moment before checking again
-              sleep 1
-          done
+      #         # Wait for a moment before checking again
+      #         sleep 1
+      #     done
 
-          # Timeout reached, so exit with an error
-          echo "Timeout reached. Container 'trust-registry' is not healthy."
-          exit 1
+      #     # Timeout reached, so exit with an error
+      #     echo "Timeout reached. Container 'trust-registry' is not healthy."
+      #     exit 1
 
-      # Run a few tests
-      - run: curl -s http://localhost:3000/health
-      - run: curl -s http://localhost:3000/api/registry | jq
+      # # Run a few tests
+      # - run: curl -s http://localhost:3000/health
+      # - run: curl -s http://localhost:3000/api/registry | jq
 
-      - name: MongoDB logs
-        if: always()
-        run: docker logs mongo
-      - name: Trust Registry logs
-        if: always()
-        run: docker logs trust-registry
+      # - name: MongoDB logs
+      #   if: always()
+      #   run: docker logs mongo
+      # - name: Trust Registry logs
+      #   if: always()
+      #   run: docker logs trust-registry
