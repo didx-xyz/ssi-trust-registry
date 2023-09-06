@@ -16,7 +16,7 @@ releases:
     - ./trust-registry/conf/{{ .Environment.Name }}/values.yaml
 ---
 helmDefaults:
-  timeout: 60
+  timeout: 300
   wait: true
   atomic: true
   cleanupOnFail: true
