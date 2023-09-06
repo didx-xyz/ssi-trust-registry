@@ -15,7 +15,7 @@ WORKDIR /app
 COPY --chown=1000:1000 yarn.lock package.json ./
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 200000
 
 COPY --chown=1000:1000 . .
 RUN yarn build
