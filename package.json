@@ -31,12 +31,12 @@
     "yaml": "^2.3.1"
   },
   "dependencies": {
-    "@aries-framework/askar": "0.4.0",
-    "@aries-framework/core": "0.4.0",
-    "@aries-framework/indy-vdr": "0.4.0",
-    "@aries-framework/node": "0.4.0",
+    "@aries-framework/askar": "0.4.1",
+    "@aries-framework/core": "0.4.1",
+    "@aries-framework/indy-vdr": "0.4.1",
+    "@aries-framework/node": "0.4.1",
     "@asteasolutions/zod-to-openapi": "^5.5.0",
-    "@hyperledger/aries-askar-nodejs": "0.1.0",
+    "@hyperledger/aries-askar-nodejs": "0.1.1",
     "@hyperledger/indy-vdr-nodejs": "0.1.0",
     "@types/jest": "^29.5.4",
     "@types/lodash.partial": "^4.2.7",
