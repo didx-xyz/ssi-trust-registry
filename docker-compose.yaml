@@ -54,6 +54,17 @@ services:
       mongo:
         condition: service_healthy
 
+  trust-registry-health:
+    image: curlimages/curl
+    container_name: trust-registry-health
+    restart: 'no'
+    command: /bin/sh -c "until curl -fsS http://trust-registry:3000/health; do sleep 1; done"
+    networks:
+      - ssi-trust-registry
+    depends_on:
+      trust-registry:
+        condition: service_healthy
+
 volumes:
   mongo:
 
