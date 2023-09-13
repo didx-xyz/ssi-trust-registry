@@ -1,0 +1,35 @@
+replicaCount: 1
+
+image:
+  tag: latest
+
+extraEnvVars:
+  dbConnectionString:
+    valueFrom:
+      secretKeyRef:
+        name: mongo-connect
+        key: dbConnectionString
+
+initContainers: []
+
+ingress:
+  internal:
+    enabled: true
+    hosts:
+      - host: trust-registry.didx.co.za
+  external:
+    enabled: true
+    hosts:
+      - host: trust-registry.didx.co.za
+
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

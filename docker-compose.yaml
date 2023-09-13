@@ -10,6 +10,7 @@ services:
       test: curl -f http://localhost:3000/health
       interval: 15s
       timeout: 5s
+      start_period: 300s
     environment:
       URL: http://0.0.0.0
       PORT: 3000
