@@ -2,6 +2,9 @@ environments:
   dev:
     values:
       - namespace: trust-registry-dev
+  prod:
+    values:
+      - namespace: trust-registry-prod
 ---
 repositories:
 - name: bitnami
