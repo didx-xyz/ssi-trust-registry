@@ -81,7 +81,7 @@ jobs:
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=sha,prefix=pr-${{ github.event.pull_request.number }}-,priority=601,enable=${{ github.event_name == 'pull_request' }}
-            type=sha,prefix={{branch}}-,priority=601,enable=${{ github.event_name != 'pull_request' }}
+            type=sha,prefix={{branch}}-,priority=601,enable=${{ github.event_name != 'pull_request' && github.ref_type == 'branch' }}
             type=ref,event=branch,priority=600
             type=ref,event=pr
             type=semver,pattern={{version}}
