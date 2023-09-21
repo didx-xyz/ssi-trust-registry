@@ -4,6 +4,9 @@ metadata:
   name: {{ include "trust-registry.fullname" . }}
   labels:
     {{- include "trust-registry.labels" . | nindent 4 }}
+    {{- with .Values.deploymentLabels }}
+    {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+    {{- end }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -16,14 +19,17 @@ spec:
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
-        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
         {{- end }}
       labels:
         {{- include "trust-registry.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
     spec:
       {{- with .Values.initContainers }}
       initContainers:
-        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -47,14 +53,15 @@ spec:
                 name: {{ include "trust-registry.fullname" . }}
           {{- with .Values.extraEnvVars }}
           env:
-            {{- range $k,$v := . }}
+          {{- range $k,$v := . }}
             - name: {{ upper (snakecase $k) }}
-              {{- if typeIs "string" $v }}
-              value: {{ tpl $v $ }}
-              {{- else }}
+            {{- $type := printf "%s" (typeOf $v) }}
+            {{- if or (eq $type "string") (eq $type "float64") (eq $type "bool") }}
+              value: {{ tpl (toString $v) $ | quote }}
+            {{- else }}
               {{- tpl (toYaml $v) $ | nindent 14 }}
-              {{- end }}
             {{- end }}
+          {{- end }}
           {{- end }}
           livenessProbe:
             httpGet:
@@ -74,7 +81,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.extraVolumeMounts }}
           volumeMounts:
-            {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 12 }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
           {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -90,5 +97,5 @@ spec:
       {{- end }}
       {{- with .Values.extraVolumes }}
       volumes:
-        {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 8 }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
       {{- end }}
