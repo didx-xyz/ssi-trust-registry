@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
   gcc \
   make \
   python3
+RUN yarn global add node-gyp
 
 WORKDIR /app
 COPY yarn.lock package.json ./
@@ -36,6 +37,7 @@ COPY --from=builder /app /app
 USER 1000
 ENV URL=http://0.0.0.0
 ENV PORT=3000
+ENV NODE_ENV=${NODE_ENV}
 
 EXPOSE 3000
 
