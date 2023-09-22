@@ -2,12 +2,12 @@ environments:
   dev:
     values:
       - namespace: trust-registry-dev
-        ddInjectEnabled: false
+        ddInjectEnabled: true
         ddProfilingEnabled: false
   prod:
     values:
       - namespace: trust-registry-prod
-        ddInjectEnabled: false
+        ddInjectEnabled: true
         ddProfilingEnabled: false
 ---
 repositories:
