@@ -20,7 +20,17 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+deploymentLabels:
+  # tags.datadoghq.com/env: <env>
+  tags.datadoghq.com/service: '{{ include "trust-registry.fullname" . }}'
+  tags.datadoghq.com/version: '{{ .Values.image.tag }}'
+podAnnotations:
+  admission.datadoghq.com/js-lib.version: v4.15.0
+podLabels:
+  # tags.datadoghq.com/env: <env>
+  tags.datadoghq.com/service: '{{ include "trust-registry.fullname" . }}'
+  tags.datadoghq.com/version: '{{ .Values.image.tag }}'
+  admission.datadoghq.com/enabled: 'false'
 
 podSecurityContext:
   fsGroup: 1000
@@ -45,7 +55,11 @@ db:
   port: 27017
   opts: ""
 
-extraEnvVars: {}
+extraEnvVars:
+  ddLogsInjection: true
+  # ddTraceSampleRate: 1
+  ddProfilingEnabled: false
+  ddRuntimeMetricsEnabled: true
   # foo: bar # -> FOO
   # fooBaz: baz # -> FOO_BAZ
   # dbConnectionString: # -> DB_CONNECTION_STRING

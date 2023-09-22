@@ -2,9 +2,13 @@ environments:
   dev:
     values:
       - namespace: trust-registry-dev
+        ddInjectEnabled: false
+        ddProfilingEnabled: false
   prod:
     values:
       - namespace: trust-registry-prod
+        ddInjectEnabled: false
+        ddProfilingEnabled: false
 ---
 repositories:
 - name: bitnami
@@ -17,6 +21,14 @@ releases:
   chart: ./trust-registry
   values:
     - ./trust-registry/conf/{{ .Environment.Name }}/values.yaml
+    - deploymentLabels:
+        tags.datadoghq.com/env: {{ .Environment.Name }}
+      podLabels:
+        tags.datadoghq.com/env: {{ .Environment.Name }}
+        admission.datadoghq.com/enabled: {{ quote .Values.ddInjectEnabled }}
+  set:
+    - name: extraEnvVars.ddProfilingEnabled
+      value: {{ .Values.ddProfilingEnabled }}
 ---
 helmDefaults:
   timeout: 300

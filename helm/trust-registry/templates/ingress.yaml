@@ -29,7 +29,7 @@ spec:
   {{- range .tls }}
     - hosts:
       {{- range .hosts }}
-        - {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | quote }}
+        - {{ tpl . $ | quote }}
       {{- end }}
       secretName: {{ include "common.tplvalues.render" ( dict "value" .secretName "context" $ ) }}
   {{- end }}
@@ -60,7 +60,7 @@ spec:
             service:
               name: {{ include "trust-registry.fullname" $ }}
               port:
-                number: {{ $.Values.service.port }}
+                number: {{ default $.Values.service.port $paths.port }}
         {{- end -}}
       {{- end -}}
     {{- end -}}
