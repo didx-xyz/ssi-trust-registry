@@ -55,7 +55,7 @@
     "typescript": "^5.2.2",
     "uuid": "^9.0.1",
     "winston": "^3.10.0",
-    "zod": "^3.22.2"
+    "zod": "^3.22.3"
   },
   "resolutions": {
     "ref-napi": "npm:@2060.io/ref-napi"
