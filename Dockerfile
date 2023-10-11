@@ -9,10 +9,15 @@ RUN apt-get update && apt-get install -y \
   gcc \
   make \
   python3
+
+RUN yarn config set strict-ssl false
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 RUN yarn global add node-gyp
 
 WORKDIR /app
 COPY yarn.lock package.json ./
+COPY ./packages/frontend/package.json ./packages/frontend/
+COPY ./packages/backend/package.json ./packages/backend/
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 RUN yarn install --frozen-lockfile
@@ -42,4 +47,4 @@ ENV NODE_ENV=${NODE_ENV}
 EXPOSE 3000
 
 ENTRYPOINT [ "tini", "--" ]
-CMD [ "node", "./build/main.js" ]
+CMD [ "yarn", "start" ]
