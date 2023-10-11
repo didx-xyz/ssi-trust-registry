@@ -41,7 +41,7 @@
     "@types/jest": "^29.5.5",
     "@types/lodash.partial": "^4.2.7",
     "@types/morgan": "^1.9.6",
-    "@types/node-fetch": "^2.6.4",
+    "@types/node-fetch": "^2.6.5",
     "@types/swagger-ui-express": "^4.1.4",
     "@types/uuid": "^9.0.4",
     "dotenv": "^16.3.1",
