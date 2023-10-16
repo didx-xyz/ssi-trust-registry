@@ -10,8 +10,6 @@ RUN apt-get update && apt-get install -y \
   make \
   python3
 
-RUN yarn config set strict-ssl false
-ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 RUN yarn global add node-gyp
 
 WORKDIR /app
