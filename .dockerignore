@@ -1,8 +1,8 @@
 ## Ignore everyting
 **
+/packages/**/node_modules
 
 # Except the following
-!/src/**
 !.eslintignore
 !.eslintrc.js
 !.prettierrc.js
@@ -11,3 +11,6 @@
 !package.json
 !tsconfig.json
 !yarn.lock
+!/packages/**/src
+!/packages/**/package.json
+!/packages/**/tsconfig.json
