@@ -26,7 +26,7 @@ deploymentLabels:
   tags.datadoghq.com/version: '{{ .Values.image.tag }}'
 podAnnotations:
   # gcr.io/datadoghq/dd-lib-js-init
-  admission.datadoghq.com/js-lib.version: v4.15.0
+  admission.datadoghq.com/js-lib.version: v4.17.0
 podLabels:
   # tags.datadoghq.com/env: <env>
   tags.datadoghq.com/service: '{{ include "trust-registry.fullname" . }}'
@@ -96,11 +96,23 @@ initContainers:
 extraVolumes:
   - name: afj
     emptyDir: {}
+  - name: tmp
+    emptyDir: {}
+  - name: yarn
+    emptyDir: {}
+  - name: yarn-cache
+    emptyDir: {}
   # - name: certs
   #   emptyDir: {}
 extraVolumeMounts:
   - name: afj
     mountPath: /home/node/.afj
+  - name: tmp
+    mountPath: /tmp
+  - name: yarn
+    mountPath: /home/node/.yarn
+  - name: yarn-cache
+    mountPath: /home/node/.cache/yarn
   # - name: certs
   #   mountPath: /certs
   #   readOnly: true
