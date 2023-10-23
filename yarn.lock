@@ -97,10 +97,10 @@
     ref-napi "^3.0.3"
     ws "^8.13.0"
 
-"@asteasolutions/zod-to-openapi@^5.5.0":
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/@asteasolutions/zod-to-openapi/-/zod-to-openapi-5.5.0.tgz#f3be8f1e97ece0fcef2e6ff5e9230da8138d20a6"
-  integrity sha512-d5HwrvM6dOKr3XdeF+DmashGvfEc+1oiEfbscugsiwSTrFtuMa7ETpW9sTNnVgn+hJaz+PRxPQUYD7q9/5dUig==
+"@asteasolutions/zod-to-openapi@^6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@asteasolutions/zod-to-openapi/-/zod-to-openapi-6.2.0.tgz#8ffe9f989b9431e715ffca95b17e45be5a703573"
+  integrity sha512-OhHyV/IxbDKJQJ9NJKRV5kcCyFDbZ/4HvZQXaqihWup8TirLp5od7t7idgQgj9/Gs0ltJ1Q/HLCH1eWeX/oEYg==
   dependencies:
     openapi3-ts "^4.1.2"
 
