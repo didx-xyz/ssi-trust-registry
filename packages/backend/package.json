@@ -37,7 +37,7 @@
     "@asteasolutions/zod-to-openapi": "^6.2.0",
     "@hyperledger/aries-askar-nodejs": "0.1.1",
     "@hyperledger/indy-vdr-nodejs": "0.1.0",
-    "@types/jest": "^29.5.5",
+    "@types/jest": "^29.5.6",
     "@types/lodash.partial": "^4.2.7",
     "@types/morgan": "^1.9.6",
     "@types/node-fetch": "^2.6.4",
