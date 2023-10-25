@@ -92,6 +92,24 @@ export function startServer(
       }),
     )
 
+    apiRouter.post(
+      '/submissions/invite',
+      disableInProduction,
+      asyncHandler(async (req, res) => {
+        const payload = req.body
+        console.log(payload)
+        if (payload.emailAddress) {
+          logger.info(`Sending submission invitation to:`, payload.emailAddress)
+          await context.submissionService.sendSubmissionInvitation(
+            payload.emailAddress,
+          )
+          res.status(200).send('OK')
+        } else {
+          res.status(400).send('Missing param emailAddress')
+        }
+      }),
+    )
+
     app.use(errorHandler)
 
     const server = app.listen(port, (error?: Error) => {

@@ -3,20 +3,24 @@ import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../logger'
+import { EmailClient } from '../email-client'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
 
 export async function createSubmissionService(
   repository: SubmissionRepository,
+  emailClient: EmailClient,
 ): Promise<SubmissionService> {
   return {
     getAllSubmissions: partial(getAllSubmissions, repository),
     addSubmission: partial(addSubmission, repository),
+    sendSubmissionInvitation: partial(sendSubmissionInvitation, emailClient),
   }
 }
 
 export interface SubmissionService {
+  sendSubmissionInvitation: (emailAddress: string) => Promise<void>
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (payload: Record<string, unknown>) => Promise<Submission>
 }
@@ -78,4 +82,12 @@ async function addSubmission(
   await repository.addSubmission(submission)
   logger.info(`Submission ${submission.id} has been added`)
   return submission
+}
+
+async function sendSubmissionInvitation(
+  emailClient: EmailClient,
+  emailAddress: string,
+) {
+  await emailClient.sendMail(emailAddress, 'Invitation', 'Hello')
+  return
 }
