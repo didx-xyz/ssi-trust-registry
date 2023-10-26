@@ -25,15 +25,15 @@ export function createEmailClient(config: SmtpConfig): EmailClient {
   }
 }
 
-export function sendMail(
+function sendMail(
   transporter: Transporter,
   to: string,
   subject: string,
-  text: string,
+  html: string,
 ): Promise<SentMessageInfo> {
   return transporter.sendMail({
     to,
     subject,
-    text,
+    html,
   })
 }
