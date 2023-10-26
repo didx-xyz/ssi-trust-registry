@@ -81,10 +81,10 @@ export function startServer(
     )
 
     apiRouter.post(
-      '/submissions',
+      '/submissions/:invitationId',
       disableInProduction,
       asyncHandler(async (req, res) => {
-        const payload = req.body
+        const payload = { ...req.body, invitationId: req.params.invitationId }
         logger.info(`Processing submission:`, payload)
         const submission =
           await context.submissionService.addSubmission(payload)
@@ -93,20 +93,14 @@ export function startServer(
     )
 
     apiRouter.post(
-      '/submissions/invite',
+      '/invite',
       disableInProduction,
       asyncHandler(async (req, res) => {
         const payload = req.body
         console.log(payload)
-        if (payload.emailAddress) {
-          logger.info(`Sending submission invitation to:`, payload.emailAddress)
-          await context.submissionService.sendSubmissionInvitation(
-            payload.emailAddress,
-          )
-          res.status(200).send('OK')
-        } else {
-          res.status(400).send('Missing param emailAddress')
-        }
+        logger.info(`Sending invitation to:`, payload.emailAddress)
+        await context.submissionService.sendInvitation(payload)
+        res.status(200).send('OK')
       }),
     )
 

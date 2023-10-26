@@ -3,7 +3,7 @@ import { createEmailClient } from '../email-client'
 
 export async function createFakeEmailClient() {
   const testAccount = await nodemailer.createTestAccount()
-  const transporter = createEmailClient({
+  return createEmailClient({
     host: testAccount.smtp.host,
     port: testAccount.smtp.port,
     auth: {
@@ -11,5 +11,4 @@ export async function createFakeEmailClient() {
       pass: testAccount.pass,
     },
   })
-  return transporter
 }

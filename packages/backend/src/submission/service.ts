@@ -11,28 +11,36 @@ extendZodWithOpenApi(z)
 export async function createSubmissionService(
   repository: SubmissionRepository,
   emailClient: EmailClient,
+  domain: string,
 ): Promise<SubmissionService> {
   return {
     getAllSubmissions: partial(getAllSubmissions, repository),
     addSubmission: partial(addSubmission, repository),
-    sendSubmissionInvitation: partial(sendSubmissionInvitation, emailClient),
+    sendInvitation: partial(sendInvitation, repository, emailClient, domain),
   }
 }
 
 export interface SubmissionService {
-  sendSubmissionInvitation: (emailAddress: string) => Promise<void>
+  sendInvitation: (payload: Record<string, unknown>) => Promise<Invitation>
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (payload: Record<string, unknown>) => Promise<Submission>
 }
 
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
+  getAllInvitations: () => Promise<Invitation[]>
   addSubmission: (submission: Submission) => Promise<Submission>
+  addInvitation: (invitation: Invitation) => Promise<Invitation>
   findSubmissionByDid: (did: string) => Promise<Submission | null>
+  findSubmissionByInvitationId: (id: string) => Promise<Submission | null>
+  findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
 export const SubmissionDto = z
   .object({
+    invitationId: z
+      .string()
+      .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
     name: z.string().openapi({ example: 'Absa' }),
     did: z.string().openapi({ example: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3' }),
     logo_url: z.string().openapi({
@@ -58,6 +66,20 @@ export const Submission = SubmissionDto.extend({
   updatedAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
 }).openapi('SubmissionResponse')
 
+export const InvitationDto = z
+  .object({
+    emailAddress: z.string().openapi({ example: 'test@example.com' }),
+  })
+  .openapi('SubmissionInvitationRequest')
+
+export type InvitationDto = z.infer<typeof InvitationDto>
+export type Invitation = z.infer<typeof Invitation>
+
+export const Invitation = InvitationDto.extend({
+  id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
+  createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
+}).openapi('SubmissionInvitationResponse')
+
 async function getAllSubmissions(repository: SubmissionRepository) {
   return (await repository.getAllSubmissions()).map((s) => ({
     ...s,
@@ -70,8 +92,17 @@ async function addSubmission(
   payload: Record<string, unknown>,
 ): Promise<Submission> {
   const submissionDto = SubmissionDto.parse(payload)
+
+  if (!(await repository.findInvitationById(submissionDto.invitationId))) {
+    throw new Error('Invitation not found')
+  }
+  if (
+    await repository.findSubmissionByInvitationId(submissionDto.invitationId)
+  ) {
+    throw new Error('Submission already completed')
+  }
   if (await repository.findSubmissionByDid(submissionDto.did)) {
-    throw new Error('Submission with the same DID already exisits')
+    throw new Error('Submission with the same DID already exists')
   }
   const submission = {
     ...submissionDto,
@@ -84,10 +115,24 @@ async function addSubmission(
   return submission
 }
 
-async function sendSubmissionInvitation(
+async function sendInvitation(
+  repository: SubmissionRepository,
   emailClient: EmailClient,
-  emailAddress: string,
+  domain: string,
+  payload: Record<string, unknown>,
 ) {
-  await emailClient.sendMail(emailAddress, 'Invitation', 'Hello')
-  return
+  const invitationDto = InvitationDto.parse(payload)
+  const invitation = {
+    ...invitationDto,
+    id: uuidv4(),
+    createdAt: new Date().toISOString(),
+  }
+  const invitationUrl = `${domain}/api/submissions/${invitation.id}`
+  await repository.addInvitation(invitation)
+  await emailClient.sendMail(
+    invitation.emailAddress,
+    'Invitation',
+    `Send submission to the following unique URL: ${invitationUrl}`,
+  )
+  return invitation
 }

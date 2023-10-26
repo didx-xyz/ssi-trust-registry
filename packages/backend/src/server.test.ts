@@ -10,6 +10,8 @@ import { EntityService, exampleEntityDto } from './entity/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { createFakeEmailClient } from './__tests__/helpers'
+import { Invitation, SubmissionService } from './submission/service'
+import { z } from 'zod'
 
 const { port, url } = config.server
 
@@ -18,18 +20,23 @@ describe('api', () => {
   let database: Db
   let entityService: EntityService
   let schemaService: SchemaService
+  let submissionService: SubmissionService
 
   beforeAll(async () => {
     database = await connect(config.db)
     const didResolver = await createFakeDidResolver(correctDids)
     const emailClient = await createFakeEmailClient()
-    const context = await createAppContext({
-      database,
-      didResolver,
-      emailClient,
-    })
+    const context = await createAppContext(
+      {
+        database,
+        didResolver,
+        emailClient,
+      },
+      `${url}:${port}`,
+    )
     entityService = context.entityService
     schemaService = context.schemaService
+    submissionService = context.submissionService
     server = await startServer({ port, url }, context)
   })
 
@@ -66,12 +73,32 @@ describe('api', () => {
       credentials: ['Enmy7mgJopSsELLXd9G91d:3:CL:24:default'],
     }
 
+    let invitation: InvitationWithUrl
+
+    type InvitationWithUrl = z.infer<typeof InvitationWithUrl>
+
+    const InvitationWithUrl = Invitation.extend({
+      url: z.string(),
+    })
+
     beforeEach(async () => {
       await database.dropDatabase()
+      invitation = await generateNewInvitation(submissionService)
+    })
+
+    test('invalid invitationId fails with 500 error', async () => {
+      const result = await post(
+        `${url}:${port}/api/submissions/invalid`,
+        absaSubmission,
+      )
+      const status = result.status
+      const response = await result.json()
+      expect(status).toEqual(500)
+      expect(response.error).toEqual('Invitation not found')
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
-      const result = await post(`http://localhost:${port}/api/submissions`, {})
+      const result = await post(invitation.url, {})
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -122,32 +149,19 @@ describe('api', () => {
     })
 
     test('submissions with exisiting DID fails with 500 error', async () => {
-      await post(`http://localhost:${port}/api/submissions`, absaSubmission)
-      const result = await post(
-        `http://localhost:${port}/api/submissions`,
-        absaSubmission,
-      )
+      await post(invitation.url, absaSubmission)
+      const invitationB = await generateNewInvitation(submissionService)
+      const result = await post(invitationB.url, absaSubmission)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(500)
       expect(response.error).toEqual(
-        'Submission with the same DID already exisits',
+        'Submission with the same DID already exists',
       )
-    })
-
-    test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
-      const result = await post(
-        `http://localhost:${port}/api/submissions`,
-        yomaSubmission,
-      )
-      const status = result.status
-      const response = await result.json()
-      expect(status).toEqual(201)
-      expect(response.id).toEqual(expect.any(String))
     })
 
     test('correct submissions succeeds and adds it to the list', async () => {
-      await post(`http://localhost:${port}/api/submissions`, absaSubmission)
+      await post(invitation.url, absaSubmission)
 
       const result = await fetch(`http://localhost:${port}/api/submissions`)
       const status = result.status
@@ -158,6 +172,7 @@ describe('api', () => {
         {
           ...absaSubmission,
           id: expect.any(String),
+          invitationId: expect.any(String),
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
         },
@@ -166,6 +181,23 @@ describe('api', () => {
       // Registry should be still empty
       const registry = await fetchRegistry()
       expect(registry).toEqual({ entities: [], schemas: [] })
+    })
+
+    test('second use of invitation url fails with 500 error', async () => {
+      await post(invitation.url, absaSubmission)
+      const result = await post(invitation.url, yomaSubmission)
+      const status = result.status
+      const response = await result.json()
+      expect(status).toEqual(500)
+      expect(response.error).toEqual('Submission already completed')
+    })
+
+    test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
+      const result = await post(invitation.url, yomaSubmission)
+      const status = result.status
+      const response = await result.json()
+      expect(status).toEqual(201)
+      expect(response.id).toEqual(expect.any(String))
     })
   })
 
@@ -455,10 +487,9 @@ describe('api', () => {
   })
 })
 
-function fetchRegistry() {
-  return fetch(`http://localhost:${port}/api/registry`).then((response) =>
-    response.json(),
-  )
+async function fetchRegistry() {
+  const response = await fetch(`http://localhost:${port}/api/registry`)
+  return await response.json()
 }
 
 function post(endpoint: string, payload: Record<string, unknown>) {
@@ -477,5 +508,15 @@ async function createFakeDidResolver(correctDids: Record<string, any>) {
     resolveDid: (did: string) => {
       return correctDids[did]
     },
+  }
+}
+
+async function generateNewInvitation(submissionService: SubmissionService) {
+  const invitation = await submissionService.sendInvitation({
+    emailAddress: 'text@example.com',
+  })
+  return {
+    ...invitation,
+    url: `${url}:${port}/api/submissions/${invitation.id}`,
   }
 }
