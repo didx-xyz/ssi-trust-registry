@@ -11,6 +11,7 @@ extendZodWithOpenApi(z)
 export async function createSubmissionService(
   repository: SubmissionRepository,
   emailClient: EmailClient,
+  domain: string,
 ): Promise<SubmissionService> {
   return {
     getAllSubmissions: partial(getAllSubmissions, repository),

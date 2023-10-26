@@ -7,7 +7,7 @@ import { config } from './config'
 import { close, connect } from './database'
 import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService, exampleEntityDto } from './entity/service'
-import { InvitationWithUrl } from './submission/service'
+import { InvitationWithUrl, SubmissionService } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { EmailClientStub, createEmailClientStub } from './email/client-stub'
@@ -20,6 +20,7 @@ describe('api', () => {
   let entityService: EntityService
   let schemaService: SchemaService
   let emailClient: EmailClientStub
+  let submissionService: SubmissionService
 
   beforeAll(async () => {
     database = await connect(config.db)
@@ -32,6 +33,7 @@ describe('api', () => {
     })
     entityService = context.entityService
     schemaService = context.schemaService
+    submissionService = context.submissionService
     server = await startServer({ port, url }, context)
   })
 
