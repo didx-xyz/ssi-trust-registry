@@ -1,8 +1,12 @@
 import partial from 'lodash.partial'
-import nodemailer, { Transporter } from 'nodemailer'
+import nodemailer, { SentMessageInfo, Transporter } from 'nodemailer'
 
 export interface EmailClient {
-  sendMail: (to: string, subject: string, text: string) => Promise<void>
+  sendMail: (
+    to: string,
+    subject: string,
+    text: string,
+  ) => Promise<SentMessageInfo>
 }
 
 interface SmtpConfig {
@@ -14,25 +18,22 @@ interface SmtpConfig {
   }
 }
 
-export function createEmailClient(config: SmtpConfig) {
+export function createEmailClient(config: SmtpConfig): EmailClient {
   const transporter = nodemailer.createTransport(config)
   return {
     sendMail: partial(sendMail, transporter),
   }
 }
 
-export async function sendMail(
+export function sendMail(
   transporter: Transporter,
   to: string,
   subject: string,
   text: string,
-) {
-  const info = await transporter.sendMail({
+): Promise<SentMessageInfo> {
+  return transporter.sendMail({
     to,
     subject,
     text,
   })
-
-  console.log('Message sent: %s', info.messageId)
-  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
 }
