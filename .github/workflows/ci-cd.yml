@@ -32,11 +32,20 @@ jobs:
       URL: http://localhost
       DB_CONNECTION_STRING: mongodb://localhost:4000
       DB_NAME: test_registry
+      SMTP_HOST: localhost
+      SMTP_PORT: 5001
+      SMTP_USER: admin@example.com
+      SMTP_PASSWORD: password
     services:
       mongo:
         image: mongo:7.0
         ports:
           - 4000:27017
+      smtp4dev:
+        image: rnwood/smtp4dev:3.1.0
+        ports:
+          - 5000:80
+          - 5001:25
 
     concurrency:
       group: ${{ github.workflow }}-test-${{ github.ref }}
