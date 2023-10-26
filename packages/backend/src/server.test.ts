@@ -1,13 +1,16 @@
 import fetch from 'node-fetch'
-import { startServer } from './server'
+import nodemailer from 'nodemailer'
+import { Db } from 'mongodb'
 import { Server } from 'http'
+
+import { startServer } from './server'
 import { config } from './config'
 import { close, connect } from './database'
 import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService, exampleEntityDto } from './entity/service'
 import { createAppContext } from './context'
-import { Db } from 'mongodb'
 import { correctDids } from './__tests__/fixtures'
+import { createEmailClient } from './email-client'
 
 const { port, url } = config.server
 
@@ -20,7 +23,12 @@ describe('api', () => {
   beforeAll(async () => {
     database = await connect(config.db)
     const didResolver = await createFakeDidResolver(correctDids)
-    const context = await createAppContext({ database, didResolver })
+    const emailClient = await createFakeEmailClient()
+    const context = await createAppContext({
+      database,
+      didResolver,
+      emailClient,
+    })
     entityService = context.entityService
     schemaService = context.schemaService
     server = await startServer({ port, url }, context)
@@ -471,4 +479,17 @@ async function createFakeDidResolver(correctDids: Record<string, any>) {
       return correctDids[did]
     },
   }
+}
+
+async function createFakeEmailClient() {
+  const testAccount = await nodemailer.createTestAccount()
+  const transporter = createEmailClient({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass,
+    },
+  })
+  return transporter
 }
