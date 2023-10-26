@@ -1,5 +1,4 @@
 import fetch from 'node-fetch'
-import nodemailer from 'nodemailer'
 import { Db } from 'mongodb'
 import { Server } from 'http'
 
@@ -10,7 +9,7 @@ import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService, exampleEntityDto } from './entity/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
-import { createEmailClient } from './email-client'
+import { createFakeEmailClient } from './__tests__/helpers'
 
 const { port, url } = config.server
 
@@ -479,17 +478,4 @@ async function createFakeDidResolver(correctDids: Record<string, any>) {
       return correctDids[did]
     },
   }
-}
-
-async function createFakeEmailClient() {
-  const testAccount = await nodemailer.createTestAccount()
-  const transporter = createEmailClient({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
-    },
-  })
-  return transporter
 }

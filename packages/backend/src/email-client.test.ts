@@ -1,14 +1,11 @@
-import { config } from './config'
-import {
-  EmailClient,
-  createEmailClient,
-} from '@ssi-trust-registry/backend/src/email-client'
+import { EmailClient } from '@ssi-trust-registry/backend/src/email-client'
+import { createFakeEmailClient } from './__tests__/helpers'
 
 describe('EmailClient', () => {
   let emailClient: EmailClient
 
   beforeAll(async () => {
-    emailClient = createEmailClient(config.smtp)
+    emailClient = await createFakeEmailClient()
   })
 
   describe('sendMail', () => {
