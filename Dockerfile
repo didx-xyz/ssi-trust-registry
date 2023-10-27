@@ -1,7 +1,7 @@
 ###
 # Builder
 ###
-FROM docker.io/node:18-slim AS builder
+FROM docker.io/node:20-slim AS builder
 
 USER 0
 RUN apt-get update && apt-get install -y \
@@ -18,7 +18,6 @@ COPY ./packages/frontend/package.json ./packages/frontend/
 COPY ./packages/backend/package.json ./packages/backend/
 RUN yarn install --frozen-lockfile
 
-
 COPY . .
 RUN yarn build
 
@@ -30,7 +29,7 @@ RUN yarn install --frozen-lockfile
 ###
 # Runner
 ###
-FROM docker.io/node:18-slim AS runner
+FROM docker.io/node:20-slim AS runner
 
 USER 0
 RUN apt-get update && apt-get install -y  \
