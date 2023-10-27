@@ -14,13 +14,12 @@ interface IO {
   emailClient: EmailClient
 }
 
-export async function createAppContext(io: IO, domain: string) {
+export async function createAppContext(io: IO) {
   const { database, didResolver, emailClient } = io
   const submissionRepository = await createSubmissionsRepository(database)
   const submissionService = await createSubmissionService(
     submissionRepository,
     emailClient,
-    domain,
   )
   const schemaRepository = await createSchemaRepository(database)
   const schemaService = await createSchemaService(schemaRepository)
