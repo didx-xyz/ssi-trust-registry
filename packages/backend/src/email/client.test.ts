@@ -1,5 +1,5 @@
-import { EmailClient } from '@ssi-trust-registry/backend/src/email-client'
-import { createFakeEmailClient } from './__tests__/helpers'
+import { EmailClient } from './client'
+import { createFakeEmailClient } from '../__tests__/helpers'
 
 describe('EmailClient', () => {
   let emailClient: EmailClient

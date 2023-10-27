@@ -5,7 +5,7 @@ import { createLogger } from './logger'
 import { close, connect } from './database'
 import { createAppContext } from './context'
 import { createDidResolver } from './did-resolver/did-resolver'
-import { createEmailClient } from './email-client'
+import { createEmailClient } from './email/client'
 
 const logger = createLogger(__filename)
 

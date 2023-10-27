@@ -6,7 +6,7 @@ import { createSchemaRepository } from './schema/mongoRepository'
 import { createSchemaService } from './schema/service'
 import { createEntityRepository } from './entity/mongoRepository'
 import { createEntityService } from './entity/service'
-import { EmailClient } from './email-client'
+import { EmailClient } from './email/client'
 
 interface IO {
   database: Db

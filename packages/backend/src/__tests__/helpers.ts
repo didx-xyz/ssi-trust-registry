@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { createEmailClient } from '../email-client'
+import { createEmailClient } from '../email/client'
 
 export async function createFakeEmailClient() {
   const testAccount = await nodemailer.createTestAccount()
