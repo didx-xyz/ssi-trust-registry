@@ -1,4 +1,4 @@
 # https://asdf-vm.com/
 # https://github.com/jdxcode/rtx
-nodejs 18
+nodejs 20
 tilt latest

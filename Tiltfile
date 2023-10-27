@@ -6,7 +6,7 @@ docker_build(
   live_update=[
     sync('./', '/app'),
     run('yarn install', trigger=['./package.json', './yarn.lock']),
-    run('yarn build', trigger=['./src']),
+    run('yarn build', trigger=['./packages']),
     restart_container()
   ],
   build_args={

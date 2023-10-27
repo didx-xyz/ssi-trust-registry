@@ -2,7 +2,7 @@ apiVersion: v2
 name: trust-registry
 description: A Helm chart to deploy the SSI Trust Registry in Kubernetes
 type: application
-version: 0.1.4
+version: 0.1.5
 
 keywords:
   - ssi
@@ -21,7 +21,7 @@ dependencies:
     repository: oci://registry-1.docker.io/bitnamicharts
   # https://github.com/bitnami/charts/tree/main/bitnami/mongodb
   - name: mongodb
-    version: 14.0.10
+    version: 14.0.14
     repository: oci://registry-1.docker.io/bitnamicharts
     alias: mongodb
     condition: mongodb.enabled

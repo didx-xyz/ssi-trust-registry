@@ -44,9 +44,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: yarn
       - run: yarn global add node-gyp
       - run: yarn install --frozen-lockfile
@@ -137,7 +137,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TAILSCALE_VERSION: 1.50.1
-      HELMFILE_VERSION: v0.157.0
+      HELMFILE_VERSION: v0.158.0
       HELM_VERSION: v3.13.1
 
     concurrency:
