@@ -90,13 +90,16 @@ export function startServer(
     )
 
     apiRouter.post(
-      '/invite',
+      '/invitation',
       asyncHandler(async (req, res) => {
         const payload = req.body
         console.log(payload)
         logger.info(`Sending invitation to:`, payload.emailAddress)
-        await context.submissionService.sendInvitation(payload)
-        res.status(200).send('OK')
+        const invitation = await context.submissionService.generateInvitation(
+          `${config.url}:${config.port}`,
+          payload,
+        )
+        res.status(200).json(invitation)
       }),
     )
 

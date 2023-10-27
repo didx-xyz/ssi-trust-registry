@@ -11,17 +11,19 @@ extendZodWithOpenApi(z)
 export async function createSubmissionService(
   repository: SubmissionRepository,
   emailClient: EmailClient,
-  domain: string,
 ): Promise<SubmissionService> {
   return {
     getAllSubmissions: partial(getAllSubmissions, repository),
     addSubmission: partial(addSubmission, repository),
-    sendInvitation: partial(sendInvitation, repository, emailClient, domain),
+    generateInvitation: partial(generateInvitation, repository, emailClient),
   }
 }
 
 export interface SubmissionService {
-  sendInvitation: (payload: Record<string, unknown>) => Promise<Invitation>
+  generateInvitation: (
+    domain: string,
+    payload: Record<string, unknown>,
+  ) => Promise<InvitationWithUrl>
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (payload: Record<string, unknown>) => Promise<Submission>
 }
@@ -66,19 +68,23 @@ export const Submission = SubmissionDto.extend({
   updatedAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
 }).openapi('SubmissionResponse')
 
+export type InvitationDto = z.infer<typeof InvitationDto>
 export const InvitationDto = z
   .object({
     emailAddress: z.string().openapi({ example: 'test@example.com' }),
   })
   .openapi('SubmissionInvitationRequest')
 
-export type InvitationDto = z.infer<typeof InvitationDto>
 export type Invitation = z.infer<typeof Invitation>
-
 export const Invitation = InvitationDto.extend({
   id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
   createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
 }).openapi('SubmissionInvitationResponse')
+
+export type InvitationWithUrl = z.infer<typeof InvitationWithUrl>
+export const InvitationWithUrl = Invitation.extend({
+  url: z.string(),
+})
 
 async function getAllSubmissions(repository: SubmissionRepository) {
   return (await repository.getAllSubmissions()).map((s) => ({
@@ -115,7 +121,7 @@ async function addSubmission(
   return submission
 }
 
-async function sendInvitation(
+async function generateInvitation(
   repository: SubmissionRepository,
   emailClient: EmailClient,
   domain: string,
@@ -135,5 +141,5 @@ async function sendInvitation(
     './src/email/templates/invitation.html',
     { invitationUrl },
   )
-  return invitation
+  return { ...invitation, url: invitationUrl }
 }

@@ -7,11 +7,10 @@ import { config } from './config'
 import { close, connect } from './database'
 import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService, exampleEntityDto } from './entity/service'
+import { InvitationWithUrl } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { createFakeEmailClient } from './__tests__/helpers'
-import { Invitation, SubmissionService } from './submission/service'
-import { z } from 'zod'
 
 const { port, url } = config.server
 
@@ -20,23 +19,18 @@ describe('api', () => {
   let database: Db
   let entityService: EntityService
   let schemaService: SchemaService
-  let submissionService: SubmissionService
 
   beforeAll(async () => {
     database = await connect(config.db)
     const didResolver = await createFakeDidResolver(correctDids)
     const emailClient = await createFakeEmailClient()
-    const context = await createAppContext(
-      {
-        database,
-        didResolver,
-        emailClient,
-      },
-      `${url}:${port}`,
-    )
+    const context = await createAppContext({
+      database,
+      didResolver,
+      emailClient,
+    })
     entityService = context.entityService
     schemaService = context.schemaService
-    submissionService = context.submissionService
     server = await startServer({ port, url }, context)
   })
 
@@ -75,15 +69,9 @@ describe('api', () => {
 
     let invitation: InvitationWithUrl
 
-    type InvitationWithUrl = z.infer<typeof InvitationWithUrl>
-
-    const InvitationWithUrl = Invitation.extend({
-      url: z.string(),
-    })
-
     beforeEach(async () => {
       await database.dropDatabase()
-      invitation = await generateNewInvitation(submissionService)
+      invitation = await fetchNewInvitation()
     })
 
     test('invalid invitationId fails with 500 error', async () => {
@@ -150,7 +138,7 @@ describe('api', () => {
 
     test('submissions with exisiting DID fails with 500 error', async () => {
       await post(invitation.url, absaSubmission)
-      const invitationB = await generateNewInvitation(submissionService)
+      const invitationB = await fetchNewInvitation()
       const result = await post(invitationB.url, absaSubmission)
       const status = result.status
       const response = await result.json()
@@ -492,6 +480,13 @@ async function fetchRegistry() {
   return await response.json()
 }
 
+async function fetchNewInvitation() {
+  const response = await post(`http://localhost:${port}/api/invitation`, {
+    emailAddress: 'test@test.com',
+  })
+  return await response.json()
+}
+
 function post(endpoint: string, payload: Record<string, unknown>) {
   return fetch(endpoint, {
     method: 'POST',
@@ -508,15 +503,5 @@ async function createFakeDidResolver(correctDids: Record<string, any>) {
     resolveDid: (did: string) => {
       return correctDids[did]
     },
-  }
-}
-
-async function generateNewInvitation(submissionService: SubmissionService) {
-  const invitation = await submissionService.sendInvitation({
-    emailAddress: 'text@example.com',
-  })
-  return {
-    ...invitation,
-    url: `${url}:${port}/api/submissions/${invitation.id}`,
   }
 }
