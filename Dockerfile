@@ -16,12 +16,16 @@ WORKDIR /app
 COPY yarn.lock package.json ./
 COPY ./packages/frontend/package.json ./packages/frontend/
 COPY ./packages/backend/package.json ./packages/backend/
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
 RUN yarn install --frozen-lockfile
+
 
 COPY . .
 RUN yarn build
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+RUN rm -rf node_modules
+RUN yarn install --frozen-lockfile
 
 ###
 # Runner
