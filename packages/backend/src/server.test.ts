@@ -501,13 +501,6 @@ async function generateNewInvitation() {
   return await response.json()
 }
 
-async function fetchNewInvitation() {
-  const response = await post(`http://localhost:${port}/api/invitation`, {
-    emailAddress: 'test@test.com',
-  })
-  return await response.json()
-}
-
 function post(endpoint: string, payload: Record<string, unknown>) {
   return fetch(endpoint, {
     method: 'POST',
