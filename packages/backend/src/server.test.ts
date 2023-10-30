@@ -477,7 +477,7 @@ describe('api', () => {
 
 async function fetchRegistry() {
   const response = await fetch(`http://localhost:${port}/api/registry`)
-  return await response.json()
+  return response.json()
 }
 
 async function fetchNewInvitation() {
