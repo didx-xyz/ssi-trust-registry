@@ -71,7 +71,7 @@ describe('api', () => {
 
     beforeEach(async () => {
       await database.dropDatabase()
-      invitation = await fetchNewInvitation()
+      invitation = await generateNewInvitation()
     })
 
     test('invalid invitationId fails with 500 error', async () => {
@@ -138,7 +138,7 @@ describe('api', () => {
 
     test('submissions with exisiting DID fails with 500 error', async () => {
       await post(invitation.url, absaSubmission)
-      const invitationB = await fetchNewInvitation()
+      const invitationB = await generateNewInvitation()
       const result = await post(invitationB.url, absaSubmission)
       const status = result.status
       const response = await result.json()
@@ -480,7 +480,7 @@ async function fetchRegistry() {
   return response.json()
 }
 
-async function fetchNewInvitation() {
+async function generateNewInvitation() {
   const response = await post(`http://localhost:${port}/api/invitation`, {
     emailAddress: 'test@test.com',
   })
