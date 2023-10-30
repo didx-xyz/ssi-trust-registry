@@ -32,8 +32,8 @@ jobs:
       URL: http://localhost
       DB_CONNECTION_STRING: mongodb://localhost:4000
       DB_NAME: test_registry
-      SMTP_HOST: smtp.ethereal.email
-      SMTP_PORT: 587
+      SMTP_HOST: localhost
+      SMTP_PORT: 25
       SMTP_USER: placeholder
       SMTP_PASSWORD: placeholder
     services:
@@ -123,6 +123,13 @@ jobs:
       # Run a few tests
       - run: curl --silent --show-error --fail http://localhost:3000/health
       - run: curl --silent --show-error --fail http://localhost:3000/api/registry
+      - run: |
+          curl --silent --show-error --fail -X POST -H "Content-Type: application/json" -d '{"emailAddress":"test@example.com"}' http://localhost:3000/api/invitation
+          messages=$(curl --silent --show-error --fail http://localhost:5000/api/Messages)
+          if [ ${#messages[@]} -eq 0 ]; then
+            echo "Messages is empty"
+            exit 1
+          fi
 
       - name: MongoDB logs
         if: always()
