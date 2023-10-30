@@ -4,18 +4,31 @@ import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../logger'
 import { EmailClient } from '../email/client'
+import { DidResolver } from '../did-resolver/did-resolver'
+import { EntityRepository } from '../entity/service'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
 
 export async function createSubmissionService(
-  repository: SubmissionRepository,
+  submissionRepository: SubmissionRepository,
+  entityRepository: EntityRepository,
+  didResolver: DidResolver,
   emailClient: EmailClient,
 ): Promise<SubmissionService> {
   return {
-    getAllSubmissions: partial(getAllSubmissions, repository),
-    addSubmission: partial(addSubmission, repository),
-    generateInvitation: partial(generateInvitation, repository, emailClient),
+    getAllSubmissions: partial(getAllSubmissions, submissionRepository),
+    addSubmission: partial(
+      addSubmission,
+      submissionRepository,
+      entityRepository,
+      didResolver,
+    ),
+    generateInvitation: partial(
+      generateInvitation,
+      submissionRepository,
+      emailClient,
+    ),
   }
 }
 
@@ -30,11 +43,10 @@ export interface SubmissionService {
 
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
-  getAllInvitations: () => Promise<Invitation[]>
   addSubmission: (submission: Submission) => Promise<Submission>
+  findLastSubmissionByInvitationId: (id: string) => Promise<Submission | null>
+  getAllInvitations: () => Promise<Invitation[]>
   addInvitation: (invitation: Invitation) => Promise<Invitation>
-  findSubmissionByDid: (did: string) => Promise<Submission | null>
-  findSubmissionByInvitationId: (id: string) => Promise<Submission | null>
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
@@ -44,7 +56,12 @@ export const SubmissionDto = z
       .string()
       .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
     name: z.string().openapi({ example: 'Absa' }),
-    did: z.string().openapi({ example: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3' }),
+    dids: z.array(z.string()).openapi({
+      example: [
+        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
+      ],
+    }),
     logo_url: z.string().openapi({
       example:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
@@ -66,6 +83,9 @@ export const Submission = SubmissionDto.extend({
   id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
   createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
   updatedAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
+  state: z
+    .enum(['pending', 'approved', 'rejected'])
+    .openapi({ example: 'pending' }),
 }).openapi('SubmissionResponse')
 
 export type InvitationDto = z.infer<typeof InvitationDto>
@@ -94,30 +114,57 @@ async function getAllSubmissions(repository: SubmissionRepository) {
 }
 
 async function addSubmission(
-  repository: SubmissionRepository,
+  submissionRepository: SubmissionRepository,
+  entityRepository: EntityRepository,
+  didResolver: DidResolver,
   payload: Record<string, unknown>,
 ): Promise<Submission> {
   const submissionDto = SubmissionDto.parse(payload)
-
-  if (!(await repository.findInvitationById(submissionDto.invitationId))) {
+  if (
+    !(await submissionRepository.findInvitationById(submissionDto.invitationId))
+  ) {
     throw new Error('Invitation not found')
   }
-  if (
-    await repository.findSubmissionByInvitationId(submissionDto.invitationId)
-  ) {
-    throw new Error('Submission already completed')
+  for (const did of submissionDto.dids) {
+    const didDocument = await didResolver.resolveDid(did)
+    if (!didDocument) {
+      throw new Error(`DID '${did}' is not resolvable`)
+    }
+    const existingEntity = await entityRepository.findByDid(did)
+    if (
+      existingEntity?.invitationId &&
+      existingEntity.invitationId !== submissionDto.invitationId
+    ) {
+      throw new Error(
+        `An entity associated with a different invitation already contains the DID '${did}'`,
+      )
+    }
   }
-  if (await repository.findSubmissionByDid(submissionDto.did)) {
-    throw new Error('Submission with the same DID already exists')
-  }
+
+  const existingSubmission =
+    await submissionRepository.findLastSubmissionByInvitationId(
+      submissionDto.invitationId,
+    )
+
   const submission = {
     ...submissionDto,
-    id: uuidv4(),
-    createdAt: new Date().toISOString(),
+    id:
+      existingSubmission?.state === 'pending'
+        ? existingSubmission.id
+        : uuidv4(),
+    createdAt:
+      existingSubmission?.state === 'pending'
+        ? existingSubmission.createdAt
+        : new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    state: 'pending' as const,
   }
-  await repository.addSubmission(submission)
-  logger.info(`Submission ${submission.id} has been added`)
+  await submissionRepository.addSubmission(submission)
+  logger.info(
+    `Submission ${submission.id} has been ${
+      existingSubmission?.state === 'pending' ? 'updated' : 'created'
+    }}`,
+  )
   return submission
 }
 

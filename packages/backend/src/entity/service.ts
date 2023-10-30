@@ -57,6 +57,9 @@ export const exampleEntityDto = {
 
 export const EntityDto = z
   .object({
+    invitationId: z
+      .string()
+      .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
     id: z.string().openapi({ example: exampleEntityDto.id }),
     name: z.string().openapi({ example: exampleEntityDto.name }),
     dids: z.array(z.string()).openapi({ example: exampleEntityDto.dids }),

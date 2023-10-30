@@ -12,9 +12,8 @@ export async function createSubmissionsRepository(
   const invitationCollection = database.collection('invitations')
   return {
     getAllSubmissions: partial(getAllSubmissions, submissionCollection),
-    findSubmissionByDid: partial(findSubmissionByDid, submissionCollection),
-    findSubmissionByInvitationId: partial(
-      findSubmissionByInvitationId,
+    findLastSubmissionByInvitationId: partial(
+      findLastSubmissionByInvitationId,
       submissionCollection,
     ),
     addSubmission: partial(addSubmission, submissionCollection),
@@ -29,16 +28,14 @@ async function getAllSubmissions(collection: Collection) {
   return result.map((s) => Submission.parse(s))
 }
 
-async function findSubmissionByDid(collection: Collection, did: string) {
-  const submission = await collection.findOne({ did })
-  return submission && Submission.parse(submission)
-}
-
-async function findSubmissionByInvitationId(
+async function findLastSubmissionByInvitationId(
   collection: Collection,
   invitationId: string,
 ) {
-  const submission = await collection.findOne({ invitationId })
+  const submission = await collection.findOne(
+    { invitationId },
+    { sort: { updatedAt: -1 } },
+  )
   return submission && Submission.parse(submission)
 }
 

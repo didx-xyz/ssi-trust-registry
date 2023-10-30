@@ -97,7 +97,6 @@ export function startServer(
       disableInProduction,
       asyncHandler(async (req, res) => {
         const payload = req.body
-        console.log(payload)
         logger.info(`Sending invitation to:`, payload.emailAddress)
         const invitation = await context.submissionService.generateInvitation(
           `${config.url}:${config.port}`,
