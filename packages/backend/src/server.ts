@@ -81,14 +81,29 @@ export function startServer(
     )
 
     apiRouter.post(
-      '/submissions',
+      '/submissions/:invitationId',
       disableInProduction,
       asyncHandler(async (req, res) => {
-        const payload = req.body
+        const payload = { ...req.body, invitationId: req.params.invitationId }
         logger.info(`Processing submission:`, payload)
         const submission =
           await context.submissionService.addSubmission(payload)
         res.status(201).json(submission)
+      }),
+    )
+
+    apiRouter.post(
+      '/invitation',
+      disableInProduction,
+      asyncHandler(async (req, res) => {
+        const payload = req.body
+        console.log(payload)
+        logger.info(`Sending invitation to:`, payload.emailAddress)
+        const invitation = await context.submissionService.generateInvitation(
+          `${config.url}:${config.port}`,
+          payload,
+        )
+        res.status(200).json(invitation)
       }),
     )
 

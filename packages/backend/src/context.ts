@@ -6,16 +6,21 @@ import { createSchemaRepository } from './schema/mongoRepository'
 import { createSchemaService } from './schema/service'
 import { createEntityRepository } from './entity/mongoRepository'
 import { createEntityService } from './entity/service'
+import { EmailClient } from './email/client'
 
 interface IO {
   database: Db
   didResolver: DidResolver
+  emailClient: EmailClient
 }
 
 export async function createAppContext(io: IO) {
-  const { database, didResolver } = io
+  const { database, didResolver, emailClient } = io
   const submissionRepository = await createSubmissionsRepository(database)
-  const submissionService = await createSubmissionService(submissionRepository)
+  const submissionService = await createSubmissionService(
+    submissionRepository,
+    emailClient,
+  )
   const schemaRepository = await createSchemaRepository(database)
   const schemaService = await createSchemaService(schemaRepository)
   const entityRepository = await createEntityRepository(database)

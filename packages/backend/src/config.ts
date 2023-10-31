@@ -20,6 +20,14 @@ const ConfigSchema = z.object({
     connectionString: z.string(),
     name: z.string(),
   }),
+  smtp: z.object({
+    host: z.string(),
+    port: z.coerce.number(),
+    auth: z.object({
+      user: z.string(),
+      pass: z.string(),
+    }),
+  }),
 })
 
 type Config = z.infer<typeof ConfigSchema>
@@ -36,6 +44,14 @@ export const config: Config = ConfigSchema.parse({
   db: {
     connectionString: process.env.DB_CONNECTION_STRING,
     name: process.env.DB_NAME,
+  },
+  smtp: {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
   },
 })
 

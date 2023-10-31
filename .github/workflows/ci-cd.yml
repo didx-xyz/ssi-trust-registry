@@ -32,6 +32,10 @@ jobs:
       URL: http://localhost
       DB_CONNECTION_STRING: mongodb://localhost:4000
       DB_NAME: test_registry
+      SMTP_HOST: smtp.ethereal.email
+      SMTP_PORT: 587
+      SMTP_USER: placeholder
+      SMTP_PASSWORD: placeholder
     services:
       mongo:
         image: mongo:7.0

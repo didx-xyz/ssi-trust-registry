@@ -5,6 +5,7 @@ import { createLogger } from './logger'
 import { close, connect } from './database'
 import { createAppContext } from './context'
 import { createDidResolver } from './did-resolver/did-resolver'
+import { createEmailClient } from './email/client'
 
 const logger = createLogger(__filename)
 
@@ -13,7 +14,12 @@ async function main() {
 
   const database = await connect(config.db)
   const didResolver = await createDidResolver()
-  const context = await createAppContext({ database, didResolver })
+  const emailClient = createEmailClient(config.smtp)
+  const context = await createAppContext({
+    database,
+    didResolver,
+    emailClient,
+  })
 
   const registryContent = await fs.readFile('./src/data/registry.json', {
     encoding: 'utf8',

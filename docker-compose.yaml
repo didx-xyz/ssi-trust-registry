@@ -16,6 +16,10 @@ services:
       PORT: 3000
       DB_CONNECTION_STRING: mongodb://mongo:mongo@mongo:27017
       DB_NAME: trust-registry
+      SMTP_HOST: smtp4dev
+      SMTP_PORT: 25
+      SMTP_USER: user
+      SMTP_PASSWORD: password
     networks:
       - ssi-trust-registry
     depends_on:
@@ -54,6 +58,15 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    ports:
+      - 5000:80
+      - 25:25
+    networks:
+      - ssi-trust-registry
+    volumes:
+      - smtp4dev-data:/smtp4dev
 
   trust-registry-health:
     image: curlimages/curl
@@ -68,6 +81,8 @@ services:
 
 volumes:
   mongo:
+  smtp4dev-data:
+
 
 networks:
   ssi-trust-registry:
