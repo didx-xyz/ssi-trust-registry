@@ -10,7 +10,7 @@ import { EntityService, exampleEntityDto } from './entity/service'
 import { InvitationWithUrl } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
-import { EmailClientStub, createEmailClientStub } from './__tests__/helpers'
+import { EmailClientStub, createEmailClientStub } from './email/client-stub'
 
 const { port, url } = config.server
 
