@@ -568,7 +568,7 @@ function post(endpoint: string, payload: Record<string, unknown>) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function createFakeDidResolver(correctDids: Record<string, any>) {
+export async function createFakeDidResolver(correctDids: Record<string, any>) {
   return {
     resolveDid: (did: string) => {
       return correctDids[did]
