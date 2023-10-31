@@ -10,7 +10,7 @@ import { EntityService, exampleEntityDto } from './entity/service'
 import { InvitationWithUrl } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
-import { createFakeEmailClient } from './__tests__/helpers'
+import { EmailClientStub, createEmailClientStub } from './email/client-stub'
 
 const { port, url } = config.server
 
@@ -19,11 +19,12 @@ describe('api', () => {
   let database: Db
   let entityService: EntityService
   let schemaService: SchemaService
+  let emailClient: EmailClientStub
 
   beforeAll(async () => {
     database = await connect(config.db)
     const didResolver = await createFakeDidResolver(correctDids)
-    const emailClient = await createFakeEmailClient()
+    emailClient = createEmailClientStub()
     const context = await createAppContext({
       database,
       didResolver,
@@ -72,6 +73,17 @@ describe('api', () => {
     beforeEach(async () => {
       await database.dropDatabase()
       invitation = await generateNewInvitation()
+    })
+
+    test('invitation endpoint sends email', async () => {
+      await post(`http://localhost:${port}/api/invitation`, {
+        emailAddress: 'this-is-an-example@test.com',
+      })
+      expect(emailClient.sentMessages).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ to: 'this-is-an-example@test.com' }),
+        ]),
+      )
     })
 
     test('invalid invitationId fails with 500 error', async () => {
