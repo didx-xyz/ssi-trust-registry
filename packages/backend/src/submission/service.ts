@@ -44,7 +44,10 @@ export interface SubmissionService {
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (submission: Submission) => Promise<Submission>
-  findLastSubmissionByInvitationId: (id: string) => Promise<Submission | null>
+  updateSubmission: (submission: Submission) => Promise<Submission>
+  findPendingSubmissionByInvitationId: (
+    id: string,
+  ) => Promise<Submission | null>
   getAllInvitations: () => Promise<Invitation[]>
   addInvitation: (invitation: Invitation) => Promise<Invitation>
   findInvitationById: (id: string) => Promise<Invitation | null>
@@ -141,30 +144,32 @@ async function addSubmission(
     }
   }
 
-  const existingSubmission =
-    await submissionRepository.findLastSubmissionByInvitationId(
+  const pendingSubmission =
+    await submissionRepository.findPendingSubmissionByInvitationId(
       submissionDto.invitationId,
     )
 
-  const submission = {
-    ...submissionDto,
-    id:
-      existingSubmission?.state === 'pending'
-        ? existingSubmission.id
-        : uuidv4(),
-    createdAt:
-      existingSubmission?.state === 'pending'
-        ? existingSubmission.createdAt
-        : new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    state: 'pending' as const,
+  let submission: Submission
+  if (pendingSubmission) {
+    submission = {
+      ...submissionDto,
+      ...pendingSubmission,
+      updatedAt: new Date().toISOString(),
+    }
+    await submissionRepository.updateSubmission(submission)
+    logger.info(`Submission ${submission.id} has been updated in the database`)
+  } else {
+    submission = {
+      ...submissionDto,
+      id: uuidv4(),
+      createdAt: new Date().toISOString(),
+      state: 'pending' as const,
+      updatedAt: new Date().toISOString(),
+    }
+    await submissionRepository.addSubmission(submission)
+    logger.info(`Submission ${submission.id} has been added to the database`)
   }
-  await submissionRepository.addSubmission(submission)
-  logger.info(
-    `Submission ${submission.id} has been ${
-      existingSubmission?.state === 'pending' ? 'updated' : 'created'
-    }}`,
-  )
+
   return submission
 }
 

@@ -12,11 +12,12 @@ export async function createSubmissionsRepository(
   const invitationCollection = database.collection('invitations')
   return {
     getAllSubmissions: partial(getAllSubmissions, submissionCollection),
-    findLastSubmissionByInvitationId: partial(
-      findLastSubmissionByInvitationId,
+    addSubmission: partial(addSubmission, submissionCollection),
+    updateSubmission: partial(updateSubmission, submissionCollection),
+    findPendingSubmissionByInvitationId: partial(
+      findPendingSubmissionByInvitationId,
       submissionCollection,
     ),
-    addSubmission: partial(addSubmission, submissionCollection),
     getAllInvitations: partial(getAllInvitations, invitationCollection),
     findInvitationById: partial(findInvitationById, invitationCollection),
     addInvitation: partial(addInvitation, invitationCollection),
@@ -28,14 +29,14 @@ async function getAllSubmissions(collection: Collection) {
   return result.map((s) => Submission.parse(s))
 }
 
-async function findLastSubmissionByInvitationId(
+async function findPendingSubmissionByInvitationId(
   collection: Collection,
   invitationId: string,
 ) {
-  const submission = await collection.findOne(
-    { invitationId },
-    { sort: { updatedAt: -1 } },
-  )
+  const submission = await collection.findOne({
+    invitationId,
+    state: 'pending',
+  })
   return submission && Submission.parse(submission)
 }
 
@@ -45,6 +46,21 @@ async function addSubmission(collection: Collection, submission: Submission) {
   }
   const result = await collection.insertOne(submissionData)
   logger.info(`Submission inserted to the database`, result)
+  return submission
+}
+
+async function updateSubmission(
+  collection: Collection,
+  submission: Submission,
+) {
+  const submissionData = {
+    ...submission,
+  }
+  const result = await collection.updateOne(
+    { id: submission.id },
+    { $set: submissionData },
+  )
+  logger.info(`Submission updated in the database`, result)
   return submission
 }
 
