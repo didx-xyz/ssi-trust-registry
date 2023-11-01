@@ -8,6 +8,7 @@
     "build": "yarn workspace @ssi-trust-registry/backend build",
     "validate": "yarn workspace @ssi-trust-registry/backend validate",
     "test": "yarn workspace @ssi-trust-registry/backend test",
+    "dev": "yarn workspace @ssi-trust-registry/backend dev",
     "start": "yarn workspace @ssi-trust-registry/backend start",
     "postinstall": "node -e \"process.env.NODE_ENV !== 'production' && require('husky').install()\""
   }
