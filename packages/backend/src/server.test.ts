@@ -52,7 +52,7 @@ describe('api', () => {
   describe('submission', () => {
     const absaSubmission = {
       name: 'Absa',
-      did: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3',
+      dids: ['did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3'],
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
@@ -62,7 +62,7 @@ describe('api', () => {
 
     const yomaSubmission = {
       name: 'Yoma',
-      did: 'did:sov:Enmy7mgJopSsELLXd9G91d',
+      dids: ['did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb'],
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.yoma.xyz',
@@ -114,9 +114,9 @@ describe('api', () => {
         },
         {
           code: 'invalid_type',
-          expected: 'string',
+          expected: 'array',
           received: 'undefined',
-          path: ['did'],
+          path: ['dids'],
           message: 'Required',
         },
         {
@@ -151,14 +151,14 @@ describe('api', () => {
     })
 
     test('submissions with exisiting DID fails with 500 error', async () => {
-      await post(invitation.url, absaSubmission)
-      const invitationB = await generateNewInvitation()
-      const result = await post(invitationB.url, absaSubmission)
+      await schemaService.loadSchemas([exampleSchemaDto])
+      await entityService.loadEntities([exampleEntityDto])
+      const result = await post(invitation.url, absaSubmission)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(500)
-      expect(response.error).toEqual(
-        'Submission with the same DID already exists',
+      expect(response.error).toContain(
+        'An entity associated with a different invitation already contains the DID',
       )
     })
 
@@ -177,6 +177,7 @@ describe('api', () => {
           invitationId: expect.any(String),
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
+          state: 'pending',
         },
       ])
 
@@ -185,13 +186,35 @@ describe('api', () => {
       expect(registry).toEqual({ entities: [], schemas: [] })
     })
 
-    test('second use of invitation url fails with 500 error', async () => {
+    test.only('can update pending submission using same invitationUrl', async () => {
       await post(invitation.url, absaSubmission)
-      const result = await post(invitation.url, yomaSubmission)
-      const status = result.status
-      const response = await result.json()
-      expect(status).toEqual(500)
-      expect(response.error).toEqual('Submission already completed')
+      let result = await fetch(`http://localhost:${port}/api/submissions`)
+      let response = await result.json()
+      const [initialSubmission] = response
+      expect(initialSubmission).toEqual({
+        ...absaSubmission,
+        id: expect.any(String),
+        invitationId: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        state: 'pending',
+      })
+      await post(invitation.url, {
+        ...absaSubmission,
+        name: 'Updated Absa Name',
+      })
+      result = await fetch(`http://localhost:${port}/api/submissions`)
+      response = await result.json()
+      const [updatedSubmission] = response
+      expect(updatedSubmission).toEqual({
+        ...absaSubmission,
+        name: 'Updated Absa Name',
+        id: initialSubmission.id,
+        invitationId: initialSubmission.invitationId,
+        createdAt: initialSubmission.createdAt,
+        updatedAt: expect.any(String),
+        state: 'pending',
+      })
     })
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
@@ -359,6 +382,13 @@ describe('api', () => {
               expected: 'string',
               received: 'undefined',
               path: ['id'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['invitationId'],
               message: 'Required',
             },
             {

@@ -42,6 +42,7 @@ export type EntityDto = z.infer<typeof EntityDto>
 
 export const exampleEntityDto = {
   id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
+  invitationId: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
   name: 'Absa',
   logo_url: 'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
   domain: 'www.absa.africa',
@@ -57,10 +58,10 @@ export const exampleEntityDto = {
 
 export const EntityDto = z
   .object({
+    id: z.string().openapi({ example: exampleEntityDto.id }),
     invitationId: z
       .string()
       .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
-    id: z.string().openapi({ example: exampleEntityDto.id }),
     name: z.string().openapi({ example: exampleEntityDto.name }),
     dids: z.array(z.string()).openapi({ example: exampleEntityDto.dids }),
     logo_url: z.string().openapi({ example: exampleEntityDto.logo_url }),
