@@ -28,6 +28,7 @@ const ConfigSchema = z.object({
       pass: z.string(),
     }),
   }),
+  skipInitialDataLoad: z.boolean(),
 })
 
 type Config = z.infer<typeof ConfigSchema>
@@ -53,7 +54,10 @@ export const config: Config = ConfigSchema.parse({
       pass: process.env.SMTP_PASSWORD,
     },
   },
+  skipInitialDataLoad: process.env.SKIP_INITIAL_DATA_LOAD === 'true',
 })
+
+console.log('====== config ======', config)
 
 export function hideSecrets(config: Config) {
   return {
