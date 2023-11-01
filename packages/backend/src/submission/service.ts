@@ -152,8 +152,8 @@ async function addSubmission(
   let submission: Submission
   if (pendingSubmission) {
     submission = {
-      ...submissionDto,
       ...pendingSubmission,
+      ...submissionDto,
       updatedAt: new Date().toISOString(),
     }
     await submissionRepository.updateSubmission(submission)
