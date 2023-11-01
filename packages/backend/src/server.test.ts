@@ -1,13 +1,14 @@
 import fetch from 'node-fetch'
 import { Db } from 'mongodb'
 import { Server } from 'http'
+import { v4 as uuidv4 } from 'uuid'
 
 import { startServer } from './server'
 import { config } from './config'
 import { close, connect } from './database'
 import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService, exampleEntityDto } from './entity/service'
-import { InvitationWithUrl, SubmissionService } from './submission/service'
+import { InvitationWithUrl, SubmissionRepository } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { EmailClientStub, createEmailClientStub } from './email/client-stub'
@@ -20,7 +21,7 @@ describe('api', () => {
   let entityService: EntityService
   let schemaService: SchemaService
   let emailClient: EmailClientStub
-  let submissionService: SubmissionService
+  let submissionRepository: SubmissionRepository
 
   beforeAll(async () => {
     database = await connect(config.db)
@@ -33,7 +34,7 @@ describe('api', () => {
     })
     entityService = context.entityService
     schemaService = context.schemaService
-    submissionService = context.submissionService
+    submissionRepository = context.submissionRepository
     server = await startServer({ port, url }, context)
   })
 
@@ -56,7 +57,7 @@ describe('api', () => {
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
-      role: 'issuer',
+      role: 'issuer' as const,
       credentials: ['2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1'],
     }
 
@@ -66,7 +67,7 @@ describe('api', () => {
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.yoma.xyz',
-      role: 'issuer',
+      role: 'issuer' as const,
       credentials: ['Enmy7mgJopSsELLXd9G91d:3:CL:24:default'],
     }
 
@@ -186,7 +187,15 @@ describe('api', () => {
       expect(registry).toEqual({ entities: [], schemas: [] })
     })
 
-    test.only('can update pending submission using same invitationUrl', async () => {
+    test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
+      const result = await post(invitation.url, yomaSubmission)
+      const status = result.status
+      const response = await result.json()
+      expect(status).toEqual(201)
+      expect(response.id).toEqual(expect.any(String))
+    })
+
+    test('can update pending submission using same invitationUrl', async () => {
       await post(invitation.url, absaSubmission)
       let result = await fetch(`http://localhost:${port}/api/submissions`)
       let response = await result.json()
@@ -217,12 +226,44 @@ describe('api', () => {
       })
     })
 
-    test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
-      const result = await post(invitation.url, yomaSubmission)
-      const status = result.status
-      const response = await result.json()
-      expect(status).toEqual(201)
-      expect(response.id).toEqual(expect.any(String))
+    test('do not update approved submission', async () => {
+      submissionRepository.addSubmission({
+        ...absaSubmission,
+        id: uuidv4(),
+        invitationId: invitation.id,
+        state: 'approved' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+
+      await post(invitation.url, {
+        ...absaSubmission,
+        name: 'Updated Absa Name',
+      })
+
+      const result = await fetch(`http://localhost:${port}/api/submissions`)
+      const submissions = await result.json()
+      expect(submissions.length).toBe(2)
+    })
+
+    test('do not update rejected submission', async () => {
+      submissionRepository.addSubmission({
+        ...absaSubmission,
+        id: uuidv4(),
+        invitationId: invitation.id,
+        state: 'rejected' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+
+      await post(invitation.url, {
+        ...absaSubmission,
+        name: 'Updated Absa Name',
+      })
+
+      const result = await fetch(`http://localhost:${port}/api/submissions`)
+      const submissions = await result.json()
+      expect(submissions.length).toBe(2)
     })
   })
 
