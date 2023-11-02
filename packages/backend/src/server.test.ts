@@ -84,7 +84,7 @@ describe('api', () => {
     })
 
     test('invitation endpoint sends email', async () => {
-      await post(`http://localhost:${port}/api/invitation`, {
+      await generateNewInvitation({
         emailAddress: 'this-is-an-example@test.com',
       })
       expect(emailClient.sentMessages).toEqual(
@@ -183,13 +183,22 @@ describe('api', () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           state: 'pending',
-          submitterEmail: expect.any(String),
+          submitterEmail: 'test@test.com',
         },
       ])
 
-      // Registry should be still empty
+      // Registry should not have changed
       const registry = await fetchRegistry()
-      expect(registry).toEqual({ entities: [], schemas: [] })
+      expect(registry).toEqual({
+        entities: [],
+        schemas: [
+          {
+            ...exampleSchemaDto,
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+          },
+        ],
+      })
     })
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
@@ -212,7 +221,7 @@ describe('api', () => {
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         state: 'pending',
-        submitterEmail: expect.any(String),
+        submitterEmail: 'test@test.com',
       })
       await post(invitation.url, {
         ...absaSubmission,
@@ -229,7 +238,7 @@ describe('api', () => {
         createdAt: initialSubmission.createdAt,
         updatedAt: expect.any(String),
         state: 'pending',
-        submitterEmail: expect.any(String),
+        submitterEmail: 'test@test.com',
       })
     })
 
@@ -572,9 +581,9 @@ async function fetchRegistry() {
   return response.json()
 }
 
-async function generateNewInvitation() {
+async function generateNewInvitation({ emailAddress = 'test@test.com' } = {}) {
   const response = await post(`http://localhost:${port}/api/invitation`, {
-    emailAddress: 'test@test.com',
+    emailAddress,
   })
   return await response.json()
 }
