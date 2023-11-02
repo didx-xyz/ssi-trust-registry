@@ -6,6 +6,7 @@ import { createLogger } from '../logger'
 import { EmailClient } from '../email/client'
 import { DidResolver } from '../did-resolver/did-resolver'
 import { EntityRepository } from '../entity/service'
+import { SchemaRepository } from '../schema/service'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
@@ -13,6 +14,7 @@ extendZodWithOpenApi(z)
 export async function createSubmissionService(
   submissionRepository: SubmissionRepository,
   entityRepository: EntityRepository,
+  schemaRepository: SchemaRepository,
   didResolver: DidResolver,
   emailClient: EmailClient,
 ): Promise<SubmissionService> {
@@ -22,6 +24,7 @@ export async function createSubmissionService(
       addSubmission,
       submissionRepository,
       entityRepository,
+      schemaRepository,
       didResolver,
     ),
     generateInvitation: partial(
@@ -131,6 +134,7 @@ async function getAllSubmissions(repository: SubmissionRepository) {
 async function addSubmission(
   submissionRepository: SubmissionRepository,
   entityRepository: EntityRepository,
+  schemaRepository: SchemaRepository,
   didResolver: DidResolver,
   payload: Record<string, unknown>,
 ): Promise<Submission> {
@@ -152,6 +156,16 @@ async function addSubmission(
     ) {
       throw new Error(
         `An entity associated with a different invitation already contains the DID '${did}'`,
+      )
+    }
+  }
+
+  for (const schemaId of submissionDto.credentials) {
+    const registrySchema = await schemaRepository.findBySchemaId(schemaId)
+    console.log(registrySchema, schemaId)
+    if (!registrySchema) {
+      throw new Error(
+        `Schema '${schemaId}' is not present in the trust registry`,
       )
     }
   }

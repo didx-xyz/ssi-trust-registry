@@ -58,7 +58,9 @@ describe('api', () => {
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
       role: 'issuer' as const,
-      credentials: ['2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1'],
+      credentials: [
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+      ],
     }
 
     const yomaSubmission = {
@@ -68,13 +70,16 @@ describe('api', () => {
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.yoma.xyz',
       role: 'issuer' as const,
-      credentials: ['Enmy7mgJopSsELLXd9G91d:3:CL:24:default'],
+      credentials: [
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+      ],
     }
 
     let invitation: InvitationWithUrl
 
     beforeEach(async () => {
       await database.dropDatabase()
+      await schemaService.loadSchemas([exampleSchemaDto])
       invitation = await generateNewInvitation()
     })
 
@@ -152,7 +157,6 @@ describe('api', () => {
     })
 
     test('submissions with exisiting DID fails with 500 error', async () => {
-      await schemaService.loadSchemas([exampleSchemaDto])
       await entityService.loadEntities([exampleEntityDto])
       const result = await post(invitation.url, absaSubmission)
       const status = result.status
