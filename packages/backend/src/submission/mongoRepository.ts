@@ -13,7 +13,6 @@ export async function createSubmissionsRepository(
   return {
     getAllSubmissions: partial(getAllSubmissions, submissionCollection),
     addSubmission: partial(addSubmission, submissionCollection),
-    updateSubmission: partial(updateSubmission, submissionCollection),
     findPendingSubmissionByInvitationId: partial(
       findPendingSubmissionByInvitationId,
       submissionCollection,
@@ -46,21 +45,6 @@ async function addSubmission(collection: Collection, submission: Submission) {
   }
   const result = await collection.insertOne(submissionData)
   logger.info(`Submission inserted to the database`, result)
-  return submission
-}
-
-async function updateSubmission(
-  collection: Collection,
-  submission: Submission,
-) {
-  const submissionData = {
-    ...submission,
-  }
-  const result = await collection.updateOne(
-    { id: submission.id },
-    { $set: submissionData },
-  )
-  logger.info(`Submission updated in the database`, result)
   return submission
 }
 

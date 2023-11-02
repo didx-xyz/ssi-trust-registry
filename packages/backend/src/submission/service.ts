@@ -47,7 +47,6 @@ export interface SubmissionService {
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (submission: Submission) => Promise<Submission>
-  updateSubmission: (submission: Submission) => Promise<Submission>
   findPendingSubmissionByInvitationId: (
     id: string,
   ) => Promise<Submission | null>
@@ -170,31 +169,15 @@ async function addSubmission(
     }
   }
 
-  const pendingSubmission =
-    await submissionRepository.findPendingSubmissionByInvitationId(
-      submissionDto.invitationId,
-    )
-
-  let submission: Submission
-  if (pendingSubmission) {
-    submission = {
-      ...pendingSubmission,
-      ...submissionDto,
-      updatedAt: new Date().toISOString(),
-    }
-    await submissionRepository.updateSubmission(submission)
-    logger.info(`Submission ${submission.id} has been updated in the database`)
-  } else {
-    submission = {
-      ...submissionDto,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-      state: 'pending' as const,
-      updatedAt: new Date().toISOString(),
-    }
-    await submissionRepository.addSubmission(submission)
-    logger.info(`Submission ${submission.id} has been added to the database`)
+  const submission = {
+    ...submissionDto,
+    id: uuidv4(),
+    createdAt: new Date().toISOString(),
+    state: 'pending' as const,
+    updatedAt: new Date().toISOString(),
   }
+  await submissionRepository.addSubmission(submission)
+  logger.info(`Submission ${submission.id} has been added to the database`)
 
   return submission
 }

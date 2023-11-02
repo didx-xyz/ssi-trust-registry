@@ -1,14 +1,13 @@
 import fetch from 'node-fetch'
 import { Db } from 'mongodb'
 import { Server } from 'http'
-import { v4 as uuidv4 } from 'uuid'
 
 import { startServer } from './server'
 import { config } from './config'
 import { close, connect } from './database'
 import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService, exampleEntityDto } from './entity/service'
-import { InvitationWithUrl, SubmissionRepository } from './submission/service'
+import { InvitationWithUrl } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { EmailClientStub, createEmailClientStub } from './email/client-stub'
@@ -21,7 +20,6 @@ describe('api', () => {
   let entityService: EntityService
   let schemaService: SchemaService
   let emailClient: EmailClientStub
-  let submissionRepository: SubmissionRepository
 
   beforeAll(async () => {
     database = await connect(config.db)
@@ -34,7 +32,6 @@ describe('api', () => {
     })
     entityService = context.entityService
     schemaService = context.schemaService
-    submissionRepository = context.submissionRepository
     server = await startServer({ port, url }, context)
   })
 
@@ -209,77 +206,45 @@ describe('api', () => {
       expect(response.id).toEqual(expect.any(String))
     })
 
-    test('can update pending submission using same invitationUrl', async () => {
+    test('can send several submissions using same invitationUrl', async () => {
       await post(invitation.url, absaSubmission)
       let result = await fetch(`http://localhost:${port}/api/submissions`)
-      let response = await result.json()
-      const [initialSubmission] = response
-      expect(initialSubmission).toEqual({
-        ...absaSubmission,
-        id: expect.any(String),
-        invitationId: expect.any(String),
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        state: 'pending',
-        submitterEmail: 'test@test.com',
-      })
+      let submissions = await result.json()
+      expect(submissions.length).toBe(1)
+      expect(submissions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...absaSubmission,
+            id: expect.any(String),
+            invitationId: expect.any(String),
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            state: 'pending',
+            submitterEmail: 'test@test.com',
+          }),
+        ]),
+      )
       await post(invitation.url, {
         ...absaSubmission,
         name: 'Updated Absa Name',
       })
       result = await fetch(`http://localhost:${port}/api/submissions`)
-      response = await result.json()
-      const [updatedSubmission] = response
-      expect(updatedSubmission).toEqual({
-        ...absaSubmission,
-        name: 'Updated Absa Name',
-        id: initialSubmission.id,
-        invitationId: initialSubmission.invitationId,
-        createdAt: initialSubmission.createdAt,
-        updatedAt: expect.any(String),
-        state: 'pending',
-        submitterEmail: 'test@test.com',
-      })
-    })
-
-    test('do not update approved submission', async () => {
-      submissionRepository.addSubmission({
-        ...absaSubmission,
-        id: uuidv4(),
-        invitationId: invitation.id,
-        state: 'approved' as const,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-
-      await post(invitation.url, {
-        ...absaSubmission,
-        name: 'Updated Absa Name',
-      })
-
-      const result = await fetch(`http://localhost:${port}/api/submissions`)
-      const submissions = await result.json()
+      submissions = await result.json()
       expect(submissions.length).toBe(2)
-    })
-
-    test('do not update rejected submission', async () => {
-      submissionRepository.addSubmission({
-        ...absaSubmission,
-        id: uuidv4(),
-        invitationId: invitation.id,
-        state: 'rejected' as const,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-
-      await post(invitation.url, {
-        ...absaSubmission,
-        name: 'Updated Absa Name',
-      })
-
-      const result = await fetch(`http://localhost:${port}/api/submissions`)
-      const submissions = await result.json()
-      expect(submissions.length).toBe(2)
+      expect(submissions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...absaSubmission,
+            name: 'Updated Absa Name',
+            id: expect.any(String),
+            invitationId: expect.any(String),
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            state: 'pending',
+            submitterEmail: 'test@test.com',
+          }),
+        ]),
+      )
     })
   })
 
