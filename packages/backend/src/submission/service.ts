@@ -37,7 +37,7 @@ export interface SubmissionService {
     domain: string,
     payload: Record<string, unknown>,
   ) => Promise<InvitationWithUrl>
-  getAllSubmissions: () => Promise<Submission[]>
+  getAllSubmissions: () => Promise<SubmissionWithEmail[]>
   addSubmission: (payload: Record<string, unknown>) => Promise<Submission>
 }
 
@@ -91,6 +91,11 @@ export const Submission = SubmissionDto.extend({
     .openapi({ example: 'pending' }),
 }).openapi('SubmissionResponse')
 
+export type SubmissionWithEmail = z.infer<typeof SubmissionWithEmail>
+export const SubmissionWithEmail = Submission.extend({
+  submitterEmail: z.string().openapi({ example: 'submitter@example.com' }),
+})
+
 export type InvitationDto = z.infer<typeof InvitationDto>
 export const InvitationDto = z
   .object({
@@ -110,10 +115,17 @@ export const InvitationWithUrl = Invitation.extend({
 })
 
 async function getAllSubmissions(repository: SubmissionRepository) {
-  return (await repository.getAllSubmissions()).map((s) => ({
-    ...s,
-    _id: undefined,
-  }))
+  return Promise.all(
+    (await repository.getAllSubmissions()).map(async (s) => {
+      const invitation = await repository.findInvitationById(s.invitationId)
+      if (!invitation) throw new Error('Invitation not found')
+      return {
+        ...s,
+        _id: undefined,
+        submitterEmail: invitation?.emailAddress,
+      }
+    }),
+  )
 }
 
 async function addSubmission(

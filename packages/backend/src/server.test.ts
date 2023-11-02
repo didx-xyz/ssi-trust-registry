@@ -179,6 +179,7 @@ describe('api', () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           state: 'pending',
+          submitterEmail: expect.any(String),
         },
       ])
 
@@ -207,6 +208,7 @@ describe('api', () => {
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         state: 'pending',
+        submitterEmail: expect.any(String),
       })
       await post(invitation.url, {
         ...absaSubmission,
@@ -223,6 +225,7 @@ describe('api', () => {
         createdAt: initialSubmission.createdAt,
         updatedAt: expect.any(String),
         state: 'pending',
+        submitterEmail: expect.any(String),
       })
     })
 
