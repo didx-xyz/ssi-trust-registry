@@ -52,11 +52,15 @@ describe('auth', () => {
       password: 'admin',
     })
     const result = await response.json()
+    const cookie = response.headers.get('set-cookie')
+    const cookieRegex =
+      /^token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.([^.]+\.[^.]+); Path=\/; HttpOnly; SameSite=Lax$/
+
     expect(response.status).toEqual(200)
-    expect(response.headers.get('set-cookie')).toEqual(
-      'token=%7B%22user%22%3A%22admin%22%7D; Path=/; HttpOnly; SameSite=Lax',
-    )
-    expect(result.token).toEqual({ user: 'admin' })
+    expect(cookie).toMatch(cookieRegex)
+    expect(
+      result.token.startsWith('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'),
+    ).toBe(true)
   })
 
   test('access protected endpoint returns 403 Forbidden', async () => {
@@ -67,16 +71,18 @@ describe('auth', () => {
   })
 
   test('access protected endpoint after login returns 200 OK', async () => {
-    await post(`${backendUrl}/api/auth/login`, {
+    const logInResponse = await post(`${backendUrl}/api/auth/login`, {
       email: 'admin',
       password: 'admin',
     })
+    const cookie = logInResponse.headers.get('set-cookie') || ''
 
     const response = await fetch(`${backendUrl}/api/auth/whoami`, {
       headers: {
-        Cookie: 'token=abcd',
+        Cookie: cookie,
       },
     })
+    console.log('user', await response.json())
     expect(response.status).toEqual(200)
   })
 })

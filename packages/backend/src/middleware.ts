@@ -3,8 +3,9 @@ import expressHttpContext from 'express-http-context'
 import morgan from 'morgan'
 import { v4 as uuidv4 } from 'uuid'
 import swaggerUi from 'swagger-ui-express'
-import { createLogger } from './logger'
 import { ZodError } from 'zod'
+import { createLogger } from './logger'
+import { RequestWithToken } from './auth/middleware'
 
 const logger = createLogger(__filename)
 
@@ -12,10 +13,14 @@ const logger = createLogger(__filename)
  * @see https://zellwk.com/blog/async-await-express/
  */
 export function asyncHandler(
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<void>,
+  fn: (
+    req: RequestWithToken,
+    res: Response,
+    next: NextFunction,
+  ) => Promise<void>,
 ) {
   return async (
-    req: Request,
+    req: RequestWithToken,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {

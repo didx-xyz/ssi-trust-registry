@@ -17,6 +17,7 @@ import { EntityService } from './entity/service'
 import { SchemaService } from './schema/service'
 import { SubmissionService } from './submission/service'
 import { AuthController } from './auth/controller'
+import { authenticate } from './auth/middleware'
 
 const logger = createLogger(__filename)
 
@@ -118,7 +119,11 @@ export function startServer(
 
     apiRouter.post('/auth/login', asyncHandler(context.authController.logIn))
     apiRouter.get('/auth/logout', asyncHandler(context.authController.logOut))
-    apiRouter.get('/auth/whoami', asyncHandler(context.authController.getUser))
+    apiRouter.get(
+      '/auth/whoami',
+      authenticate,
+      asyncHandler(context.authController.getUser),
+    )
 
     app.use(errorHandler)
 

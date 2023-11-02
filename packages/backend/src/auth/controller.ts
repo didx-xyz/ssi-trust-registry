@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express'
+import jwt from 'jsonwebtoken'
 import { createLogger } from '../logger'
+import { RequestWithToken } from './middleware'
 
 const logger = createLogger(__filename)
 
@@ -14,7 +16,7 @@ export async function createAuthController(): Promise<AuthController> {
 export interface AuthController {
   logIn: (req: Request, res: Response) => Promise<void>
   logOut: (req: Request, res: Response) => Promise<void>
-  getUser: (req: Request, res: Response) => Promise<void>
+  getUser: (req: RequestWithToken, res: Response) => Promise<void>
 }
 
 async function logIn(req: Request, res: Response) {
@@ -22,8 +24,8 @@ async function logIn(req: Request, res: Response) {
   const { email, password } = payload
   logger.info(`Login:`, email)
   if (email === 'admin' && password === 'admin') {
-    const token = { user: 'admin' }
-    res.cookie('token', JSON.stringify(token), {
+    const token = createToken('admin')
+    res.cookie('token', token, {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
@@ -45,12 +47,22 @@ async function logOut(req: Request, res: Response) {
   }
 }
 
-async function getUser(req: Request, res: Response) {
-  console.log('req.cookies', req.cookies)
-  const { token } = req.cookies
-  if (token) {
-    res.status(200).json(token)
+async function getUser(req: RequestWithToken, res: Response) {
+  console.log('req.token', req.jwtPayload)
+  if (req.jwtPayload) {
+    res.status(200).json({ user: req.jwtPayload.sub })
   } else {
     res.status(403).json({ error: 'You are not logged in.' })
   }
+}
+
+function createToken(userId: string) {
+  const payload = {
+    sub: userId,
+  }
+  const secretKey = 'abcdefgh'
+  const options = {
+    expiresIn: '1h',
+  }
+  return jwt.sign(payload, secretKey, options)
 }
