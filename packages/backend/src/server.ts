@@ -16,6 +16,7 @@ import { generateSwaggerDocs } from './api-doc'
 import { EntityService } from './entity/service'
 import { SchemaService } from './schema/service'
 import { SubmissionService } from './submission/service'
+import { AuthController } from './auth/controller'
 
 const logger = createLogger(__filename)
 
@@ -28,6 +29,7 @@ interface Context {
   entityService: EntityService
   schemaService: SchemaService
   submissionService: SubmissionService
+  authController: AuthController
 }
 
 export function startServer(
@@ -114,48 +116,9 @@ export function startServer(
       }),
     )
 
-    apiRouter.post(
-      '/auth/login',
-      asyncHandler(async (req, res) => {
-        const payload = req.body
-        const { email, password } = payload
-        logger.info(`Login:`, email)
-        if (email === 'admin' && password === 'admin') {
-          const token = { user: 'admin' }
-          res.cookie('token', JSON.stringify(token), {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-          })
-          res.status(200).json({ token })
-        } else {
-          res.status(401).json({ error: 'Authorization failed.' })
-        }
-      }),
-    )
-
-    apiRouter.get('/auth/whoami', (req, res) => {
-      console.log('req.cookies', req.cookies)
-      const { token } = req.cookies
-      if (token) {
-        res.status(200).json(token)
-      } else {
-        res.status(403).json({ error: 'You are not logged in.' })
-      }
-    })
-
-    apiRouter.get('/auth/logout', (req, res) => {
-      console.log('req.cookies', req.cookies)
-      const { token } = req.cookies
-      if (token) {
-        res.clearCookie('token')
-        res
-          .status(200)
-          .json({ message: 'You have been succesfully logged out.' })
-      } else {
-        res.status(403).json({ error: 'You have not been logged in.' })
-      }
-    })
+    apiRouter.post('/auth/login', asyncHandler(context.authController.logIn))
+    apiRouter.get('/auth/logout', asyncHandler(context.authController.logOut))
+    apiRouter.get('/auth/whoami', asyncHandler(context.authController.getUser))
 
     app.use(errorHandler)
 
