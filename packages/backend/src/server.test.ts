@@ -153,14 +153,14 @@ describe('api', () => {
       ])
     })
 
-    test('submissions with exisiting DID fails with 500 error', async () => {
+    test('submissions with DID of a different entity fail with 500 error', async () => {
       await entityService.loadEntities([exampleEntityDto])
       const result = await post(invitation.url, absaSubmission)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(500)
       expect(response.error).toContain(
-        'An entity associated with a different invitation already contains the DID',
+        'A different entity has already registered the did',
       )
     })
 
@@ -407,13 +407,6 @@ describe('api', () => {
               code: 'invalid_type',
               expected: 'string',
               received: 'undefined',
-              path: ['invitationId'],
-              message: 'Required',
-            },
-            {
-              code: 'invalid_type',
-              expected: 'string',
-              received: 'undefined',
               path: ['name'],
               message: 'Required',
             },
@@ -543,9 +536,18 @@ async function fetchRegistry() {
   return response.json()
 }
 
-async function generateNewInvitation({ emailAddress = 'test@test.com' } = {}) {
+async function generateNewInvitation(
+  {
+    emailAddress,
+    entityId,
+  }: {
+    emailAddress: string
+    entityId?: string
+  } = { emailAddress: 'test@example.com' },
+) {
   const response = await post(`http://localhost:${port}/api/invitation`, {
     emailAddress,
+    entityId,
   })
   return await response.json()
 }

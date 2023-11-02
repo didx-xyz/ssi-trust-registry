@@ -52,6 +52,7 @@ export interface SubmissionRepository {
   ) => Promise<Submission | null>
   getAllInvitations: () => Promise<Invitation[]>
   addInvitation: (invitation: Invitation) => Promise<Invitation>
+  updateInvitation(invitation: Invitation): Promise<Invitation>
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
@@ -130,9 +131,10 @@ async function addSubmission(
   payload: Record<string, unknown>,
 ): Promise<Submission> {
   const submissionDto = SubmissionDto.parse(payload)
-  if (
-    !(await submissionRepository.findInvitationById(submissionDto.invitationId))
-  ) {
+  const invitation = await submissionRepository.findInvitationById(
+    submissionDto.invitationId,
+  )
+  if (!invitation) {
     throw new Error('Invitation not found')
   }
   for (const did of submissionDto.dids) {
@@ -141,16 +143,12 @@ async function addSubmission(
       throw new Error(`DID '${did}' is not resolvable`)
     }
     const existingEntity = await entityRepository.findByDid(did)
-    if (
-      existingEntity?.invitationId &&
-      existingEntity.invitationId !== submissionDto.invitationId
-    ) {
+    if (existingEntity?.id && existingEntity.id !== invitation.entityId) {
       throw new Error(
-        `An entity associated with a different invitation already contains the DID '${did}'`,
+        `A different entity has already registered the did '${did}'`,
       )
     }
   }
-
   for (const schemaId of submissionDto.credentials) {
     const registrySchema = await schemaRepository.findBySchemaId(schemaId)
     console.log(registrySchema, schemaId)
