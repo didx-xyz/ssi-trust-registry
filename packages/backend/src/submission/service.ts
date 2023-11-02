@@ -40,7 +40,7 @@ export interface SubmissionService {
     domain: string,
     payload: Record<string, unknown>,
   ) => Promise<InvitationWithUrl>
-  getAllSubmissions: () => Promise<SubmissionWithEmail[]>
+  getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (payload: Record<string, unknown>) => Promise<Submission>
 }
 
@@ -93,23 +93,22 @@ export const Submission = SubmissionDto.extend({
     .openapi({ example: 'pending' }),
 }).openapi('SubmissionResponse')
 
-export type SubmissionWithEmail = z.infer<typeof SubmissionWithEmail>
-export const SubmissionWithEmail = Submission.extend({
-  submitterEmail: z.string().openapi({ example: 'submitter@example.com' }),
-})
-
 export type InvitationDto = z.infer<typeof InvitationDto>
 export const InvitationDto = z
   .object({
+    entityId: z
+      .string()
+      .optional()
+      .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
     emailAddress: z.string().openapi({ example: 'test@example.com' }),
   })
-  .openapi('SubmissionInvitationRequest')
+  .openapi('InvitationRequest')
 
 export type Invitation = z.infer<typeof Invitation>
 export const Invitation = InvitationDto.extend({
   id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
   createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
-}).openapi('SubmissionInvitationResponse')
+}).openapi('InvitationResponse')
 
 export type InvitationWithUrl = z.infer<typeof InvitationWithUrl>
 export const InvitationWithUrl = Invitation.extend({
@@ -117,17 +116,10 @@ export const InvitationWithUrl = Invitation.extend({
 })
 
 async function getAllSubmissions(repository: SubmissionRepository) {
-  return Promise.all(
-    (await repository.getAllSubmissions()).map(async (s) => {
-      const invitation = await repository.findInvitationById(s.invitationId)
-      if (!invitation) throw new Error('Invitation not found')
-      return {
-        ...s,
-        _id: undefined,
-        submitterEmail: invitation?.emailAddress,
-      }
-    }),
-  )
+  return (await repository.getAllSubmissions()).map((s) => ({
+    ...s,
+    _id: undefined,
+  }))
 }
 
 async function addSubmission(

@@ -180,7 +180,6 @@ describe('api', () => {
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
           state: 'pending',
-          submitterEmail: 'test@test.com',
         },
       ])
 
@@ -220,7 +219,6 @@ describe('api', () => {
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
             state: 'pending',
-            submitterEmail: 'test@test.com',
           }),
         ]),
       )
@@ -241,7 +239,6 @@ describe('api', () => {
             createdAt: expect.any(String),
             updatedAt: expect.any(String),
             state: 'pending',
-            submitterEmail: 'test@test.com',
           }),
         ]),
       )
