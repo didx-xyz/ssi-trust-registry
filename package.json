@@ -11,5 +11,8 @@
     "dev": "yarn workspace @ssi-trust-registry/backend dev",
     "start": "yarn workspace @ssi-trust-registry/backend start",
     "postinstall": "node -e \"process.env.NODE_ENV !== 'production' && require('husky').install()\""
+  },
+  "devDependencies": {
+    "daisyui": "^3.9.3"
   }
 }
