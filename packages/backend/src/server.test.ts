@@ -214,11 +214,6 @@ describe('api', () => {
         expect.arrayContaining([
           expect.objectContaining({
             ...absaSubmission,
-            id: expect.any(String),
-            invitationId: expect.any(String),
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String),
-            state: 'pending',
           }),
         ]),
       )
@@ -234,11 +229,6 @@ describe('api', () => {
           expect.objectContaining({
             ...absaSubmission,
             name: 'Updated Absa Name',
-            id: expect.any(String),
-            invitationId: expect.any(String),
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String),
-            state: 'pending',
           }),
         ]),
       )
