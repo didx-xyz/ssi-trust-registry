@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import partial from 'lodash.partial'
+import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../logger'
 import { DidResolver } from '../did-resolver/did-resolver'
 import { SchemaRepository } from '../schema/service'
@@ -57,7 +58,6 @@ export const exampleEntityDto = {
 
 export const EntityDto = z
   .object({
-    id: z.string().openapi({ example: exampleEntityDto.id }),
     name: z.string().openapi({ example: exampleEntityDto.name }),
     dids: z.array(z.string()).openapi({ example: exampleEntityDto.dids }),
     logo_url: z.string().openapi({ example: exampleEntityDto.logo_url }),
@@ -71,7 +71,12 @@ export const EntityDto = z
   })
   .openapi('EntityRequest')
 
+export const EntityImportDto = EntityDto.extend({
+  id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
+}).openapi('EntityImportRequest')
+
 export const Entity = EntityDto.extend({
+  id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
   createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
   updatedAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
 }).openapi('EntityResponse')
@@ -87,7 +92,7 @@ async function loadEntities(
   entityPayloads: Record<string, unknown>[],
 ) {
   const entityDtos = entityPayloads.map((e) => {
-    const entityDto = EntityDto.parse(e)
+    const entityDto = EntityImportDto.parse(e)
     const invalidDid = entityDto.dids.find((did) => !did.startsWith('did:'))
     if (invalidDid) {
       throw new Error(`DID ${invalidDid} is not fully quilifed`)
@@ -113,10 +118,10 @@ async function loadEntities(
         throw new Error(`DID ${did} is not resolvable`)
       }
     }
-
-    if (await exists(entityRepository, e)) {
+    const existingEntity = await entityRepository.findById(e.id)
+    if (existingEntity) {
       logger.debug('Entity already exists, updating...')
-      return updateEntity(entityRepository, e)
+      return updateEntity(entityRepository, { ...existingEntity, ...e })
     } else {
       for (const did of e.dids) {
         const didExists = await entityRepository.findByDid(did)
@@ -125,21 +130,19 @@ async function loadEntities(
         }
       }
       logger.debug('Entity does not exist, creating...')
-      return addEntity(entityRepository, e)
+      return addEntity(entityRepository, e, { entityId: e.id })
     }
   }
-}
-
-async function exists(repository: EntityRepository, entity: EntityDto) {
-  return repository.findById(entity.id)
 }
 
 async function addEntity(
   repository: EntityRepository,
   entityDto: EntityDto,
+  { entityId }: { entityId?: string } = {},
 ): Promise<void> {
   const entity = {
     ...entityDto,
+    id: entityId || uuidv4(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
@@ -149,17 +152,15 @@ async function addEntity(
 
 async function updateEntity(
   repository: EntityRepository,
-  entityDto: EntityDto,
+  entity: Entity,
 ): Promise<void> {
-  const existingEntity = await repository.findById(entityDto.id)
-  if (!existingEntity) {
+  if (!(await repository.findById(entity.id))) {
     throw new Error('Trying to update an Entity that does not exists')
   }
-  const entity = {
-    ...existingEntity,
-    ...entityDto,
+  const updatedEntity = {
+    ...entity,
     updatedAt: new Date().toISOString(),
   }
-  await repository.updateEntity(entity)
+  await repository.updateEntity(updatedEntity)
   logger.info(`Entity ${entity.id} has been updated`)
 }

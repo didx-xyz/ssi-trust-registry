@@ -54,7 +54,7 @@ describe('api', () => {
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
-      role: 'issuer' as const,
+      role: ['issuer' as const],
       credentials: [
         'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
       ],
@@ -66,7 +66,7 @@ describe('api', () => {
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.yoma.xyz',
-      role: 'issuer' as const,
+      role: ['issuer' as const],
       credentials: [
         'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
       ],
@@ -137,7 +137,7 @@ describe('api', () => {
           message: 'Required',
         },
         {
-          expected: "'issuer' | 'verifier'",
+          expected: 'array',
           received: 'undefined',
           code: 'invalid_type',
           path: ['role'],
@@ -400,13 +400,6 @@ describe('api', () => {
               code: 'invalid_type',
               expected: 'string',
               received: 'undefined',
-              path: ['id'],
-              message: 'Required',
-            },
-            {
-              code: 'invalid_type',
-              expected: 'string',
-              received: 'undefined',
               path: ['name'],
               message: 'Required',
             },
@@ -443,6 +436,13 @@ describe('api', () => {
               expected: 'array',
               received: 'undefined',
               path: ['credentials'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['id'],
               message: 'Required',
             },
           ],

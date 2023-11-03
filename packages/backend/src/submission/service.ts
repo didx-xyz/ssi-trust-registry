@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../logger'
 import { EmailClient } from '../email/client'
 import { DidResolver } from '../did-resolver/did-resolver'
-import { EntityRepository } from '../entity/service'
+import { EntityDto, EntityRepository } from '../entity/service'
 import { SchemaRepository } from '../schema/service'
 
 const logger = createLogger(__filename)
@@ -56,31 +56,11 @@ export interface SubmissionRepository {
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
-export const SubmissionDto = z
-  .object({
-    invitationId: z
-      .string()
-      .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
-    name: z.string().openapi({ example: 'Absa' }),
-    dids: z.array(z.string()).openapi({
-      example: [
-        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
-        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
-      ],
-    }),
-    logo_url: z.string().openapi({
-      example:
-        'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
-    }),
-    domain: z.string().openapi({
-      example: 'www.absa.africa',
-    }),
-    role: z.enum(['issuer', 'verifier']).openapi({ example: 'issuer' }),
-    credentials: z
-      .array(z.string())
-      .openapi({ example: ['2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1'] }),
-  })
-  .openapi('SubmissionRequest')
+export const SubmissionDto = EntityDto.extend({
+  invitationId: z
+    .string()
+    .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
+})
 
 export type SubmissionDto = z.infer<typeof SubmissionDto>
 export type Submission = z.infer<typeof Submission>
