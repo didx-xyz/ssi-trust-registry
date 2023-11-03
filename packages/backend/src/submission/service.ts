@@ -123,7 +123,7 @@ async function addSubmission(
       throw new Error(`DID '${did}' is not resolvable`)
     }
     const existingEntity = await entityRepository.findByDid(did)
-    if (existingEntity?.id && existingEntity.id !== invitation.entityId) {
+    if (existingEntity && existingEntity.id !== invitation.entityId) {
       throw new Error(
         `A different entity has already registered the did '${did}'`,
       )
