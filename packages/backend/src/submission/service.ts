@@ -2,6 +2,7 @@ import partial from 'lodash.partial'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
+import { createId } from '@paralleldrive/cuid2'
 import { createLogger } from '../logger'
 import { EmailClient } from '../email/client'
 import { DidResolver } from '../did-resolver/did-resolver'
@@ -57,9 +58,7 @@ export interface SubmissionRepository {
 }
 
 export const SubmissionDto = EntityDto.extend({
-  invitationId: z
-    .string()
-    .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
+  invitationId: z.string().openapi({ example: 'tz4a98xxat96iws9zmbrgj3a' }),
 })
 
 export type SubmissionDto = z.infer<typeof SubmissionDto>
@@ -87,7 +86,7 @@ export const InvitationDto = z
 
 export type Invitation = z.infer<typeof Invitation>
 export const Invitation = InvitationDto.extend({
-  id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
+  id: z.string().openapi({ example: 'tz4a98xxat96iws9zmbrgj3a' }),
   createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
 }).openapi('InvitationResponse')
 
@@ -141,7 +140,7 @@ async function addSubmission(
 
   const submission = {
     ...submissionDto,
-    id: uuidv4(),
+    id: createId(),
     createdAt: new Date().toISOString(),
     state: 'pending' as const,
     updatedAt: new Date().toISOString(),
