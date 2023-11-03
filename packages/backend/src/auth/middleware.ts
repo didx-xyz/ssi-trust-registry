@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
+import { config } from '../config'
 
 export interface RequestWithToken extends Request {
   jwtPayload?: jwt.JwtPayload
@@ -12,7 +13,7 @@ export function authenticate(
 ): void {
   const { token } = req.cookies
   if (token) {
-    const secretKey = 'abcdefgh'
+    const secretKey = config.jwtSecretKey
     const verification = jwt.verify(token, secretKey)
     console.log('verification', verification)
     if (typeof verification === 'string') {

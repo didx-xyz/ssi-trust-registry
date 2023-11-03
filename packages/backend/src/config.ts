@@ -29,6 +29,7 @@ const ConfigSchema = z.object({
     }),
   }),
   skipInitialDataLoad: z.boolean(),
+  jwtSecretKey: z.string(),
 })
 
 type Config = z.infer<typeof ConfigSchema>
@@ -55,9 +56,8 @@ export const config: Config = ConfigSchema.parse({
     },
   },
   skipInitialDataLoad: process.env.SKIP_INITIAL_DATA_LOAD === 'true',
+  jwtSecretKey: process.env.JWT_SECRET_KEY,
 })
-
-console.log('====== config ======', config)
 
 export function hideSecrets(config: Config) {
   return {

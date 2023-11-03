@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { createLogger } from '../logger'
 import { RequestWithToken } from './middleware'
+import { config } from '../config'
 
 const logger = createLogger(__filename)
 
@@ -60,7 +61,7 @@ function createToken(userId: string) {
   const payload = {
     sub: userId,
   }
-  const secretKey = 'abcdefgh'
+  const secretKey = config.jwtSecretKey
   const options = {
     expiresIn: '1h',
   }
