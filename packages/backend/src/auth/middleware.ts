@@ -13,7 +13,7 @@ export function authenticate(
 ): void {
   const { token } = req.cookies
   if (token) {
-    const secretKey = config.jwtSecretKey
+    const secretKey = config.auth.jwtSecretKey
     const verification = jwt.verify(token, secretKey)
     console.log('verification', verification)
     if (typeof verification === 'string') {

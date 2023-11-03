@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 import { createLogger } from '../logger'
 import { RequestWithToken } from './middleware'
 import { config } from '../config'
@@ -24,14 +25,22 @@ async function logIn(req: Request, res: Response) {
   const payload = req.body
   const { email, password } = payload
   logger.info(`Login:`, email)
-  if (email === 'admin' && password === 'admin') {
-    const token = createToken('admin')
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-    })
-    res.status(200).json({ token })
+  if (email === 'admin') {
+    const passwordMatch = await verifyPassword(
+      password,
+      config.auth.adminPasswordHash,
+    )
+    if (passwordMatch) {
+      const token = createToken('admin')
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+      })
+      res.status(200).json({ token })
+    } else {
+      res.status(401).json({ error: 'Authorization failed.' })
+    }
   } else {
     res.status(401).json({ error: 'Authorization failed.' })
   }
@@ -61,9 +70,13 @@ function createToken(userId: string) {
   const payload = {
     sub: userId,
   }
-  const secretKey = config.jwtSecretKey
+  const secretKey = config.auth.jwtSecretKey
   const options = {
     expiresIn: '1h',
   }
   return jwt.sign(payload, secretKey, options)
+}
+
+function verifyPassword(password: string, hash: string) {
+  return bcrypt.compare(password, hash)
 }

@@ -11,6 +11,7 @@ import { InvitationWithUrl } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { EmailClientStub, createEmailClientStub } from './email/client-stub'
+import { createFakeDidResolver } from './__tests__/helpers'
 
 const { port, url } = config.server
 
@@ -565,13 +566,4 @@ function post(endpoint: string, payload: Record<string, unknown>) {
     },
     body: JSON.stringify(payload),
   })
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function createFakeDidResolver(correctDids: Record<string, any>) {
-  return {
-    resolveDid: (did: string) => {
-      return correctDids[did]
-    },
-  }
 }

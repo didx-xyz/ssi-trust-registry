@@ -6,8 +6,9 @@ import { startServer } from './server'
 import { config } from './config'
 import { close, connect } from './database'
 import { createAppContext } from './context'
+import { createEmailClientStub } from './email/client-stub'
 import { correctDids } from './__tests__/fixtures'
-import { EmailClientStub, createEmailClientStub } from './email/client-stub'
+import { createFakeDidResolver } from './__tests__/helpers'
 
 const { url } = config.server
 const port = 3010
@@ -16,12 +17,11 @@ const backendUrl = `${url}:${port}`
 describe('auth', () => {
   let server: Server
   let database: Db
-  let emailClient: EmailClientStub
 
   beforeAll(async () => {
     database = await connect(config.db)
     const didResolver = await createFakeDidResolver(correctDids)
-    emailClient = createEmailClientStub()
+    const emailClient = createEmailClientStub()
     const context = await createAppContext({
       database,
       didResolver,
@@ -95,13 +95,4 @@ function post(endpoint: string, payload: Record<string, unknown>) {
     },
     body: JSON.stringify(payload),
   })
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function createFakeDidResolver(correctDids: Record<string, any>) {
-  return {
-    resolveDid: (did: string) => {
-      return correctDids[did]
-    },
-  }
 }

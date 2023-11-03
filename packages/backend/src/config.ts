@@ -29,7 +29,10 @@ const ConfigSchema = z.object({
     }),
   }),
   skipInitialDataLoad: z.boolean(),
-  jwtSecretKey: z.string(),
+  auth: z.object({
+    jwtSecretKey: z.string(),
+    adminPasswordHash: z.string(),
+  }),
 })
 
 type Config = z.infer<typeof ConfigSchema>
@@ -56,7 +59,10 @@ export const config: Config = ConfigSchema.parse({
     },
   },
   skipInitialDataLoad: process.env.SKIP_INITIAL_DATA_LOAD === 'true',
-  jwtSecretKey: process.env.JWT_SECRET_KEY,
+  auth: {
+    jwtSecretKey: process.env.AUTH_JWT_SECRET_KEY,
+    adminPasswordHash: process.env.AUTH_ADMIN_PASSWORD_HASH,
+  },
 })
 
 export function hideSecrets(config: Config) {
