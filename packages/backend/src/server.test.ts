@@ -102,6 +102,21 @@ describe('api', () => {
       expect(response.error).toEqual('Invitation not found')
     })
 
+    test('submission with invalid credential schemaId fails with 500 error', async () => {
+      const nonExistentSchemaId =
+        'did:indy:sovrin:staging:nonexistingschemaid123'
+      const result = await post(invitation.url, {
+        ...absaSubmission,
+        credentials: [nonExistentSchemaId],
+      })
+      const status = result.status
+      const response = await result.json()
+      expect(status).toEqual(500)
+      expect(response.error).toEqual(
+        `Schema '${nonExistentSchemaId}' is not present in the trust registry`,
+      )
+    })
+
     test('invalid submission fails with 400 Bad Request error', async () => {
       const result = await post(invitation.url, {})
       const status = result.status
