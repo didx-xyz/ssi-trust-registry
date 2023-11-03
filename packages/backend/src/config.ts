@@ -69,5 +69,12 @@ export function hideSecrets(config: Config) {
         '*****',
       ),
     },
+    smtp: {
+      ...config.smtp,
+      auth: {
+        ...config.smtp.auth,
+        pass: '*****',
+      },
+    },
   }
 }
