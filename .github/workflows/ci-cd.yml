@@ -170,7 +170,7 @@ jobs:
           version: ${{ env.TAILSCALE_VERSION }}
 
       - name: Helmfile Apply/Diff
-        uses: helmfile/helmfile-action@v1.3.0
+        uses: helmfile/helmfile-action@v1.4.0
         with:
           helmfile-args: |
             ${{ github.event_name != 'pull_request' && 'apply' || 'diff' }} \
