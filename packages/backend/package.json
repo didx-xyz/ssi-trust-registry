@@ -38,7 +38,7 @@
     "yaml": "^2.3.3"
   },
   "dependencies": {
-    "@aries-framework/askar": "0.4.1",
+    "@aries-framework/askar": "0.4.2",
     "@aries-framework/core": "0.4.1",
     "@aries-framework/indy-vdr": "0.4.1",
     "@aries-framework/node": "0.4.1",
