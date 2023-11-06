@@ -50,33 +50,38 @@ describe('api', () => {
   describe('submission', () => {
     const absaSubmission = {
       name: 'Absa',
-      did: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3',
+      dids: ['did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3'],
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
-      role: 'issuer',
-      credentials: ['2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1'],
+      role: ['issuer' as const],
+      credentials: [
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+      ],
     }
 
     const yomaSubmission = {
       name: 'Yoma',
-      did: 'did:sov:Enmy7mgJopSsELLXd9G91d',
+      dids: ['did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb'],
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.yoma.xyz',
-      role: 'issuer',
-      credentials: ['Enmy7mgJopSsELLXd9G91d:3:CL:24:default'],
+      role: ['issuer' as const],
+      credentials: [
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+      ],
     }
 
     let invitation: InvitationWithUrl
 
     beforeEach(async () => {
       await database.dropDatabase()
+      await schemaService.loadSchemas([exampleSchemaDto])
       invitation = await generateNewInvitation()
     })
 
     test('invitation endpoint sends email', async () => {
-      await post(`http://localhost:${port}/api/invitation`, {
+      await generateNewInvitation({
         emailAddress: 'this-is-an-example@test.com',
       })
       expect(emailClient.sentMessages).toEqual(
@@ -97,6 +102,21 @@ describe('api', () => {
       expect(response.error).toEqual('Invitation not found')
     })
 
+    test('submission with invalid credential schemaId fails with 500 error', async () => {
+      const nonExistentSchemaId =
+        'did:indy:sovrin:staging:nonexistingschemaid123'
+      const result = await post(invitation.url, {
+        ...absaSubmission,
+        credentials: [nonExistentSchemaId],
+      })
+      const status = result.status
+      const response = await result.json()
+      expect(status).toEqual(500)
+      expect(response.error).toEqual(
+        `Schema '${nonExistentSchemaId}' is not present in the trust registry`,
+      )
+    })
+
     test('invalid submission fails with 400 Bad Request error', async () => {
       const result = await post(invitation.url, {})
       const status = result.status
@@ -112,9 +132,9 @@ describe('api', () => {
         },
         {
           code: 'invalid_type',
-          expected: 'string',
+          expected: 'array',
           received: 'undefined',
-          path: ['did'],
+          path: ['dids'],
           message: 'Required',
         },
         {
@@ -132,7 +152,7 @@ describe('api', () => {
           message: 'Required',
         },
         {
-          expected: "'issuer' | 'verifier'",
+          expected: 'array',
           received: 'undefined',
           code: 'invalid_type',
           path: ['role'],
@@ -148,15 +168,14 @@ describe('api', () => {
       ])
     })
 
-    test('submissions with exisiting DID fails with 500 error', async () => {
-      await post(invitation.url, absaSubmission)
-      const invitationB = await generateNewInvitation()
-      const result = await post(invitationB.url, absaSubmission)
+    test('submissions with DID of a different entity fail with 500 error', async () => {
+      await entityService.loadEntities([exampleEntityDto])
+      const result = await post(invitation.url, absaSubmission)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(500)
-      expect(response.error).toEqual(
-        'Submission with the same DID already exists',
+      expect(response.error).toContain(
+        'A different entity has already registered the did',
       )
     })
 
@@ -175,21 +194,22 @@ describe('api', () => {
           invitationId: expect.any(String),
           createdAt: expect.any(String),
           updatedAt: expect.any(String),
+          state: 'pending',
         },
       ])
 
-      // Registry should be still empty
+      // Registry should not have changed
       const registry = await fetchRegistry()
-      expect(registry).toEqual({ entities: [], schemas: [] })
-    })
-
-    test('second use of invitation url fails with 500 error', async () => {
-      await post(invitation.url, absaSubmission)
-      const result = await post(invitation.url, yomaSubmission)
-      const status = result.status
-      const response = await result.json()
-      expect(status).toEqual(500)
-      expect(response.error).toEqual('Submission already completed')
+      expect(registry).toEqual({
+        entities: [],
+        schemas: [
+          {
+            ...exampleSchemaDto,
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+          },
+        ],
+      })
     })
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
@@ -198,6 +218,35 @@ describe('api', () => {
       const response = await result.json()
       expect(status).toEqual(201)
       expect(response.id).toEqual(expect.any(String))
+    })
+
+    test('can send several submissions using same invitationUrl', async () => {
+      await post(invitation.url, absaSubmission)
+      let result = await fetch(`http://localhost:${port}/api/submissions`)
+      let submissions = await result.json()
+      expect(submissions.length).toBe(1)
+      expect(submissions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...absaSubmission,
+          }),
+        ]),
+      )
+      await post(invitation.url, {
+        ...absaSubmission,
+        name: 'Updated Absa Name',
+      })
+      result = await fetch(`http://localhost:${port}/api/submissions`)
+      submissions = await result.json()
+      expect(submissions.length).toBe(2)
+      expect(submissions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...absaSubmission,
+            name: 'Updated Absa Name',
+          }),
+        ]),
+      )
     })
   })
 
@@ -356,13 +405,6 @@ describe('api', () => {
               code: 'invalid_type',
               expected: 'string',
               received: 'undefined',
-              path: ['id'],
-              message: 'Required',
-            },
-            {
-              code: 'invalid_type',
-              expected: 'string',
-              received: 'undefined',
               path: ['name'],
               message: 'Required',
             },
@@ -399,6 +441,13 @@ describe('api', () => {
               expected: 'array',
               received: 'undefined',
               path: ['credentials'],
+              message: 'Required',
+            },
+            {
+              code: 'invalid_type',
+              expected: 'string',
+              received: 'undefined',
+              path: ['id'],
               message: 'Required',
             },
           ],
@@ -492,9 +541,18 @@ async function fetchRegistry() {
   return response.json()
 }
 
-async function generateNewInvitation() {
+async function generateNewInvitation(
+  {
+    emailAddress,
+    entityId,
+  }: {
+    emailAddress: string
+    entityId?: string
+  } = { emailAddress: 'test@example.com' },
+) {
   const response = await post(`http://localhost:${port}/api/invitation`, {
-    emailAddress: 'test@test.com',
+    emailAddress,
+    entityId,
   })
   return await response.json()
 }

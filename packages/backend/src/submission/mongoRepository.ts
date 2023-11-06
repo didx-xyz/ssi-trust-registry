@@ -12,12 +12,11 @@ export async function createSubmissionsRepository(
   const invitationCollection = database.collection('invitations')
   return {
     getAllSubmissions: partial(getAllSubmissions, submissionCollection),
-    findSubmissionByDid: partial(findSubmissionByDid, submissionCollection),
-    findSubmissionByInvitationId: partial(
-      findSubmissionByInvitationId,
+    addSubmission: partial(addSubmission, submissionCollection),
+    findPendingSubmissionByInvitationId: partial(
+      findPendingSubmissionByInvitationId,
       submissionCollection,
     ),
-    addSubmission: partial(addSubmission, submissionCollection),
     getAllInvitations: partial(getAllInvitations, invitationCollection),
     findInvitationById: partial(findInvitationById, invitationCollection),
     addInvitation: partial(addInvitation, invitationCollection),
@@ -29,24 +28,19 @@ async function getAllSubmissions(collection: Collection) {
   return result.map((s) => Submission.parse(s))
 }
 
-async function findSubmissionByDid(collection: Collection, did: string) {
-  const submission = await collection.findOne({ did })
-  return submission && Submission.parse(submission)
-}
-
-async function findSubmissionByInvitationId(
+async function findPendingSubmissionByInvitationId(
   collection: Collection,
   invitationId: string,
 ) {
-  const submission = await collection.findOne({ invitationId })
+  const submission = await collection.findOne({
+    invitationId,
+    state: 'pending',
+  })
   return submission && Submission.parse(submission)
 }
 
 async function addSubmission(collection: Collection, submission: Submission) {
-  const submissionData = {
-    ...submission,
-  }
-  const result = await collection.insertOne(submissionData)
+  const result = await collection.insertOne({ ...submission })
   logger.info(`Submission inserted to the database`, result)
   return submission
 }
@@ -62,8 +56,7 @@ async function findInvitationById(collection: Collection, id: string) {
 }
 
 async function addInvitation(collection: Collection, invitation: Invitation) {
-  const invitationData = { ...invitation }
-  const result = await collection.insertOne(invitationData)
+  const result = await collection.insertOne({ ...invitation })
   logger.info(`Invitation inserted to the database`, result)
   return invitation
 }

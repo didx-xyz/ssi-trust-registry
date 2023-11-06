@@ -2,20 +2,37 @@ import partial from 'lodash.partial'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
+import { createId } from '@paralleldrive/cuid2'
 import { createLogger } from '../logger'
 import { EmailClient } from '../email/client'
+import { DidResolver } from '../did-resolver/did-resolver'
+import { EntityDto, EntityRepository } from '../entity/service'
+import { SchemaRepository } from '../schema/service'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
 
 export async function createSubmissionService(
-  repository: SubmissionRepository,
+  submissionRepository: SubmissionRepository,
+  entityRepository: EntityRepository,
+  schemaRepository: SchemaRepository,
+  didResolver: DidResolver,
   emailClient: EmailClient,
 ): Promise<SubmissionService> {
   return {
-    getAllSubmissions: partial(getAllSubmissions, repository),
-    addSubmission: partial(addSubmission, repository),
-    generateInvitation: partial(generateInvitation, repository, emailClient),
+    getAllSubmissions: partial(getAllSubmissions, submissionRepository),
+    addSubmission: partial(
+      addSubmission,
+      submissionRepository,
+      entityRepository,
+      schemaRepository,
+      didResolver,
+    ),
+    generateInvitation: partial(
+      generateInvitation,
+      submissionRepository,
+      emailClient,
+    ),
   }
 }
 
@@ -30,34 +47,18 @@ export interface SubmissionService {
 
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
-  getAllInvitations: () => Promise<Invitation[]>
   addSubmission: (submission: Submission) => Promise<Submission>
+  findPendingSubmissionByInvitationId: (
+    id: string,
+  ) => Promise<Submission | null>
+  getAllInvitations: () => Promise<Invitation[]>
   addInvitation: (invitation: Invitation) => Promise<Invitation>
-  findSubmissionByDid: (did: string) => Promise<Submission | null>
-  findSubmissionByInvitationId: (id: string) => Promise<Submission | null>
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
-export const SubmissionDto = z
-  .object({
-    invitationId: z
-      .string()
-      .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
-    name: z.string().openapi({ example: 'Absa' }),
-    did: z.string().openapi({ example: 'did:sov:2NPnMDv5Lh57gVZ3p3SYu3' }),
-    logo_url: z.string().openapi({
-      example:
-        'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
-    }),
-    domain: z.string().openapi({
-      example: 'www.absa.africa',
-    }),
-    role: z.enum(['issuer', 'verifier']).openapi({ example: 'issuer' }),
-    credentials: z
-      .array(z.string())
-      .openapi({ example: ['2NPnMDv5Lh57gVZ3p3SYu3:3:CL:152537:tag1'] }),
-  })
-  .openapi('SubmissionRequest')
+export const SubmissionDto = EntityDto.extend({
+  invitationId: z.string().openapi({ example: 'tz4a98xxat96iws9zmbrgj3a' }),
+})
 
 export type SubmissionDto = z.infer<typeof SubmissionDto>
 export type Submission = z.infer<typeof Submission>
@@ -66,20 +67,27 @@ export const Submission = SubmissionDto.extend({
   id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
   createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
   updatedAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
+  state: z
+    .enum(['pending', 'approved', 'rejected'])
+    .openapi({ example: 'pending' }),
 }).openapi('SubmissionResponse')
 
 export type InvitationDto = z.infer<typeof InvitationDto>
 export const InvitationDto = z
   .object({
+    entityId: z
+      .string()
+      .optional()
+      .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
     emailAddress: z.string().openapi({ example: 'test@example.com' }),
   })
-  .openapi('SubmissionInvitationRequest')
+  .openapi('InvitationRequest')
 
 export type Invitation = z.infer<typeof Invitation>
 export const Invitation = InvitationDto.extend({
-  id: z.string().openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
+  id: z.string().openapi({ example: 'tz4a98xxat96iws9zmbrgj3a' }),
   createdAt: z.string().datetime().openapi({ example: '2023-05-24T18:14:24' }),
-}).openapi('SubmissionInvitationResponse')
+}).openapi('InvitationResponse')
 
 export type InvitationWithUrl = z.infer<typeof InvitationWithUrl>
 export const InvitationWithUrl = Invitation.extend({
@@ -94,30 +102,51 @@ async function getAllSubmissions(repository: SubmissionRepository) {
 }
 
 async function addSubmission(
-  repository: SubmissionRepository,
+  submissionRepository: SubmissionRepository,
+  entityRepository: EntityRepository,
+  schemaRepository: SchemaRepository,
+  didResolver: DidResolver,
   payload: Record<string, unknown>,
 ): Promise<Submission> {
   const submissionDto = SubmissionDto.parse(payload)
-
-  if (!(await repository.findInvitationById(submissionDto.invitationId))) {
+  const invitation = await submissionRepository.findInvitationById(
+    submissionDto.invitationId,
+  )
+  if (!invitation) {
     throw new Error('Invitation not found')
   }
-  if (
-    await repository.findSubmissionByInvitationId(submissionDto.invitationId)
-  ) {
-    throw new Error('Submission already completed')
+  for (const did of submissionDto.dids) {
+    const didDocument = await didResolver.resolveDid(did)
+    if (!didDocument) {
+      throw new Error(`DID '${did}' is not resolvable`)
+    }
+    const existingEntity = await entityRepository.findByDid(did)
+    if (existingEntity && existingEntity.id !== invitation.entityId) {
+      throw new Error(
+        `A different entity has already registered the did '${did}'`,
+      )
+    }
   }
-  if (await repository.findSubmissionByDid(submissionDto.did)) {
-    throw new Error('Submission with the same DID already exists')
+  for (const schemaId of submissionDto.credentials) {
+    const registrySchema = await schemaRepository.findBySchemaId(schemaId)
+    console.log(registrySchema, schemaId)
+    if (!registrySchema) {
+      throw new Error(
+        `Schema '${schemaId}' is not present in the trust registry`,
+      )
+    }
   }
+
   const submission = {
     ...submissionDto,
-    id: uuidv4(),
+    id: createId(),
     createdAt: new Date().toISOString(),
+    state: 'pending' as const,
     updatedAt: new Date().toISOString(),
   }
-  await repository.addSubmission(submission)
-  logger.info(`Submission ${submission.id} has been added`)
+  await submissionRepository.addSubmission(submission)
+  logger.info(`Submission ${submission.id} has been added to the database`)
+
   return submission
 }
 

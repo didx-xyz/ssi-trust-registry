@@ -17,13 +17,16 @@ interface IO {
 export async function createAppContext(io: IO) {
   const { database, didResolver, emailClient } = io
   const submissionRepository = await createSubmissionsRepository(database)
+  const schemaRepository = await createSchemaRepository(database)
+  const entityRepository = await createEntityRepository(database)
   const submissionService = await createSubmissionService(
     submissionRepository,
+    entityRepository,
+    schemaRepository,
+    didResolver,
     emailClient,
   )
-  const schemaRepository = await createSchemaRepository(database)
   const schemaService = await createSchemaService(schemaRepository)
-  const entityRepository = await createEntityRepository(database)
   const entityService = await createEntityService(
     entityRepository,
     schemaRepository,
