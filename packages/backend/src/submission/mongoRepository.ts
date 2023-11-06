@@ -20,7 +20,6 @@ export async function createSubmissionsRepository(
     getAllInvitations: partial(getAllInvitations, invitationCollection),
     findInvitationById: partial(findInvitationById, invitationCollection),
     addInvitation: partial(addInvitation, invitationCollection),
-    updateInvitation: partial(updateInvitation, invitationCollection),
   }
 }
 
@@ -59,17 +58,5 @@ async function findInvitationById(collection: Collection, id: string) {
 async function addInvitation(collection: Collection, invitation: Invitation) {
   const result = await collection.insertOne({ ...invitation })
   logger.info(`Invitation inserted to the database`, result)
-  return invitation
-}
-
-async function updateInvitation(
-  collection: Collection,
-  invitation: Invitation,
-) {
-  const result = await collection.updateOne(
-    { id: invitation.id },
-    { $set: { ...invitation } },
-  )
-  logger.info(`Invitation updated in the database`, result)
   return invitation
 }

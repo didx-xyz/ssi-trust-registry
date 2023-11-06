@@ -53,7 +53,6 @@ export interface SubmissionRepository {
   ) => Promise<Submission | null>
   getAllInvitations: () => Promise<Invitation[]>
   addInvitation: (invitation: Invitation) => Promise<Invitation>
-  updateInvitation(invitation: Invitation): Promise<Invitation>
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
