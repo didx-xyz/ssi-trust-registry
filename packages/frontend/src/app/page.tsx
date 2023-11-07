@@ -21,10 +21,10 @@ async function getData(): Promise<TrustRegistry> {
 
 export default async function Home() {
   const tableTitles: TableDataConfigItem[] = [
-    {title: 'Company name', partsOfTwelve: '6', columnValue: 'name', cellType: TableCellType.Icon},
-    {title: 'State', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'status'},
-    {title: 'Updated', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'updatedAt'},
-    {title: 'Registered', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'createdAt'}
+    {title: 'Company name', additionalTitleClasses: 'w-6/12', columnValue: 'name', cellType: TableCellType.Icon},
+    {title: 'State', additionalTitleClasses: 'w-2/12 text-right', columnValue: 'status'},
+    {title: 'Updated', additionalTitleClasses: 'w-2/12 text-right', columnValue: 'updatedAt'},
+    {title: 'Registered', additionalTitleClasses: 'w-2/12 text-right', columnValue: 'createdAt'}
   ]
   const data: TrustRegistry = await getData()
 

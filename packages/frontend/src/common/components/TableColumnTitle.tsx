@@ -3,11 +3,10 @@ import React from 'react'
 interface Params {
   additionalTitleClasses?: string
   title: string
-  partsOfTwelve: string
 }
 
-const TableColumnTitle = ({additionalTitleClasses = '', title, partsOfTwelve}: Params) => {
-  return <th className={additionalTitleClasses + ' w-'+ partsOfTwelve +'/12 p-4'}>{title}</th>
+const TableColumnTitle = ({additionalTitleClasses = '', title}: Params) => {
+  return <th className={'p-4 '+ additionalTitleClasses}>{title}</th>
 }
 
 export default TableColumnTitle

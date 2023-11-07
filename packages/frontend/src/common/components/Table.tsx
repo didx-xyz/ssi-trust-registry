@@ -12,7 +12,6 @@ interface Params {
 
 export interface TableDataConfigItem {
   title: string
-  partsOfTwelve: string
   additionalTitleClasses?: string
   columnValue: string
   cellType?: TableCellType
@@ -25,11 +24,10 @@ const Table = ({tableDataConfig, items}: Params) => {
         <thead>
         <tr className='text-sm text-primary'>
           {
-            tableDataConfig.map(((tableTitle, index) => <TableColumnTitle
+            tableDataConfig.map(((tableDataItem: TableDataConfigItem, index: number) => <TableColumnTitle
               key={index}
-              additionalTitleClasses={tableTitle.additionalTitleClasses}
-              title={tableTitle.title}
-              partsOfTwelve={tableTitle.partsOfTwelve}
+              additionalTitleClasses={tableDataItem.additionalTitleClasses}
+              title={tableDataItem.title}
             />))
           }
         </tr>
@@ -40,7 +38,7 @@ const Table = ({tableDataConfig, items}: Params) => {
             return (
               <tr key={rowIndex}>
                 {
-                  tableDataConfig.map(((tadleDataItem, cellIndex: number, array: TableDataConfigItem[]) => {
+                  tableDataConfig.map(((tableDataItem: TableDataConfigItem, cellIndex: number, array: TableDataConfigItem[]) => {
                     let additionalRowClasses: string = ''
 
                     if (cellIndex === 0) {
@@ -49,7 +47,7 @@ const Table = ({tableDataConfig, items}: Params) => {
                       additionalRowClasses += 'rounded-r-lg'
                     }
 
-                    if (tadleDataItem.cellType === TableCellType.Icon) {
+                    if (tableDataItem.cellType === TableCellType.Icon) {
                       return <TableIconRow
                         key={cellIndex}
                         value={item[tableDataConfig[cellIndex].columnValue]}
