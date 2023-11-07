@@ -55,7 +55,7 @@ config:
   smtpPassword: placeholder
 
   authJwtSecretKey: placeholder
-  authAdminPasswordHash: $2a$10$yJnrq51/W6P2LO83bT/Lee.U2/C6lnmI7TwYQ4TJKhEERVEnTLvja # placeholder
+  authAdminPasswordHash: placeholder # bcrypt hash
 
 db:
   user: mongo
