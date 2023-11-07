@@ -49,6 +49,14 @@ config:
   # dbConnectionString: mongodb://{{ .Values.db.user }}:{{ .Values.db.password }}@{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.opts }}
   dbName: trust-registry
 
+  smtpHost: smtp.ethereal.email
+  smtpPort: 587
+  smtpUser: placeholder
+  smtpPassword: placeholder
+
+  authJwtSecretKey: placeholder
+  authAdminPasswordHash: $2a$10$yJnrq51/W6P2LO83bT/Lee.U2/C6lnmI7TwYQ4TJKhEERVEnTLvja # placeholder
+
 db:
   user: mongo
   password: mongo

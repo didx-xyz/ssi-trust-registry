@@ -144,8 +144,8 @@ jobs:
       checks: read
     runs-on: ubuntu-latest
     env:
-      TAILSCALE_VERSION: 1.50.1
-      HELMFILE_VERSION: v0.158.0
+      TAILSCALE_VERSION: 1.52.1
+      HELMFILE_VERSION: v0.158.1
       HELM_VERSION: v3.13.1
 
     concurrency:
@@ -180,7 +180,9 @@ jobs:
             ${{ github.event_name != 'pull_request' && 'apply' || 'diff' }} \
               --environment ${{ vars.ENVIRONMENT }} \
               -f ./helm/trust-registry.yaml \
-              --set image.tag=${{ needs.build.outputs.version }}
+              --set image.tag=${{ needs.build.outputs.version }} \
+              --set config.authJwtSecretKey=${{ secrets.AUTH_JWT_SECRET_KEY }} \
+              --set config.authAdminPasswordHash=${{ secrets.AUTH_ADMIN_PASSWORD_HASH }}
           helmfile-version: ${{ env.HELMFILE_VERSION }}
           helm-version: ${{ env.HELM_VERSION }}
 
