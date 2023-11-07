@@ -3,6 +3,7 @@ import TableColumnTitle from '@/common/components/TableColumnTitle'
 import TableRow from '@/common/components/TableRow'
 import TableIconRow from '@/common/components/TableIconRow'
 import { Entity } from '@/common/interfaces/Entity'
+import { TableCellType } from '@/common/enums/TableCellType'
 
 interface Params {
   tableDataConfig: TableDataConfigItem[]
@@ -14,6 +15,7 @@ export interface TableDataConfigItem {
   partsOfTwelve: string
   additionalTitleClasses?: string
   columnValue: string
+  cellType?: TableCellType
 }
 
 const Table = ({tableDataConfig, items}: Params) => {
@@ -38,24 +40,27 @@ const Table = ({tableDataConfig, items}: Params) => {
             return (
               <tr key={rowIndex}>
                 {
-                  tableDataConfig.map(((tableTitle, cellIndex: number, array: TableDataConfigItem[]) => {
+                  tableDataConfig.map(((tadleDataItem, cellIndex: number, array: TableDataConfigItem[]) => {
+                    let additionalRowClasses: string = ''
+
                     if (cellIndex === 0) {
+                      additionalRowClasses += 'rounded-l-lg'
+                    } else if (cellIndex + 1 === array.length) {
+                      additionalRowClasses += 'rounded-r-lg'
+                    }
+
+                    if (tadleDataItem.cellType === TableCellType.Icon) {
                       return <TableIconRow
                         key={cellIndex}
                         value={item[tableDataConfig[cellIndex].columnValue]}
                         logo={item.logo_url}
-                        additionalRowClasses='rounded-l-lg'
-                      />
-                    } else if (cellIndex + 1 === array.length) {
-                      return <TableRow
-                        key={cellIndex}
-                        value={item[tableDataConfig[cellIndex].columnValue]}
-                        additionalRowClasses='rounded-r-lg'
+                        additionalRowClasses={additionalRowClasses}
                       />
                     } else {
                       return <TableRow
                         key={cellIndex}
                         value={item[tableDataConfig[cellIndex].columnValue]}
+                        additionalRowClasses={additionalRowClasses}
                       />
                     }
                   }))

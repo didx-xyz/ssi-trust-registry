@@ -6,4 +6,6 @@ export interface Entity {
   domain: string
   role: string[]
   credentials: string[]
+  createdAt: string
+  updatedAt: string
 }

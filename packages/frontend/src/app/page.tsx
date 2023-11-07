@@ -4,6 +4,9 @@ import Table, { TableDataConfigItem } from '@/common/components/Table'
 import PageHeading from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
 import { TrustRegistry } from '@/common/interfaces/TrustRegistry'
+import { TableCellType } from '@/common/enums/TableCellType'
+import { Entity } from '@/common/interfaces/Entity'
+import { formatDate } from '@/common/helpers'
 
 async function getData(): Promise<TrustRegistry> {
   const res = await fetch('http://localhost:3000/api/registry')
@@ -17,7 +20,7 @@ async function getData(): Promise<TrustRegistry> {
 
 export default async function Home() {
   const tableTitles: TableDataConfigItem[] = [
-    {title: 'Company name', partsOfTwelve: '6', columnValue: 'name'},
+    {title: 'Company name', partsOfTwelve: '6', columnValue: 'name', cellType: TableCellType.Icon},
     {title: 'State', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'status'},
     {title: 'Updated', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'updatedAt'},
     {title: 'Registered', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'createdAt'}
@@ -33,7 +36,13 @@ export default async function Home() {
 
       <Table
         tableDataConfig={tableTitles}
-        items={data.entities}
+        items={data.entities.map((entity: Entity) => {
+          return {
+            ...entity,
+            createdAt: formatDate(entity.createdAt),
+            updatedAt: formatDate(entity.updatedAt)
+          }
+        })}
       />
     </div>
   )
