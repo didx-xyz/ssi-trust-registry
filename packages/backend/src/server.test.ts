@@ -33,7 +33,7 @@ describe('api', () => {
     })
     entityService = context.entityService
     schemaService = context.schemaService
-    server = await startServer({ port, url }, context)
+    server = await startServer(config.server, context)
   })
 
   afterAll(async () => {

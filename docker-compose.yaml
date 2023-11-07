@@ -20,6 +20,9 @@ services:
       SMTP_PORT: 25
       SMTP_USER: user
       SMTP_PASSWORD: password
+      AUTH_JWT_SECRET_KEY: authjwtsecretkey
+      AUTH_ADMIN_PASSWORD_HASH: passwordhash
+      CORS_ORIGIN_URL: http://localhost:3001
     networks:
       - ssi-trust-registry
     depends_on:

@@ -24,6 +24,7 @@ const logger = createLogger(__filename)
 interface ServerConfig {
   port: number
   url: string
+  corsOriginUrl: string
 }
 
 interface Context {
@@ -42,7 +43,7 @@ export function startServer(
     const app = express()
 
     const corsOptions = {
-      origin: 'http://localhost:3001', // Replace with your frontend URL
+      origin: config.corsOriginUrl, // Replace with your frontend URL
       credentials: true, // Allow cookies to be sent
     }
     app.use(cors(corsOptions))

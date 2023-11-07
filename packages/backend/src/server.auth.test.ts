@@ -27,11 +27,10 @@ describe('auth', () => {
       didResolver,
       emailClient,
     })
-    server = await startServer({ port, url }, context)
+    server = await startServer({ ...config.server, port }, context)
   })
 
   afterAll(async () => {
-    await database.dropDatabase()
     await close()
     server.close()
   })

@@ -38,6 +38,7 @@ jobs:
       SMTP_PASSWORD: placeholder
       AUTH_JWT_SECRET_KEY: abcdefgh123456
       AUTH_ADMIN_PASSWORD_HASH: $2b$10$9ScWBY1SuA0a2nZbjvAOWeshe1XqchHKeI18NgWSs.TS4zbZsds3C
+      CORS_ORIGIN_URL: http://localhost:3001
     services:
       mongo:
         image: mongo:7.0
