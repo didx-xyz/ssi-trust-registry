@@ -6,6 +6,7 @@ interface Params {
   additionalRowClasses?: string
   logo: string
 }
+
 const TableIconRow = ({value, logo, additionalRowClasses}: Params) => {
   return <td className='p-0'>
     <div className={'flex p-4 bg-white mb-1 items-center ' + additionalRowClasses}>

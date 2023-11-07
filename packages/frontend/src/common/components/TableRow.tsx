@@ -12,7 +12,7 @@ const TableRow = ({ value, additionalRowClasses }: Params) => {
         <p className='leading-6 text-right'>{value || '-'}</p>
       </div>
     </td>
-  );
-};
+  )
+}
 
 export default TableRow
