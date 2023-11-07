@@ -8,16 +8,22 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      colors: {
+        'primary': '#2D3E47',
+        'white': '#fff',
+        'light': '#EEF2F3',
+        'lightHover': '#E6EBED',
+        'medium': '#C5CDD1',
+        'mediumHover': '#B2BCC2',
+        'accent': '#4F14EE',
+        'accentHover': '#451AB8',
+        'success': '#2BD18F',
+        'attention': '#FFA800',
+        'error': '#FC367D',
       },
     },
-    colors: {
-      'background': '#f5f5f6'
-    }
+
   },
-  plugins: [require("daisyui")],
+  plugins: [require('daisyui')],
 }
 export default config

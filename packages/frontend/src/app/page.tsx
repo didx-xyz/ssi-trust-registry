@@ -1,32 +1,40 @@
-import Image from 'next/image'
+import React from 'react'
+import Button from '@/common/components/Button'
+import Table, { TableDataConfigItem } from '@/common/components/Table'
+import PageHeading from '@/common/components/PageHeading'
+import { Text4xlBold } from '@/common/components/Typography'
+import { TrustRegistry } from '@/common/interfaces/TrustRegistry'
 
-export default function Home() {
+async function getData(): Promise<TrustRegistry> {
+  const res = await fetch('http://localhost:3000/api/registry')
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data')
+  }
+
+  return res.json()
+}
+
+export default async function Home() {
+  const tableTitles: TableDataConfigItem[] = [
+    {title: 'Company name', partsOfTwelve: '6', columnValue: 'name'},
+    {title: 'State', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'status'},
+    {title: 'Updated', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'updatedAt'},
+    {title: 'Registered', partsOfTwelve: '2', additionalTitleClasses: 'text-right', columnValue: 'createdAt'}
+  ]
+  const data: TrustRegistry = await getData()
+
   return (
-    <div className="container">
-      <div className="flex justify-between">
-        <h1 className="text-5xl font-bold">Trusted Entities</h1>
-        <button className="btn">invite a company</button>
-      </div>
-        <div className="overflow-x-auto">
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>Company name</th>
-                        <th>State</th>
-                        <th>Updated</th>
-                        <th>Registered</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Absa</td>
-                        <td>Active</td>
-                        <td>03/02/2023</td>
-                        <td>12/06/2023</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div className='container'>
+      <PageHeading>
+        <Text4xlBold>Trusted Entities</Text4xlBold>
+        <Button name='Invite a company'/>
+      </PageHeading>
+
+      <Table
+        tableDataConfig={tableTitles}
+        items={data.entities}
+      />
     </div>
   )
 }
