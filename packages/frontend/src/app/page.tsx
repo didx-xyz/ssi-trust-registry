@@ -7,6 +7,7 @@ import { TrustRegistry } from '@/common/interfaces/TrustRegistry'
 import { TableCellType } from '@/common/enums/TableCellType'
 import { Entity } from '@/common/interfaces/Entity'
 import { formatDate } from '@/common/helpers'
+import PageContainer from '@/common/components/PageContainer'
 
 async function getData(): Promise<TrustRegistry> {
   const res = await fetch('http://localhost:3000/api/registry')
@@ -28,7 +29,7 @@ export default async function Home() {
   const data: TrustRegistry = await getData()
 
   return (
-    <div className='container'>
+    <PageContainer>
       <PageHeading>
         <Text4xlBold>Trusted Entities</Text4xlBold>
         <Button name='Invite a company'/>
@@ -44,6 +45,6 @@ export default async function Home() {
           }
         })}
       />
-    </div>
+    </PageContainer>
   )
 }
