@@ -63,6 +63,7 @@ services:
         condition: service_healthy
   smtp4dev:
     image: rnwood/smtp4dev:v3
+    container_name: smtp4dev
     ports:
       - 5000:80
       - 25:25
