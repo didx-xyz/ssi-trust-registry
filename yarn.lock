@@ -2489,7 +2489,7 @@ d@1, d@^1.0.1:
     es5-ext "^0.10.50"
     type "^1.0.1"
 
-daisyui@^3.9.3:
+daisyui@^3.9.4:
   version "3.9.4"
   resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-3.9.4.tgz#84209bfce115505d7b502f7362b8ced6bb3a6cc5"
   integrity sha512-fvi2RGH4YV617/6DntOVGcOugOPym9jTGWW2XySb5ZpvdWO4L7bEG77VHirrnbRUEWvIEVXkBpxUz2KFj0rVnA==
