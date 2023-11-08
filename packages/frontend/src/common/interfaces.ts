@@ -1,3 +1,8 @@
+export interface TrustRegistry {
+  entities: Entity[]
+  schemas: Schema[]
+}
+
 export interface Entity {
   id: string
   name: string
@@ -8,14 +13,10 @@ export interface Entity {
   credentials: string[]
   createdAt: string
   updatedAt: string
+  status: string
 }
 
 export interface Schema {
   schemaId: string
   name: string
-}
-
-export interface TrustRegistry {
-  entities: Entity[]
-  schemas: Schema[]
 }

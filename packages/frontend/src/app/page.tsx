@@ -3,22 +3,26 @@ import dayjs from 'dayjs'
 import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { TrustRegistry } from '@/common/interfaces'
+import { TrustRegistry, Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import Image from 'next/image'
 
 async function getData(): Promise<TrustRegistry> {
   const res = await fetch('http://localhost:3000/api/registry')
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch data')
-  }
-
   return res.json()
 }
 
 export default async function Home() {
   const data: TrustRegistry = await getData()
+  const transformedEntities: Entity[] = data.entities.map(
+    (entity: Entity): Entity => {
+      return {
+        ...entity,
+        updatedAt: dayjs(entity.updatedAt).format('DD/MM/YYYY'),
+        createdAt: dayjs(entity.createdAt).format('DD/MM/YYYY'),
+      }
+    },
+  )
 
   return (
     <PageContainer>
@@ -37,7 +41,7 @@ export default async function Home() {
             </tr>
           </thead>
           <tbody>
-            {data.entities.map((item: any, rowIndex: number) => {
+            {transformedEntities.map((item: Entity, rowIndex: number) => {
               return (
                 <tr key={rowIndex}>
                   <td className="p-0">
