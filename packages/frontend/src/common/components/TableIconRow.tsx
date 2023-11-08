@@ -16,7 +16,7 @@ const TableIconRow = ({ value, logo, additionalRowClasses }: Params) => {
         }
       >
         <Image className="mr-2" src={logo} alt={value} width={24} height={24} />
-        <p className="leading-6">{value || '-'}</p>
+        <p className="leading-6 min-h-6">{value}</p>
       </div>
     </td>
   )

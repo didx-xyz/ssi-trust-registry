@@ -1,12 +1,11 @@
 import React from 'react'
-import Button from '@/common/components/Button'
+import dayjs from 'dayjs'
+import { Button } from '@/common/components/Button'
 import Table, { TableDataConfigItem } from '@/common/components/Table'
-import PageHeading from '@/common/components/PageHeading'
+import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
 import { TrustRegistry } from '@/common/interfaces'
-import { TableCellType } from '@/common/enums/TableCellType'
 import { Entity } from '@/common/interfaces'
-import { formatDate } from '@/common/helpers'
 import PageContainer from '@/common/components/PageContainer'
 
 async function getData(): Promise<TrustRegistry> {
@@ -25,7 +24,7 @@ export default async function Home() {
       title: 'Company name',
       additionalTitleClasses: 'w-6/12',
       columnValue: 'name',
-      cellType: TableCellType.Icon,
+      cellType: 'icon',
     },
     {
       title: 'State',
@@ -57,8 +56,8 @@ export default async function Home() {
         items={data.entities.map((entity: Entity) => {
           return {
             ...entity,
-            createdAt: formatDate(entity.createdAt),
-            updatedAt: formatDate(entity.updatedAt),
+            createdAt: dayjs(entity.createdAt).format('DD/MM/YYYY'),
+            updatedAt: dayjs(entity.updatedAt).format('DD/MM/YYYY'),
           }
         })}
       />

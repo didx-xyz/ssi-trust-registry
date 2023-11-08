@@ -9,12 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "daisyui": "^3.9.4",
+    "dayjs": "^1.11.10",
     "next": "13.5.4",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "daisyui": "^3.9.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

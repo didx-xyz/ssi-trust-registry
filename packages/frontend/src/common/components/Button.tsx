@@ -4,12 +4,10 @@ interface Params {
   title: string
 }
 
-const Button = ({ title }: Params) => {
+export function Button({ title }: Params) {
   return (
     <button className="btn bg-accent h-12 min-w-[192px] text-white normal-case hover:bg-accentHover">
       {title}
     </button>
   )
 }
-
-export default Button

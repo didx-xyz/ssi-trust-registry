@@ -3,7 +3,6 @@ import TableColumnTitle from '@/common/components/TableColumnTitle'
 import TableRow from '@/common/components/TableRow'
 import TableIconRow from '@/common/components/TableIconRow'
 import { Entity } from '@/common/interfaces'
-import { TableCellType } from '@/common/enums/TableCellType'
 
 interface Params {
   tableDataConfig: TableDataConfigItem[]
@@ -14,7 +13,7 @@ export interface TableDataConfigItem {
   title: string
   additionalTitleClasses?: string
   columnValue: string
-  cellType?: TableCellType
+  cellType?: string
 }
 
 const Table = ({ tableDataConfig, items }: Params) => {
@@ -52,7 +51,7 @@ const Table = ({ tableDataConfig, items }: Params) => {
                       additionalRowClasses += 'rounded-r-lg'
                     }
 
-                    if (tableDataItem.cellType === TableCellType.Icon) {
+                    if (tableDataItem.cellType === 'icon') {
                       return (
                         <TableIconRow
                           key={cellIndex}
