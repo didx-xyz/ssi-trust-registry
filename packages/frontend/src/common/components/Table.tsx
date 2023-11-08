@@ -2,7 +2,7 @@ import React from 'react'
 import TableColumnTitle from '@/common/components/TableColumnTitle'
 import TableRow from '@/common/components/TableRow'
 import TableIconRow from '@/common/components/TableIconRow'
-import { Entity } from '@/common/interfaces/Entity'
+import { Entity } from '@/common/interfaces'
 import { TableCellType } from '@/common/enums/TableCellType'
 
 interface Params {
@@ -17,28 +17,33 @@ export interface TableDataConfigItem {
   cellType?: TableCellType
 }
 
-const Table = ({tableDataConfig, items}: Params) => {
+const Table = ({ tableDataConfig, items }: Params) => {
   return (
-    <div className='overflow-x-auto'>
-      <table className='table'>
+    <div className="overflow-x-auto">
+      <table className="table">
         <thead>
-        <tr className='text-sm text-primary'>
-          {
-            tableDataConfig.map(((tableDataItem: TableDataConfigItem, index: number) => <TableColumnTitle
-              key={index}
-              additionalTitleClasses={tableDataItem.additionalTitleClasses}
-              title={tableDataItem.title}
-            />))
-          }
-        </tr>
+          <tr className="text-sm text-primary">
+            {tableDataConfig.map(
+              (tableDataItem: TableDataConfigItem, index: number) => (
+                <TableColumnTitle
+                  key={index}
+                  additionalTitleClasses={tableDataItem.additionalTitleClasses}
+                  title={tableDataItem.title}
+                />
+              ),
+            )}
+          </tr>
         </thead>
         <tbody>
-        {
-          items.map((item: any, rowIndex: number) => {
+          {items.map((item: any, rowIndex: number) => {
             return (
               <tr key={rowIndex}>
-                {
-                  tableDataConfig.map(((tableDataItem: TableDataConfigItem, cellIndex: number, array: TableDataConfigItem[]) => {
+                {tableDataConfig.map(
+                  (
+                    tableDataItem: TableDataConfigItem,
+                    cellIndex: number,
+                    array: TableDataConfigItem[],
+                  ) => {
                     let additionalRowClasses: string = ''
 
                     if (cellIndex === 0) {
@@ -48,25 +53,28 @@ const Table = ({tableDataConfig, items}: Params) => {
                     }
 
                     if (tableDataItem.cellType === TableCellType.Icon) {
-                      return <TableIconRow
-                        key={cellIndex}
-                        value={item[tableDataConfig[cellIndex].columnValue]}
-                        logo={item.logo_url}
-                        additionalRowClasses={additionalRowClasses}
-                      />
+                      return (
+                        <TableIconRow
+                          key={cellIndex}
+                          value={item[tableDataConfig[cellIndex].columnValue]}
+                          logo={item.logo_url}
+                          additionalRowClasses={additionalRowClasses}
+                        />
+                      )
                     } else {
-                      return <TableRow
-                        key={cellIndex}
-                        value={item[tableDataConfig[cellIndex].columnValue]}
-                        additionalRowClasses={additionalRowClasses}
-                      />
+                      return (
+                        <TableRow
+                          key={cellIndex}
+                          value={item[tableDataConfig[cellIndex].columnValue]}
+                          additionalRowClasses={additionalRowClasses}
+                        />
+                      )
                     }
-                  }))
-                }
+                  },
+                )}
               </tr>
             )
-          })
-        }
+          })}
         </tbody>
       </table>
     </div>

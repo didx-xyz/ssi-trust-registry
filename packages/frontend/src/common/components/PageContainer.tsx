@@ -5,11 +5,7 @@ interface Params {
 }
 
 const PageContainer = ({ children }: Params) => {
-  return (
-    <div className='container'>
-      {children}
-    </div>
-  )
+  return <div className="container">{children}</div>
 }
 
 export default PageContainer

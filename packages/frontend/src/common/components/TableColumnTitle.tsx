@@ -5,8 +5,8 @@ interface Params {
   title: string
 }
 
-const TableColumnTitle = ({additionalTitleClasses = '', title}: Params) => {
-  return <th className={'p-4 '+ additionalTitleClasses}>{title}</th>
+const TableColumnTitle = ({ additionalTitleClasses = '', title }: Params) => {
+  return <th className={'p-4 ' + additionalTitleClasses}>{title}</th>
 }
 
 export default TableColumnTitle

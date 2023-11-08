@@ -3,9 +3,9 @@ import Button from '@/common/components/Button'
 import Table, { TableDataConfigItem } from '@/common/components/Table'
 import PageHeading from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { TrustRegistry } from '@/common/interfaces/TrustRegistry'
+import { TrustRegistry } from '@/common/interfaces'
 import { TableCellType } from '@/common/enums/TableCellType'
-import { Entity } from '@/common/interfaces/Entity'
+import { Entity } from '@/common/interfaces'
 import { formatDate } from '@/common/helpers'
 import PageContainer from '@/common/components/PageContainer'
 
@@ -21,10 +21,27 @@ async function getData(): Promise<TrustRegistry> {
 
 export default async function Home() {
   const tableTitles: TableDataConfigItem[] = [
-    {title: 'Company name', additionalTitleClasses: 'w-6/12', columnValue: 'name', cellType: TableCellType.Icon},
-    {title: 'State', additionalTitleClasses: 'w-2/12 text-right', columnValue: 'status'},
-    {title: 'Updated', additionalTitleClasses: 'w-2/12 text-right', columnValue: 'updatedAt'},
-    {title: 'Registered', additionalTitleClasses: 'w-2/12 text-right', columnValue: 'createdAt'}
+    {
+      title: 'Company name',
+      additionalTitleClasses: 'w-6/12',
+      columnValue: 'name',
+      cellType: TableCellType.Icon,
+    },
+    {
+      title: 'State',
+      additionalTitleClasses: 'w-2/12 text-right',
+      columnValue: 'status',
+    },
+    {
+      title: 'Updated',
+      additionalTitleClasses: 'w-2/12 text-right',
+      columnValue: 'updatedAt',
+    },
+    {
+      title: 'Registered',
+      additionalTitleClasses: 'w-2/12 text-right',
+      columnValue: 'createdAt',
+    },
   ]
   const data: TrustRegistry = await getData()
 
@@ -32,7 +49,7 @@ export default async function Home() {
     <PageContainer>
       <PageHeading>
         <Text4xlBold>Trusted Entities</Text4xlBold>
-        <Button name='Invite a company'/>
+        <Button title="Invite a company" />
       </PageHeading>
 
       <Table
@@ -41,7 +58,7 @@ export default async function Home() {
           return {
             ...entity,
             createdAt: formatDate(entity.createdAt),
-            updatedAt: formatDate(entity.updatedAt)
+            updatedAt: formatDate(entity.updatedAt),
           }
         })}
       />

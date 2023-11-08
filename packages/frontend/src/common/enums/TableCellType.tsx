@@ -1,3 +1,3 @@
 export enum TableCellType {
-  Icon
+  Icon,
 }

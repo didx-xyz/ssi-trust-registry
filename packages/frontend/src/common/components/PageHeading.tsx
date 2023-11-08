@@ -5,11 +5,7 @@ interface Params {
 }
 
 const PageHeading = ({ children }: Params) => {
-  return (
-    <div className='flex justify-between mb-6'>
-      {children}
-    </div>
-  )
+  return <div className="flex justify-between mb-6">{children}</div>
 }
 
 export default PageHeading

@@ -9,20 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'primary': '#2D3E47',
-        'white': '#fff',
-        'light': '#EEF2F3',
-        'lightHover': '#E6EBED',
-        'medium': '#C5CDD1',
-        'mediumHover': '#B2BCC2',
-        'accent': '#4F14EE',
-        'accentHover': '#451AB8',
-        'success': '#2BD18F',
-        'attention': '#FFA800',
-        'error': '#FC367D',
+        primary: '#2D3E47',
+        white: '#FFFFFF',
+        light: '#EEF2F3',
+        lightHover: '#E6EBED',
+        medium: '#C5CDD1',
+        mediumHover: '#B2BCC2',
+        accent: '#4F14EE',
+        accentHover: '#451AB8',
+        success: '#2BD18F',
+        attention: '#FFA800',
+        error: '#FC367D',
       },
     },
-
   },
   plugins: [require('daisyui')],
 }

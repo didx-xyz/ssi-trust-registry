@@ -9,3 +9,13 @@ export interface Entity {
   createdAt: string
   updatedAt: string
 }
+
+export interface Schema {
+  schemaId: string
+  name: string
+}
+
+export interface TrustRegistry {
+  entities: Entity[]
+  schemas: Schema[]
+}

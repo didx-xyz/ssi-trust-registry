@@ -20,13 +20,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' className='h-full'>
-    <body className={roboto.className + ' min-h-full bg-light'}>
-      <Header/>
-      <div className='flex justify-center py-8 px-10'>
-        {children}
-      </div>
-    </body>
+    <html lang="en" className="h-full">
+      <body className={roboto.className + ' min-h-full bg-light'}>
+        <Header />
+        <div className="flex justify-center py-8 px-10">{children}</div>
+      </body>
     </html>
   )
 }
