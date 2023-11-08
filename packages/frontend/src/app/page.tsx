@@ -8,8 +8,15 @@ import { PageContainer } from '@/common/components/PageContainer'
 import Image from 'next/image'
 
 async function getData(): Promise<TrustRegistry> {
-  const res = await fetch('http://localhost:3000/api/registry')
-  return res.json()
+  try {
+    const res = await fetch('http://localhost:3000/api/registry')
+    return res.json()
+  } catch (error) {
+    return {
+      entities: [],
+      schemas: [],
+    }
+  }
 }
 
 export default async function Home() {
