@@ -21,16 +21,6 @@ async function getEntities(): Promise<Entity[]> {
 export default async function Home() {
   const entities: Entity[] = await getEntities()
 
-  const transformedEntities: Entity[] = entities.map(
-    (entity: Entity): Entity => {
-      return {
-        ...entity,
-        updatedAt: dayjs(entity.updatedAt).format('DD/MM/YYYY'),
-        createdAt: dayjs(entity.createdAt).format('DD/MM/YYYY'),
-      }
-    },
-  )
-
   return (
     <PageContainer>
       <PageHeading>
@@ -48,7 +38,7 @@ export default async function Home() {
             </tr>
           </thead>
           <tbody>
-            {transformedEntities.map((item: Entity, rowIndex: number) => {
+            {entities.map((item: Entity, rowIndex: number) => {
               return (
                 <tr key={rowIndex}>
                   <td className="p-0">
@@ -73,14 +63,14 @@ export default async function Home() {
                   <td className="p-0">
                     <div className="p-4 bg-white mb-1 ">
                       <p className="leading-6 text-right min-h-6">
-                        {item.updatedAt}
+                        {dayjs(item.updatedAt).format('DD/MM/YYYY')}
                       </p>
                     </div>
                   </td>
                   <td className="p-0">
                     <div className="p-4 bg-white mb-1 rounded-r-lg">
                       <p className="leading-6 text-right min-h-6">
-                        {item.createdAt}
+                        {dayjs(item.createdAt).format('DD/MM/YYYY')}
                       </p>
                     </div>
                   </td>
