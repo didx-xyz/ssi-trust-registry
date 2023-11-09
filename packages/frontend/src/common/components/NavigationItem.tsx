@@ -3,12 +3,12 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-interface Params {
+interface Props {
   name: string
   href: string
 }
 
-const NavigationItem = ({ name, href }: Params) => {
+export function NavigationItem({ name, href }: Props) {
   const currentRoute = usePathname()
 
   return (
@@ -23,5 +23,3 @@ const NavigationItem = ({ name, href }: Params) => {
     </Link>
   )
 }
-
-export default NavigationItem

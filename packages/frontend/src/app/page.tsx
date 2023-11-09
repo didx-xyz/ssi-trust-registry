@@ -3,14 +3,14 @@ import dayjs from 'dayjs'
 import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { Entity } from '@/common/interfaces'
+import { Entity, TrustRegistry } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import Image from 'next/image'
 
 async function getEntities(): Promise<Entity[]> {
   try {
-    const response = await fetch('http://localhost:3000/api/registry')
-    const responseJson = await response.json()
+    const response: Response = await fetch('http://localhost:3000/api/registry')
+    const responseJson: TrustRegistry = await response.json()
 
     return responseJson.entities
   } catch (error) {

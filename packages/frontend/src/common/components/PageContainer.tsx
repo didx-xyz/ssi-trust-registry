@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react'
 
-interface Params {
+interface Props {
   children: ReactNode
 }
 
-export function PageContainer({ children }: Params) {
+export function PageContainer({ children }: Props) {
   return <div className="container">{children}</div>
 }

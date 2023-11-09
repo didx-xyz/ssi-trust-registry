@@ -1,9 +1,9 @@
 import React from 'react'
 
-interface Params {
+interface Props {
   children: string
 }
 
-export const Text4xlBold = ({ children }: Params) => {
+export function Text4xlBold({ children }: Props) {
   return <h2 className="text-2xl font-bold">{children}</h2>
 }
