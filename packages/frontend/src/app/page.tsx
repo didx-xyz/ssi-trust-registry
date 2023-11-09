@@ -3,25 +3,25 @@ import dayjs from 'dayjs'
 import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { TrustRegistry, Entity } from '@/common/interfaces'
+import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import Image from 'next/image'
 
-async function getData(): Promise<TrustRegistry> {
+async function getEntities(): Promise<Entity[]> {
   try {
-    const res = await fetch('http://localhost:3000/api/registry')
-    return res.json()
+    const response = await fetch('http://localhost:3000/api/registry')
+    const responseJson = await response.json()
+
+    return responseJson.entities
   } catch (error) {
-    return {
-      entities: [],
-      schemas: [],
-    }
+    return []
   }
 }
 
 export default async function Home() {
-  const data: TrustRegistry = await getData()
-  const transformedEntities: Entity[] = data.entities.map(
+  const entities: Entity[] = await getEntities()
+
+  const transformedEntities: Entity[] = entities.map(
     (entity: Entity): Entity => {
       return {
         ...entity,
