@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 export function Header() {
   return (
-    <div className="sticky top-0 z-10 block bg-white h-20 shadow-lg flex justify-between px-6 items-center">
+    <div className="sticky top-0 z-10 bg-white h-20 shadow-lg flex justify-between px-6 items-center">
       <Link href="/" className="flex gap-2">
         <Image
           src="images/logo.svg"

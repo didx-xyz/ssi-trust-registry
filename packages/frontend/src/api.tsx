@@ -16,7 +16,16 @@ export async function logOut() {
 }
 
 export async function getUser() {
-  return betterFetch('GET', 'http://localhost:3000/api/auth/whoami')
+  try {
+    const payload = await betterFetch(
+      'GET',
+      'http://localhost:3000/api/auth/whoami',
+    )
+    return payload
+  } catch (error) {
+    console.error(error)
+    return {}
+  }
 }
 
 async function betterFetch<T>(
@@ -30,6 +39,7 @@ async function betterFetch<T>(
       'Content-Type': 'application/json',
     },
     credentials: 'include',
+    cache: 'no-cache',
     body: payload && JSON.stringify(payload),
   })
 

@@ -3,15 +3,18 @@ import dayjs from 'dayjs'
 import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { Entity, TrustRegistry } from '@/common/interfaces'
+import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import Image from 'next/image'
+import { getUser } from '@/api'
 
 async function getEntities(): Promise<Entity[]> {
   try {
-    const response: Response = await fetch('http://localhost:3000/api/registry')
-    const responseJson: TrustRegistry = await response.json()
-
+    const response: Response = await fetch(
+      'http://localhost:3000/api/registry',
+      { cache: 'no-cache' },
+    )
+    const responseJson = await response.json()
     return responseJson.entities
   } catch (error) {
     return []
@@ -20,6 +23,8 @@ async function getEntities(): Promise<Entity[]> {
 
 export default async function Home() {
   const entities: Entity[] = await getEntities()
+  const user = await getUser()
+  console.log('user', user)
 
   return (
     <PageContainer>
