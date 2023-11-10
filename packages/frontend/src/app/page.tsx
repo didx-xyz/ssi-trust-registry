@@ -1,11 +1,12 @@
 import React from 'react'
 import dayjs from 'dayjs'
+import Image from 'next/image'
+import { cookies } from 'next/headers'
 import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
 import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
-import Image from 'next/image'
 import { getUser } from '@/api'
 
 async function getEntities(): Promise<Entity[]> {
@@ -23,14 +24,15 @@ async function getEntities(): Promise<Entity[]> {
 
 export default async function Home() {
   const entities: Entity[] = await getEntities()
-  const user = await getUser()
+  const token = getAuthToken()
+  const user = await getUser(token || '')
   console.log('user', user)
 
   return (
     <PageContainer>
       <PageHeading>
         <Text4xlBold>Trusted Entities</Text4xlBold>
-        <Button title="Invite a company" />
+        {user.user && <Button title="Invite a company" />}
       </PageHeading>
       <div className="overflow-x-auto">
         <table className="table">
@@ -87,4 +89,10 @@ export default async function Home() {
       </div>
     </PageContainer>
   )
+}
+
+function getAuthToken() {
+  const cookieStore = cookies()
+  const token = cookieStore.get('token')?.value
+  return token
 }

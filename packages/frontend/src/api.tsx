@@ -7,6 +7,7 @@ export async function logIn(credentials: LoginForm) {
   return betterFetch<LoginForm>(
     'POST',
     'http://localhost:3000/api/auth/login',
+    {},
     credentials,
   )
 }
@@ -15,11 +16,12 @@ export async function logOut() {
   return betterFetch('GET', 'http://localhost:3000/api/auth/logout')
 }
 
-export async function getUser() {
+export async function getUser(token: string) {
   try {
     const payload = await betterFetch(
       'GET',
       'http://localhost:3000/api/auth/whoami',
+      { Cookie: `token=${token}` },
     )
     return payload
   } catch (error) {
@@ -31,12 +33,14 @@ export async function getUser() {
 async function betterFetch<T>(
   method: 'GET' | 'POST',
   url: string,
+  headers?: any,
   payload?: T,
 ) {
   const response = await fetch(url, {
     method,
     headers: {
       'Content-Type': 'application/json',
+      ...headers,
     },
     credentials: 'include',
     cache: 'no-cache',
