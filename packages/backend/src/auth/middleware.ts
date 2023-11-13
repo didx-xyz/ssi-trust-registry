@@ -15,9 +15,10 @@ export function authenticate(
   if (token) {
     const secretKey = config.auth.jwtSecretKey
     const verification = jwt.verify(token, secretKey)
-    console.log('verification', verification)
     if (typeof verification === 'string') {
-      next('Verification is string')
+      next(
+        new Error(`Malformed JWT token: received 'string', expected 'object'`),
+      )
     } else {
       ;(req as RequestWithToken).jwtPayload = verification
       next()
