@@ -79,7 +79,7 @@ export const InvitationDto = z
       .string()
       .optional()
       .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
-    emailAddress: z.string().openapi({ example: 'test@example.com' }),
+    emailAddress: z.string().email().openapi({ example: 'test@example.com' }),
   })
   .openapi('InvitationRequest')
 
