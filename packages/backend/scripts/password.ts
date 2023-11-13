@@ -9,13 +9,11 @@ async function main() {
 }
 
 async function hashPassword(password: string) {
-  const hash = await bcrypt.hash(password, 10)
-  return hash
+  return bcrypt.hash(password, 10)
 }
 
 async function verifyPassword(password: string, hash: string) {
-  const match = await bcrypt.compare(password, hash)
-  return match
+  return bcrypt.compare(password, hash)
 }
 
 main()

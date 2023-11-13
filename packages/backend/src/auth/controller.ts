@@ -32,12 +32,14 @@ async function logIn(req: Request, res: Response) {
     )
     if (passwordMatch) {
       const token = createToken('admin')
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-      })
-      res.status(200).json({ token })
+      res
+        .status(200)
+        .cookie('token', token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+        })
+        .json({ token })
     } else {
       res.status(401).json({ error: 'Authorization failed.' })
     }
@@ -50,8 +52,10 @@ async function logOut(req: Request, res: Response) {
   console.log('req.cookies', req.cookies)
   const { token } = req.cookies
   if (token) {
-    res.clearCookie('token')
-    res.status(200).json({ message: 'You have been succesfully logged out.' })
+    res
+      .status(200)
+      .clearCookie('token')
+      .json({ message: 'You have been succesfully logged out.' })
   } else {
     res.status(403).json({ error: 'You have not been logged in.' })
   }
