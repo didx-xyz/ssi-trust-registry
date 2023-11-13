@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import { NavigationItem } from '@/common/components/NavigationItem'
 import Image from 'next/image'
+import { NavigationItem } from '@/common/components/NavigationItem'
 
 export function Header() {
   return (
@@ -17,6 +17,7 @@ export function Header() {
       <nav className="flex gap-4">
         <NavigationItem name="Trusted Entities" href="/" />
         <NavigationItem name="Schemas" href="/schemas" />
+        <NavigationItem name="Submissions" href="/submissions" />
         <NavigationItem name="Login as Admin" href="/login" />
       </nav>
     </div>

@@ -1,49 +1,43 @@
 import React from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
-import { cookies } from 'next/headers'
-import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { Entity } from '@/common/interfaces'
+import { Submission } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
-import { getUser } from '@/api'
 
-async function getEntities(): Promise<Entity[]> {
+async function getSubmissions() {
   try {
     const response: Response = await fetch(
-      'http://localhost:3000/api/registry',
-      { cache: 'no-cache' },
+      'http://localhost:3000/api/submissions',
     )
-    const responseJson = await response.json()
-    return responseJson.entities
+    const responseJson: Submission[] = await response.json()
+
+    return responseJson
   } catch (error) {
     return []
   }
 }
 
-export default async function Home() {
-  const entities: Entity[] = await getEntities()
-  const token = getAuthToken()
-  const user = await getUser(token)
-  console.log('user', user)
+export default async function Page() {
+  const submissions: Submission[] = await getSubmissions()
 
   return (
     <PageContainer>
       <PageHeading>
-        <Text4xlBold>Trusted Entities</Text4xlBold>
-        {user.id && <Button title="Invite a company" />}
+        <Text4xlBold>Submissions</Text4xlBold>
       </PageHeading>
       <Table>
         <TableHeader>
-          <th className="p-4 w-6/12">Company name</th>
-          <th className="p-4 w-2/12 text-right">State</th>
+          <th className="p-4 w-5/12">Company name</th>
+          <th className="p-4 w-1/12 text-right">State</th>
           <th className="p-4 w-2/12 text-right">Updated</th>
-          <th className="p-4 w-2/12 text-right">Registered</th>
+          <th className="p-4 w-2/12 text-right">Submitted</th>
+          <th className="p-4 w-2/12 text-right">Email</th>
         </TableHeader>
         <TableBody>
-          {entities.map((item: Entity, rowIndex: number) => {
+          {submissions.map((item: Submission, rowIndex: number) => {
             return (
               <tr key={rowIndex}>
                 <td className="p-0">
@@ -79,6 +73,11 @@ export default async function Home() {
                     </p>
                   </div>
                 </td>
+                <td className="p-0">
+                  <div className="p-4 bg-white mb-1 rounded-r-lg">
+                    <p className="leading-6 text-right min-h-6">{item.email}</p>
+                  </div>
+                </td>
               </tr>
             )
           })}
@@ -86,10 +85,4 @@ export default async function Home() {
       </Table>
     </PageContainer>
   )
-}
-
-function getAuthToken() {
-  const cookieStore = cookies()
-  const token = cookieStore.get('token')?.value
-  return token
 }
