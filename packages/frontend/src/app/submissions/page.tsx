@@ -11,6 +11,9 @@ async function getSubmissions() {
   try {
     const response: Response = await fetch(
       'http://localhost:3000/api/submissions',
+      {
+        cache: 'no-cache',
+      },
     )
     const responseJson: Submission[] = await response.json()
 
