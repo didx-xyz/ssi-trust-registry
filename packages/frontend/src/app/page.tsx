@@ -25,14 +25,14 @@ async function getEntities(): Promise<Entity[]> {
 export default async function Home() {
   const entities: Entity[] = await getEntities()
   const token = getAuthToken()
-  const user = await getUser(token || '')
+  const user = await getUser(token)
   console.log('user', user)
 
   return (
     <PageContainer>
       <PageHeading>
         <Text4xlBold>Trusted Entities</Text4xlBold>
-        {user.user && <Button title="Invite a company" />}
+        {user.id && <Button title="Invite a company" />}
       </PageHeading>
       <div className="overflow-x-auto">
         <table className="table">

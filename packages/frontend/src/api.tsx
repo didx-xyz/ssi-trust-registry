@@ -16,8 +16,11 @@ export async function logOut() {
   return betterFetch('GET', 'http://localhost:3000/api/auth/logout')
 }
 
-export async function getUser(token: string) {
+export async function getUser(token?: string) {
   try {
+    if (!token) {
+      return {}
+    }
     const payload = await betterFetch(
       'GET',
       'http://localhost:3000/api/auth/whoami',

@@ -81,8 +81,9 @@ describe('auth', () => {
         Cookie: cookie,
       },
     })
-    console.log('user', await response.json())
+    const payload = await response.json()
     expect(response.status).toEqual(200)
+    expect(payload.id).toEqual('admin')
   })
 })
 

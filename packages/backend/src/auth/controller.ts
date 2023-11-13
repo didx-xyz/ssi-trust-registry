@@ -64,7 +64,7 @@ async function logOut(req: Request, res: Response) {
 async function getUser(req: RequestWithToken, res: Response) {
   console.log('req.token', req.jwtPayload)
   if (req.jwtPayload) {
-    res.status(200).json({ user: req.jwtPayload.sub })
+    res.status(200).json({ id: req.jwtPayload.sub })
   } else {
     res.status(403).json({ error: 'You are not logged in.' })
   }
