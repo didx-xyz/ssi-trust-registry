@@ -1,8 +1,8 @@
 import React from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
+import Link from 'next/link'
 import { cookies } from 'next/headers'
-import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
 import { Entity } from '@/common/interfaces'
@@ -20,7 +20,14 @@ export default async function Home() {
     <PageContainer>
       <PageHeading>
         <Text4xlBold>Trusted Entities</Text4xlBold>
-        {user.id && <Button title="Invite a company" />}
+        {user.id && (
+          <Link
+            href="./invite"
+            className="btn bg-accent h-12 min-w-[192px] text-white normal-case hover:bg-accentHover"
+          >
+            Invite a company
+          </Link>
+        )}
       </PageHeading>
       <Table>
         <TableHeader>

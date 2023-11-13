@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { NavigationItem } from '@/common/components/NavigationItem'
+import { NavigationItem } from '@/common/components/navigation/NavigationItem'
 
 export function Header() {
   return (
