@@ -5,14 +5,19 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn workspace @ssi-trust-registry/backend build",
-    "validate": "yarn workspace @ssi-trust-registry/backend validate && yarn workspace @ssi-trust-registry/frontend validate",
+    "fe:build": "yarn workspace @ssi-trust-registry/frontend build",
+    "be:build": "yarn workspace @ssi-trust-registry/backend build",
+    "build": "yarn be:build && yarn fe:build",
+    "validate": "yarn workspace @ssi-trust-registry/backend validate",
     "test": "yarn workspace @ssi-trust-registry/backend test",
     "dev": "yarn workspace @ssi-trust-registry/backend dev",
-    "start": "yarn workspace @ssi-trust-registry/backend start",
+    "fe:start": "yarn workspace @ssi-trust-registry/frontend start -p 3001",
+    "be:start": "yarn workspace @ssi-trust-registry/backend start",
+    "start": "concurrently \"yarn be:start\" \"yarn fe:start\"",
     "postinstall": "node -e \"process.env.NODE_ENV !== 'production' && require('husky').install()\""
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "5.0.0",
     "prettier": "^3.0.3"

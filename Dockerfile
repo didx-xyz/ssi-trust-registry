@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
   make \
   python3
 
+RUN yarn config set strict-ssl false
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
+
 RUN yarn global add node-gyp
 
 WORKDIR /app
@@ -46,6 +49,7 @@ ENV PORT=3000
 ENV NODE_ENV=${NODE_ENV}
 
 EXPOSE 3000
+EXPOSE 3001
 
 ENTRYPOINT [ "tini", "--" ]
 CMD [ "yarn", "start" ]
