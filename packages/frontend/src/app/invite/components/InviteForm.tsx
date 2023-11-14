@@ -3,19 +3,29 @@ import { invite } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import * as z from 'zod'
 
 interface Inputs {
   emailAddress: string
 }
 
+const schema = z.object({ emailAddress: z.string().min(1, 'Required').email() })
+
 export function InviteForm({ authToken }: { authToken?: string }) {
-  const { register, handleSubmit, formState } = useForm<Inputs>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>({
+    resolver: zodResolver(schema),
+  })
   const [isLoading, setIsLoading] = useState(false)
 
   async function onSubmit(data: Inputs) {
     setIsLoading(true)
     try {
-      console.log('formState.errors', formState.errors)
       await invite(data, authToken)
     } catch {}
     setIsLoading(false)
@@ -27,11 +37,11 @@ export function InviteForm({ authToken }: { authToken?: string }) {
         type="text"
         name="emailAddress"
         label="Email"
-        placeholder="Enter email address of company's representative"
+        placeholder="Enter email address of the company's representative"
         icon={<EmailIcon />}
         register={register}
+        error={errors.emailAddress}
       />
-
       <div className="card-actions justify-center mt-8">
         <button
           className="btn btn-primary px-12 text-white normal-case"
