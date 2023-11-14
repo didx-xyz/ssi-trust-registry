@@ -1,5 +1,7 @@
 import express from 'express'
 import { Server } from 'node:http'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import {
   asyncHandler,
   disableInProduction,
@@ -14,18 +16,22 @@ import { generateSwaggerDocs } from './api-doc'
 import { EntityService } from './entity/service'
 import { SchemaService } from './schema/service'
 import { SubmissionService } from './submission/service'
+import { AuthController } from './auth/controller'
+import { authenticate } from './auth/middleware'
 
 const logger = createLogger(__filename)
 
 interface ServerConfig {
   port: number
   url: string
+  corsOriginUrl: string
 }
 
 interface Context {
   entityService: EntityService
   schemaService: SchemaService
   submissionService: SubmissionService
+  authController: AuthController
 }
 
 export function startServer(
@@ -36,10 +42,16 @@ export function startServer(
     const { port, url } = config
     const app = express()
 
+    const corsOptions = {
+      origin: config.corsOriginUrl, // Replace with your frontend URL
+      credentials: true, // Allow cookies to be sent
+    }
+    app.use(cors(corsOptions))
     app.use(express.json())
     app.use(httpContext)
     app.use(httpContextRequestId)
     app.use(httpLogger)
+    app.use(cookieParser())
 
     app.set('json spaces', 2)
 
@@ -104,6 +116,14 @@ export function startServer(
         )
         res.status(200).json(invitation)
       }),
+    )
+
+    apiRouter.post('/auth/login', asyncHandler(context.authController.logIn))
+    apiRouter.get('/auth/logout', asyncHandler(context.authController.logOut))
+    apiRouter.get(
+      '/auth/whoami',
+      authenticate,
+      asyncHandler(context.authController.getUser),
     )
 
     app.use(errorHandler)

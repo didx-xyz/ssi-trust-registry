@@ -7,6 +7,7 @@ import { createSchemaService } from './schema/service'
 import { createEntityRepository } from './entity/mongoRepository'
 import { createEntityService } from './entity/service'
 import { EmailClient } from './email/client'
+import { createAuthController } from './auth/controller'
 
 interface IO {
   database: Db
@@ -33,6 +34,8 @@ export async function createAppContext(io: IO) {
     didResolver,
   )
 
+  const authController = await createAuthController()
+
   return {
     submissionRepository,
     submissionService,
@@ -40,5 +43,6 @@ export async function createAppContext(io: IO) {
     schemaService,
     entityRepository,
     entityService,
+    authController,
   }
 }

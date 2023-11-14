@@ -12,14 +12,15 @@
     "dayjs": "^1.11.10",
     "next": "13.5.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.48.2"
   },
   "devDependencies": {
-    "daisyui": "^3.9.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
+    "daisyui": "^3.9.4",
     "eslint": "^8",
     "eslint-config-next": "13.5.4",
     "postcss": "^8",

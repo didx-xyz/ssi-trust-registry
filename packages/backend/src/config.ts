@@ -11,6 +11,7 @@ const ConfigSchema = z.object({
   server: z.object({
     port: z.coerce.number(),
     url: z.string(),
+    corsOriginUrl: z.string(),
   }),
   logger: z.object({
     logLevel: z.enum(['error', 'warn', 'info', 'http', 'debug', 'verbose']),
@@ -29,6 +30,10 @@ const ConfigSchema = z.object({
     }),
   }),
   skipInitialDataLoad: z.boolean(),
+  auth: z.object({
+    jwtSecretKey: z.string(),
+    adminPasswordHash: z.string(),
+  }),
 })
 
 type Config = z.infer<typeof ConfigSchema>
@@ -37,6 +42,7 @@ export const config: Config = ConfigSchema.parse({
   server: {
     port: process.env.PORT,
     url: process.env.URL,
+    corsOriginUrl: process.env.CORS_ORIGIN_URL,
   },
   logger: {
     logLevel: process.env.LOGGER_LOG_LEVEL || 'http',
@@ -55,9 +61,11 @@ export const config: Config = ConfigSchema.parse({
     },
   },
   skipInitialDataLoad: process.env.SKIP_INITIAL_DATA_LOAD === 'true',
+  auth: {
+    jwtSecretKey: process.env.AUTH_JWT_SECRET_KEY,
+    adminPasswordHash: process.env.AUTH_ADMIN_PASSWORD_HASH,
+  },
 })
-
-console.log('====== config ======', config)
 
 export function hideSecrets(config: Config) {
   return {

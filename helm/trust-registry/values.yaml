@@ -26,7 +26,7 @@ deploymentLabels:
   tags.datadoghq.com/version: '{{ .Values.image.tag }}'
 podAnnotations:
   # gcr.io/datadoghq/dd-lib-js-init
-  admission.datadoghq.com/js-lib.version: v4.17.0
+  admission.datadoghq.com/js-lib.version: v4.18.0
 podLabels:
   # tags.datadoghq.com/env: <env>
   tags.datadoghq.com/service: '{{ include "trust-registry.fullname" . }}'
@@ -44,10 +44,19 @@ securityContext:
   #   - ALL
 
 config:
+  corsOriginUrl: http://localhost:3001
   url: http://0.0.0.0
   port: 3000
   # dbConnectionString: mongodb://{{ .Values.db.user }}:{{ .Values.db.password }}@{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.opts }}
   dbName: trust-registry
+
+  smtpHost: smtp.ethereal.email
+  smtpPort: 587
+  smtpUser: placeholder
+  smtpPassword: placeholder
+
+  authJwtSecretKey: placeholder
+  authAdminPasswordHash: placeholder # bcrypt hash
 
 db:
   user: mongo
