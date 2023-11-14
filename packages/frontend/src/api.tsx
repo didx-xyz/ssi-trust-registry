@@ -3,8 +3,20 @@ export interface LoginForm {
   password: string
 }
 
+export async function invite(
+  { emailAddress }: { emailAddress: string },
+  token?: string,
+) {
+  return betterFetch(
+    'POST',
+    'http://localhost:3000/api/invitation',
+    { Cookie: `token=${token}` },
+    { emailAddress },
+  )
+}
+
 export async function logIn(credentials: LoginForm) {
-  return betterFetch<LoginForm>(
+  return betterFetch(
     'POST',
     'http://localhost:3000/api/auth/login',
     {},

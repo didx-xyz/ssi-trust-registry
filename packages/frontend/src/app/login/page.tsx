@@ -1,7 +1,8 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { Path, UseFormRegister, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { logIn } from '@/api'
+import { TextInput } from '@/common/components/TextInput'
 
 interface Inputs {
   email: string
@@ -34,6 +35,7 @@ export default function Login() {
               label="E-mail address"
               placeholder="Enter e-mail address"
               register={register}
+              additionalClasses="max-w-xs"
             />
             <TextInput
               type="password"
@@ -41,6 +43,7 @@ export default function Login() {
               label="Password"
               placeholder="Enter password"
               register={register}
+              additionalClasses="max-w-xs"
             />
             <div className="card-actions justify-center">
               <button
@@ -54,35 +57,5 @@ export default function Login() {
         </div>
       </div>
     </main>
-  )
-}
-
-interface TextInputProps {
-  type: string
-  name: Path<Inputs>
-  label: string
-  placeholder: string
-  register: UseFormRegister<Inputs>
-}
-
-function TextInput({
-  type,
-  name,
-  label,
-  placeholder,
-  register,
-}: TextInputProps) {
-  return (
-    <div className="form-control w-full max-w-xs">
-      <label className="label">
-        <span className="label-text">{label}</span>
-      </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        className="input input-bordered w-full max-w-xs"
-        {...register(name)}
-      />
-    </div>
   )
 }

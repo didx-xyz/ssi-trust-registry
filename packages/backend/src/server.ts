@@ -84,7 +84,7 @@ export function startServer(
 
     apiRouter.get(
       '/submissions',
-      disableInProduction,
+      authenticate,
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
         const submissions = await context.submissionService.getAllSubmissions()
@@ -94,7 +94,6 @@ export function startServer(
 
     apiRouter.post(
       '/submissions/:invitationId',
-      disableInProduction,
       asyncHandler(async (req, res) => {
         const payload = { ...req.body, invitationId: req.params.invitationId }
         logger.info(`Processing submission:`, payload)
@@ -106,7 +105,7 @@ export function startServer(
 
     apiRouter.post(
       '/invitation',
-      disableInProduction,
+      authenticate,
       asyncHandler(async (req, res) => {
         const payload = req.body
         logger.info(`Sending invitation to:`, payload.emailAddress)

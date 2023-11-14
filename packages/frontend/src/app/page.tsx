@@ -2,13 +2,13 @@ import React from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import Link from 'next/link'
-import { cookies } from 'next/headers'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
 import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch, getUser } from '@/api'
+import { getAuthToken } from '@/common/helpers'
 
 export default async function Home() {
   const entities: Entity[] = await getEntities()
@@ -82,12 +82,6 @@ export default async function Home() {
       </Table>
     </PageContainer>
   )
-}
-
-function getAuthToken() {
-  const cookieStore = cookies()
-  const token = cookieStore.get('token')?.value
-  return token
 }
 
 async function getEntities() {
