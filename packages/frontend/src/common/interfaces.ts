@@ -30,6 +30,6 @@ export interface Submission {
   credentials: string[]
   createdAt: string
   updatedAt: string
-  status: string
+  state: string
   email: string
 }

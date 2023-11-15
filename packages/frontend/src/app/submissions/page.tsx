@@ -1,4 +1,5 @@
-import React from 'react'
+'use client'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import { PageHeading } from '@/common/components/PageHeading'
@@ -6,31 +7,65 @@ import { Text4xlBold } from '@/common/components/Typography'
 import { Submission } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
+import { Filter, FilterButton } from '@/common/components/Filter'
 
-async function getSubmissions() {
-  try {
-    const response: Response = await fetch(
-      'http://localhost:3000/api/submissions',
-      {
-        cache: 'no-cache',
-      },
-    )
-    const responseJson: Submission[] = await response.json()
+export default function Page() {
+  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [filterValues, setFilterValues] = useState<string[]>([])
 
-    return responseJson
-  } catch (error) {
-    return []
+  function toggleFilterValue(filter: string): void {
+    if (filterValues.includes(filter)) {
+      const filterIndex = filterValues.indexOf(filter)
+
+      filterValues.splice(filterIndex, 1)
+      setFilterValues([...filterValues])
+    } else {
+      setFilterValues([...filterValues, filter])
+    }
   }
-}
 
-export default async function Page() {
-  const submissions: Submission[] = await getSubmissions()
+  function isActive(filter: string): boolean {
+    return filterValues.includes(filter)
+  }
+
+  useEffect(() => {
+    try {
+      fetch('http://localhost:3000/api/submissions', {
+        cache: 'no-cache',
+      })
+        .then((res) => res.json())
+        .then((submissions) => {
+          setSubmissions(submissions)
+        })
+    } catch (error) {
+      setSubmissions([])
+    }
+  }, [])
 
   return (
     <PageContainer>
       <PageHeading>
         <Text4xlBold>Submissions</Text4xlBold>
       </PageHeading>
+
+      <Filter>
+        <FilterButton
+          isActive={isActive('pending')}
+          onClick={() => toggleFilterValue('pending')}
+          value="pending"
+        />
+        <FilterButton
+          isActive={isActive('declined')}
+          onClick={() => toggleFilterValue('declined')}
+          value="declined"
+        />
+        <FilterButton
+          isActive={isActive('approved')}
+          onClick={() => toggleFilterValue('approved')}
+          value="approved"
+        />
+      </Filter>
+
       <Table>
         <TableHeader>
           <th className="p-4 w-5/12">Company name</th>
@@ -40,50 +75,56 @@ export default async function Page() {
           <th className="p-4 w-2/12 text-right">Email</th>
         </TableHeader>
         <TableBody>
-          {submissions.map((item: Submission, rowIndex: number) => {
-            return (
-              <tr key={rowIndex}>
-                <td className="p-0">
-                  <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
-                    <Image
-                      className="mr-2"
-                      src={item.logo_url}
-                      alt={item.name}
-                      width={24}
-                      height={24}
-                    />
-                    <p className="leading-6 min-h-6">{item.name}</p>
-                  </div>
-                </td>
-                <td className="p-0">
-                  <div className="p-4 bg-white mb-1">
-                    <p className="leading-6 text-right min-h-6">
-                      {item.status}
-                    </p>
-                  </div>
-                </td>
-                <td className="p-0">
-                  <div className="p-4 bg-white mb-1 ">
-                    <p className="leading-6 text-right min-h-6">
-                      {dayjs(item.updatedAt).format('DD/MM/YYYY')}
-                    </p>
-                  </div>
-                </td>
-                <td className="p-0">
-                  <div className="p-4 bg-white mb-1 rounded-r-lg">
-                    <p className="leading-6 text-right min-h-6">
-                      {dayjs(item.createdAt).format('DD/MM/YYYY')}
-                    </p>
-                  </div>
-                </td>
-                <td className="p-0">
-                  <div className="p-4 bg-white mb-1 rounded-r-lg">
-                    <p className="leading-6 text-right min-h-6">{item.email}</p>
-                  </div>
-                </td>
-              </tr>
-            )
-          })}
+          {submissions
+            .filter((item: Submission) => {
+              return !filterValues.length || filterValues.includes(item.state)
+            })
+            .map((item: Submission, rowIndex: number) => {
+              return (
+                <tr key={rowIndex}>
+                  <td className="p-0">
+                    <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
+                      <Image
+                        className="mr-2"
+                        src={item.logo_url}
+                        alt={item.name}
+                        width={24}
+                        height={24}
+                      />
+                      <p className="leading-6 min-h-6">{item.name}</p>
+                    </div>
+                  </td>
+                  <td className="p-0">
+                    <div className="p-4 bg-white mb-1">
+                      <p className="leading-6 text-right min-h-6 capitalize">
+                        {item.state}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="p-0">
+                    <div className="p-4 bg-white mb-1 ">
+                      <p className="leading-6 text-right min-h-6">
+                        {dayjs(item.updatedAt).format('DD/MM/YYYY')}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="p-0">
+                    <div className="p-4 bg-white mb-1">
+                      <p className="leading-6 text-right min-h-6">
+                        {dayjs(item.createdAt).format('DD/MM/YYYY')}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="p-0">
+                    <div className="p-4 bg-white mb-1 rounded-r-lg">
+                      <p className="leading-6 text-right min-h-6">
+                        {item.email}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
         </TableBody>
       </Table>
     </PageContainer>
