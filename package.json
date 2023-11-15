@@ -11,5 +11,10 @@
     "dev": "yarn workspace @ssi-trust-registry/backend dev",
     "start": "yarn workspace @ssi-trust-registry/backend start",
     "postinstall": "node -e \"process.env.NODE_ENV !== 'production' && require('husky').install()\""
+  },
+  "devDependencies": {
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "5.0.0",
+    "prettier": "^3.0.3"
   }
 }
