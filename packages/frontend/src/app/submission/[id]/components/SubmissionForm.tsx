@@ -1,5 +1,5 @@
 'use client'
-import { invite } from '@/api'
+import { submit } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -11,16 +11,16 @@ import { TextArea } from '@/common/components/TextArea'
 import { Select } from '@/common/components/Select'
 
 interface Inputs {
-  entityName: string
+  name: string
   dids: string[]
   domain: string
   role: string
-  schemaIds: string[]
-  logoUrl: string
+  credentials: string[]
+  logo_url: string
 }
 
 const schema = z.object({
-  entityName: z.string().min(1, 'Required'),
+  name: z.string().min(1, 'Required'),
   dids: z.array(
     z
       .string()
@@ -33,7 +33,7 @@ const schema = z.object({
   ),
   domain: z.string().min(1, 'Required').url('Not a valid URL'),
   role: z.string().min(1, 'Required'),
-  schemaIds: z.array(
+  credentials: z.array(
     z
       .string()
       .min(1, 'Required')
@@ -45,7 +45,7 @@ const schema = z.object({
         (e) => ({ message: `'${e}' is not a valid fully schema ID` }),
       ),
   ),
-  logoUrl: z.string().min(1, 'Required').url('Not a valid URL'),
+  logo_url: z.string().min(1, 'Required').url('Not a valid URL'),
 })
 
 export function SubmissionForm({ invitation }: { invitation: Invitation }) {
@@ -58,7 +58,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
     resolver: zodResolver(schema),
   })
   async function onSubmit(data: Inputs) {
-    await invite(data, authToken)
+    await submit({ ...data, role: [data.role] }, invitation.id)
   }
 
   return !isSubmitSuccessful ? (
@@ -70,11 +70,11 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
       <div className="flex flex-col gap-4">
         <TextInput
           type="text"
-          name="entityName"
+          name="name"
           label="Entity Name"
           placeholder="Name"
           register={register}
-          error={errors.entityName}
+          error={errors.name}
         />
         <TextArea
           label="DIDs (split by newline)"
@@ -106,16 +106,16 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           label="Schema IDs (split by newline)"
           placeholder="Schema IDs"
           control={control}
-          name="schemaIds"
-          errors={errors.schemaIds}
+          name="credentials"
+          errors={errors.credentials}
         />
         <TextInput
           type="text"
-          name="logoUrl"
+          name="logo_url"
           label="Logo URL (SVG Format)"
           placeholder="Logo URL"
           register={register}
-          error={errors.logoUrl}
+          error={errors.logo_url}
         />
       </div>
       <div className="card-actions justify-center mt-8">

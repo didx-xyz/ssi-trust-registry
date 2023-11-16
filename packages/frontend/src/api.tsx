@@ -15,6 +15,25 @@ export async function invite(
   )
 }
 
+export async function submit(
+  submission: {
+    name: string
+    dids: string[]
+    logo_url: string
+    domain: string
+    role: string[]
+    credentials: string[]
+  },
+  invitationId: string,
+) {
+  return betterFetch(
+    'POST',
+    `http://localhost:3000/api/submissions/${invitationId}`,
+    {},
+    submission,
+  )
+}
+
 export async function getInvitation({
   invitationId,
 }: {
