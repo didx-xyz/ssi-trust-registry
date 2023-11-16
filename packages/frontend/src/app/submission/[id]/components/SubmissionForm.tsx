@@ -145,6 +145,12 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           fill="white"
         />
       </svg>
+      <div className="mt-8 ">
+        <p className="text-2xl font-bold">Successfully submitted</p>
+        <p className="text-sm pt-2">
+          You will receive an email with approval or rejection within 24 hours.
+        </p>
+      </div>
     </div>
   )
 }
