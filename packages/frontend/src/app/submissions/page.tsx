@@ -8,6 +8,7 @@ import { Submission } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { Filter, FilterButton } from '@/common/components/Filter'
+import { betterFetch } from '@/api'
 
 export default function Page() {
   const [submissions, setSubmissions] = useState<Submission[]>([])
@@ -30,13 +31,11 @@ export default function Page() {
 
   useEffect(() => {
     try {
-      fetch('http://localhost:3000/api/submissions', {
-        cache: 'no-cache',
-      })
-        .then((res) => res.json())
-        .then((submissions) => {
+      betterFetch('GET', 'http://localhost:3000/api/submissions').then(
+        (submissions) => {
           setSubmissions(submissions)
-        })
+        },
+      )
     } catch (error) {
       setSubmissions([])
     }
