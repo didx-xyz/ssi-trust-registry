@@ -16,10 +16,9 @@ async function getInvitationFromId(id: string) {
 export default async function SubmissionDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: { invitationId: string }
 }) {
-  console.log('id', params.id)
-  const invitation = await getInvitationFromId(params.id)
+  const invitation = await getInvitationFromId(params.invitationId)
   return (
     <main className="flex flex-col w-full items-center">
       <NavigationBreadcrumbs rootHref="/" rootName="Trusted Entities" />

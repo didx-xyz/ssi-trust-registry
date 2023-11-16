@@ -5,8 +5,10 @@ import Link from 'next/link'
 
 const titles: Record<string, string> = {
   '/': 'Trusted Entities',
-  'schemas': 'Schemas',
-  'invite': 'Invite a company',
+  schemas: 'Schemas',
+  invite: 'Invite a company',
+  submission: 'Submissions',
+  'submission/?': 'Submission Form',
 }
 
 export function NavigationBreadcrumbs({
@@ -26,14 +28,28 @@ export function NavigationBreadcrumbs({
         </li>
         {pathNames.length > 0}
         {pathNames.map((link, index) => {
-          return (
-            <li
-              key={index}
-              className={index === pathNames.length - 1 ? 'font-bold' : ''}
-            >
-              <Link href={link}>{titles[link]}</Link>
-            </li>
-          )
+          if (!titles[link]) return null
+          if (index === pathNames.length - 2 && !titles[pathNames[index + 1]]) {
+            let href = `/${pathNames.slice(0, index + 2).join('/')}`
+            return (
+              <li
+                key={index}
+                className={index === pathNames.length - 2 ? 'font-bold' : ''}
+              >
+                <Link href={href}>{titles[`${link}/?`]}</Link>
+              </li>
+            )
+          } else {
+            let href = `/${pathNames.slice(0, index + 1).join('/')}`
+            return (
+              <li
+                key={index}
+                className={index === pathNames.length - 1 ? 'font-bold' : ''}
+              >
+                <Link href={href}>{titles[link]}</Link>
+              </li>
+            )
+          }
         })}
       </ul>
     </div>
