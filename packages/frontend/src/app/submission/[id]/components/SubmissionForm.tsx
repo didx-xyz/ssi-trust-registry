@@ -1,13 +1,14 @@
 'use client'
 import { invite } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
-import React, { useState } from 'react'
-import { Controller, Merge, useForm } from 'react-hook-form'
+import React from 'react'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import * as z from 'zod'
 import { Invitation } from '@/common/interfaces'
 import { TextArea } from '@/common/components/TextArea'
+import { Select } from '@/common/components/Select'
 
 interface Inputs {
   entityName: string
@@ -90,8 +91,11 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           register={register}
           error={errors.domain}
         />
-        <TextInput
-          type="text"
+        <Select
+          options={[
+            { label: 'Issuer', value: 'issuer' },
+            { label: 'Verifier', value: 'verifier' },
+          ]}
           name="role"
           label="Role"
           placeholder="Role"
