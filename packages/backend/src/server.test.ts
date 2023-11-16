@@ -21,6 +21,7 @@ describe('api', () => {
   let entityService: EntityService
   let schemaService: SchemaService
   let emailClient: EmailClientStub
+  let cookie: string
 
   beforeAll(async () => {
     database = await connect(config.db)
@@ -34,6 +35,15 @@ describe('api', () => {
     entityService = context.entityService
     schemaService = context.schemaService
     server = await startServer(config.server, context)
+    const response = await post(
+      `http://localhost:${port}/api/auth/login`,
+      {
+        email: 'admin',
+        password: 'admin',
+      },
+      '',
+    )
+    cookie = response.headers.get('set-cookie') || ''
   })
 
   afterAll(async () => {
@@ -78,11 +88,11 @@ describe('api', () => {
     beforeEach(async () => {
       await database.dropDatabase()
       await schemaService.loadSchemas([exampleSchemaDto])
-      invitation = await generateNewInvitation()
+      invitation = await generateNewInvitation(cookie)
     })
 
     test('invitation endpoint sends email', async () => {
-      await generateNewInvitation({
+      await generateNewInvitation(cookie, {
         emailAddress: 'this-is-an-example@test.com',
       })
       expect(emailClient.sentMessages).toEqual(
@@ -96,6 +106,7 @@ describe('api', () => {
       const result = await post(
         `${url}:${port}/api/submissions/invalid`,
         absaSubmission,
+        cookie,
       )
       const status = result.status
       const response = await result.json()
@@ -106,10 +117,14 @@ describe('api', () => {
     test('submission with invalid credential schemaId fails with 500 error', async () => {
       const nonExistentSchemaId =
         'did:indy:sovrin:staging:nonexistingschemaid123'
-      const result = await post(invitation.url, {
-        ...absaSubmission,
-        credentials: [nonExistentSchemaId],
-      })
+      const result = await post(
+        invitation.url,
+        {
+          ...absaSubmission,
+          credentials: [nonExistentSchemaId],
+        },
+        cookie,
+      )
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(500)
@@ -119,7 +134,8 @@ describe('api', () => {
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
-      const result = await post(invitation.url, {})
+      console.log(invitation)
+      const result = await post(invitation.url, {}, cookie)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -171,7 +187,7 @@ describe('api', () => {
 
     test('submissions with DID of a different entity fail with 500 error', async () => {
       await entityService.loadEntities([exampleEntityDto])
-      const result = await post(invitation.url, absaSubmission)
+      const result = await post(invitation.url, absaSubmission, cookie)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(500)
@@ -181,9 +197,11 @@ describe('api', () => {
     })
 
     test('correct submissions succeeds and adds it to the list', async () => {
-      await post(invitation.url, absaSubmission)
+      await post(invitation.url, absaSubmission, cookie)
 
-      const result = await fetch(`http://localhost:${port}/api/submissions`)
+      const result = await fetch(`http://localhost:${port}/api/submissions`, {
+        headers: { Cookie: cookie },
+      })
       const status = result.status
       const submissions = await result.json()
       expect(status).toEqual(200)
@@ -214,7 +232,7 @@ describe('api', () => {
     })
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
-      const result = await post(invitation.url, yomaSubmission)
+      const result = await post(invitation.url, yomaSubmission, cookie)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(201)
@@ -222,8 +240,10 @@ describe('api', () => {
     })
 
     test('can send several submissions using same invitationUrl', async () => {
-      await post(invitation.url, absaSubmission)
-      let result = await fetch(`http://localhost:${port}/api/submissions`)
+      await post(invitation.url, absaSubmission, cookie)
+      let result = await fetch(`http://localhost:${port}/api/submissions`, {
+        headers: { Cookie: cookie },
+      })
       let submissions = await result.json()
       expect(submissions.length).toBe(1)
       expect(submissions).toEqual(
@@ -233,11 +253,17 @@ describe('api', () => {
           }),
         ]),
       )
-      await post(invitation.url, {
-        ...absaSubmission,
-        name: 'Updated Absa Name',
+      await post(
+        invitation.url,
+        {
+          ...absaSubmission,
+          name: 'Updated Absa Name',
+        },
+        cookie,
+      )
+      result = await fetch(`http://localhost:${port}/api/submissions`, {
+        headers: { Cookie: cookie },
       })
-      result = await fetch(`http://localhost:${port}/api/submissions`)
       submissions = await result.json()
       expect(submissions.length).toBe(2)
       expect(submissions).toEqual(
@@ -543,6 +569,7 @@ async function fetchRegistry() {
 }
 
 async function generateNewInvitation(
+  cookie: string,
   {
     emailAddress,
     entityId,
@@ -551,18 +578,27 @@ async function generateNewInvitation(
     entityId?: string
   } = { emailAddress: 'test@example.com' },
 ) {
-  const response = await post(`http://localhost:${port}/api/invitation`, {
-    emailAddress,
-    entityId,
-  })
+  const response = await post(
+    `http://localhost:${port}/api/invitation`,
+    {
+      emailAddress,
+      entityId,
+    },
+    cookie,
+  )
   return await response.json()
 }
 
-function post(endpoint: string, payload: Record<string, unknown>) {
+function post(
+  endpoint: string,
+  payload: Record<string, unknown>,
+  cookie: string,
+) {
   return fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      Cookie: cookie,
     },
     body: JSON.stringify(payload),
   })
