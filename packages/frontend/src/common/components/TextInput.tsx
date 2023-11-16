@@ -46,7 +46,7 @@ export function TextInput<T extends FieldValues>({
         <input
           type={type}
           placeholder={placeholder}
-          className={`input w-full text-sm bg-lightHover leading-6 placeholder:font-normal focus-within:placeholder:font-normal focus-within:font-bold ${
+          className={`input w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
             error?.message && 'input-error bg-error bg-opacity-20'
           } ${icon && 'pl-12'} ${additionalInputClasses} `}
           {...register(name)}

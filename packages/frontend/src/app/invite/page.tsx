@@ -7,7 +7,7 @@ export default function InvitePage() {
 
   return (
     <main
-      className="flex min-h-screen flex-col w-full items-center"
+      className="flex flex-col w-full items-center"
     >
       <NavigationBreadcrumbs rootHref="/" rootName="Trusted Entities" />
 

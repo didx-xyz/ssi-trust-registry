@@ -30,7 +30,7 @@ export default function Login() {
           <div className="card-body items-center">
             <h1 className="text-3xl font-bold">Admin Login</h1>
             <TextInput
-              type="text"
+              type="email"
               name="email"
               label="E-mail address"
               placeholder="Enter e-mail address"

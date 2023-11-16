@@ -37,7 +37,7 @@ export function InviteForm({ authToken }: { authToken?: string }) {
         that you want to invite.
       </p>
       <TextInput
-        type="text"
+        type="email"
         name="emailAddress"
         label="Email"
         placeholder="Enter email address of the company's representative"
