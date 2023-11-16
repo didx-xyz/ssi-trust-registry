@@ -103,6 +103,16 @@ export function startServer(
       }),
     )
 
+    apiRouter.get(
+      '/invitation/:id',
+      asyncHandler(async (req, res) => {
+        const invitation = await context.submissionService.getInvitationById(
+          req.params.id,
+        )
+        res.status(200).json(invitation)
+      }),
+    )
+
     apiRouter.post(
       '/invitation',
       authenticate,

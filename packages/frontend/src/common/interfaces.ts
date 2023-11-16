@@ -28,3 +28,10 @@ export interface Submission {
   state: string
   email: string
 }
+
+export interface Invitation {
+  id: string
+  emailAddress: string
+  createdAt: string
+  entityId?: string
+}

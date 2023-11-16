@@ -15,6 +15,18 @@ export async function invite(
   )
 }
 
+export async function getInvitation({
+  invitationId,
+}: {
+  invitationId: string
+}) {
+  console.log(invitationId)
+  return betterFetch(
+    'GET',
+    `http://localhost:3000/api/invitation/${invitationId}`,
+  )
+}
+
 export async function logIn(credentials: LoginForm) {
   return betterFetch(
     'POST',

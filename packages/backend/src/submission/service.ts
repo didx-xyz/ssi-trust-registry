@@ -33,6 +33,7 @@ export async function createSubmissionService(
       submissionRepository,
       emailClient,
     ),
+    getInvitationById: partial(getInvitationById, submissionRepository),
   }
 }
 
@@ -41,6 +42,7 @@ export interface SubmissionService {
     domain: string,
     payload: Record<string, unknown>,
   ) => Promise<InvitationWithUrl>
+  getInvitationById: (id: string) => Promise<Invitation>
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (payload: Record<string, unknown>) => Promise<Submission>
 }
@@ -139,7 +141,7 @@ async function addSubmission(
 
   const submission = {
     ...submissionDto,
-    id: createId(),
+    id: uuidv4(),
     createdAt: new Date().toISOString(),
     state: 'pending' as const,
     updatedAt: new Date().toISOString(),
@@ -148,6 +150,14 @@ async function addSubmission(
   logger.info(`Submission ${submission.id} has been added to the database`)
 
   return submission
+}
+
+async function getInvitationById(repository: SubmissionRepository, id: string) {
+  const invitation = await repository.findInvitationById(id)
+  if (!invitation) {
+    throw new Error('Invitation not found')
+  }
+  return invitation
 }
 
 async function generateInvitation(
@@ -159,7 +169,7 @@ async function generateInvitation(
   const invitationDto = InvitationDto.parse(payload)
   const invitation = {
     ...invitationDto,
-    id: uuidv4(),
+    id: createId(),
     createdAt: new Date().toISOString(),
   }
   const invitationUrl = `${domain}/api/submissions/${invitation.id}`
@@ -168,7 +178,7 @@ async function generateInvitation(
     invitation.emailAddress,
     'Invitation',
     './src/email/templates/invitation.html',
-    { invitationUrl },
+    { invitationUrl, invitationId: invitation.id },
   )
   return { ...invitation, url: invitationUrl }
 }
