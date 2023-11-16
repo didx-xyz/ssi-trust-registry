@@ -16,8 +16,8 @@ export function NavigationBreadcrumbs({
     '/': 'Trusted Entities',
     schemas: 'Schemas',
     invite: 'Invite a company',
-    submission: admin ? 'Submissions' : undefined,
-    'submission/?': admin ? 'Review submission' : 'Submission form',
+    submissions: admin ? 'Submissions' : undefined,
+    'submissions/?': admin ? 'Review submission' : 'Submission form',
   }
   const paths = usePathname()
   const pathNames = paths.split('/').filter((path) => path)
