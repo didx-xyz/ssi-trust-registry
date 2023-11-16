@@ -81,7 +81,7 @@ export default function Page() {
             .map((item: Submission, rowIndex: number) => {
               return (
                 <tr key={rowIndex}>
-                  <td className="p-0">
+                  <td className="p-0 table-fixed break-all">
                     <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
                       <Image
                         className="mr-2"
@@ -90,33 +90,35 @@ export default function Page() {
                         width={24}
                         height={24}
                       />
-                      <p className="leading-6 min-h-6">{item.name}</p>
+                      <p className="leading-6 min-h-6 h-6 overflow-hidden">
+                        {item.name}
+                      </p>
                     </div>
                   </td>
-                  <td className="p-0">
+                  <td className="p-0 table-fixed break-all">
                     <div className="p-4 bg-white mb-1">
-                      <p className="leading-6 text-right min-h-6 capitalize">
+                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right capitalize">
                         {item.state}
                       </p>
                     </div>
                   </td>
-                  <td className="p-0">
+                  <td className="p-0 table-fixed break-all">
                     <div className="p-4 bg-white mb-1 ">
-                      <p className="leading-6 text-right min-h-6">
+                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
                         {dayjs(item.updatedAt).format('DD/MM/YYYY')}
                       </p>
                     </div>
                   </td>
-                  <td className="p-0">
+                  <td className="p-0 table-fixed break-all">
                     <div className="p-4 bg-white mb-1">
-                      <p className="leading-6 text-right min-h-6">
+                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
                         {dayjs(item.createdAt).format('DD/MM/YYYY')}
                       </p>
                     </div>
                   </td>
-                  <td className="p-0">
+                  <td className="p-0 table-fixed break-all">
                     <div className="p-4 bg-white mb-1 rounded-r-lg">
-                      <p className="leading-6 text-right min-h-6">
+                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
                         {item.email}
                       </p>
                     </div>

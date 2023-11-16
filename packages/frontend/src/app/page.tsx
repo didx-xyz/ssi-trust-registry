@@ -5,19 +5,18 @@ import { cookies } from 'next/headers'
 import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { Entity } from '@/common/interfaces'
+import { Entity, TrustRegistry } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
-import { getUser } from '@/api'
+import { betterFetch, getUser } from '@/api'
 
 async function getEntities(): Promise<Entity[]> {
   try {
-    const response: Response = await fetch(
+    const response: TrustRegistry = await betterFetch(
+      'GET',
       'http://localhost:3000/api/registry',
-      { cache: 'no-cache' },
     )
-    const responseJson = await response.json()
-    return responseJson.entities
+    return response.entities
   } catch (error) {
     return []
   }
@@ -46,7 +45,7 @@ export default async function Home() {
           {entities.map((item: Entity, rowIndex: number) => {
             return (
               <tr key={rowIndex}>
-                <td className="p-0">
+                <td className="p-0 table-fixed break-all">
                   <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
                     <Image
                       className="mr-2"
@@ -55,26 +54,28 @@ export default async function Home() {
                       width={24}
                       height={24}
                     />
-                    <p className="leading-6 min-h-6">{item.name}</p>
+                    <p className="leading-6 min-h-6 h-6 overflow-hidden">
+                      {item.name}
+                    </p>
                   </div>
                 </td>
-                <td className="p-0">
+                <td className="p-0 table-fixed break-all">
                   <div className="p-4 bg-white mb-1">
-                    <p className="leading-6 text-right min-h-6">
+                    <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
                       {item.status}
                     </p>
                   </div>
                 </td>
-                <td className="p-0">
+                <td className="p-0 table-fixed break-all">
                   <div className="p-4 bg-white mb-1 ">
-                    <p className="leading-6 text-right min-h-6">
+                    <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
                       {dayjs(item.updatedAt).format('DD/MM/YYYY')}
                     </p>
                   </div>
                 </td>
-                <td className="p-0">
+                <td className="p-0 table-fixed break-all">
                   <div className="p-4 bg-white mb-1 rounded-r-lg">
-                    <p className="leading-6 text-right min-h-6">
+                    <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
                       {dayjs(item.createdAt).format('DD/MM/YYYY')}
                     </p>
                   </div>
