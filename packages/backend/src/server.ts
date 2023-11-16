@@ -4,7 +4,6 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import {
   asyncHandler,
-  disableInProduction,
   errorHandler,
   httpContext,
   httpContextRequestId,
