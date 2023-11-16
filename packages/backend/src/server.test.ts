@@ -127,7 +127,7 @@ describe('api', () => {
       )
       const status = result.status
       const response = await result.json()
-      expect(status).toEqual(500)
+      expect(status).toEqual(400)
       expect(response.error).toEqual(
         `Schema '${nonExistentSchemaId}' is not present in the trust registry`,
       )
@@ -190,7 +190,7 @@ describe('api', () => {
       const result = await post(invitation.url, absaSubmission, cookie)
       const status = result.status
       const response = await result.json()
-      expect(status).toEqual(500)
+      expect(status).toEqual(400)
       expect(response.error).toContain(
         'A different entity has already registered the did',
       )
