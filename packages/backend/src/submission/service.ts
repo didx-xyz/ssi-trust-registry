@@ -8,6 +8,7 @@ import { EmailClient } from '../email/client'
 import { DidResolver } from '../did-resolver/did-resolver'
 import { EntityDto, EntityRepository } from '../entity/service'
 import { SchemaRepository } from '../schema/service'
+import { FieldError } from '../errors'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
@@ -120,12 +121,13 @@ async function addSubmission(
   for (const did of submissionDto.dids) {
     const didDocument = await didResolver.resolveDid(did)
     if (!didDocument) {
-      throw new Error(`DID '${did}' is not resolvable`)
+      throw new FieldError(`DID '${did}' is not resolvable`, 'dids')
     }
     const existingEntity = await entityRepository.findByDid(did)
     if (existingEntity && existingEntity.id !== invitation.entityId) {
-      throw new Error(
+      throw new FieldError(
         `A different entity has already registered the did '${did}'`,
+        'dids',
       )
     }
   }
@@ -133,8 +135,9 @@ async function addSubmission(
     const registrySchema = await schemaRepository.findBySchemaId(schemaId)
     console.log(registrySchema, schemaId)
     if (!registrySchema) {
-      throw new Error(
+      throw new FieldError(
         `Schema '${schemaId}' is not present in the trust registry`,
+        'credentials',
       )
     }
   }

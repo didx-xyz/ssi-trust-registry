@@ -1,5 +1,5 @@
 'use client'
-import { submit } from '@/api'
+import { FieldError, submit } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -51,14 +51,24 @@ const schema = z.object({
 export function SubmissionForm({ invitation }: { invitation: Invitation }) {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
-    control,
+    setError,
   } = useForm<Inputs>({
     resolver: zodResolver(schema),
   })
   async function onSubmit(data: Inputs) {
-    await submit({ ...data, role: [data.role] }, invitation.id)
+    try {
+      await submit({ ...data, role: [data.role] }, invitation.id)
+    } catch (error: any) {
+      if (error instanceof FieldError) {
+        setError(error.field as keyof Inputs, {
+          type: 'manual',
+          message: error.message,
+        })
+      }
+    }
   }
 
   return !isSubmitSuccessful ? (

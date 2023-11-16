@@ -107,10 +107,21 @@ export async function betterFetch<T>(
 
   const responsePayload = await response.json()
   console.log('HTTP response: ', responsePayload)
+  if (responsePayload.field) {
+    throw new FieldError(responsePayload.error, responsePayload.field)
+  }
 
   if (response.status < 200 || response.status > 299) {
     throw new Error(`${response.status} ${response.statusText}`)
   }
 
   return responsePayload
+}
+
+export class FieldError extends Error {
+  field: string
+  constructor(message: string, field: string) {
+    super(message)
+    this.field = field
+  }
 }
