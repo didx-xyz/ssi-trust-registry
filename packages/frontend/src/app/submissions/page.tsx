@@ -30,15 +30,13 @@ export default function Page() {
   }
 
   useEffect(() => {
-    try {
-      betterFetch('GET', 'http://localhost:3000/api/submissions').then(
-        (submissions) => {
-          setSubmissions(submissions)
-        },
-      )
-    } catch (error) {
-      setSubmissions([])
-    }
+    betterFetch('GET', 'http://localhost:3000/api/submissions')
+      .then((submissions) => {
+        setSubmissions(submissions)
+      })
+      .catch(() => {
+        setSubmissions([])
+      })
   }, [])
 
   return (
