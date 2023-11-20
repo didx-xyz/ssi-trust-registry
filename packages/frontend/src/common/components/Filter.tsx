@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { TextSmBold } from '@/common/components/Typography'
-import { PlusIcon } from '@/app/submissions/images/PlusIcon'
+import { PlusIcon } from '@/common/components/images/PlusIcon'
 
 interface FilterProps {
   children: ReactNode
