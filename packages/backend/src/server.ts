@@ -89,6 +89,11 @@ export function startServer(
       asyncHandler(context.submissionController.getAllSubmissions),
     )
 
+    apiRouter.put(
+      '/submissions/:id',
+      asyncHandler(context.submissionController.updateSubmissionState),
+    )
+
     apiRouter.post(
       '/submissions',
       asyncHandler(context.submissionController.createSubmission),

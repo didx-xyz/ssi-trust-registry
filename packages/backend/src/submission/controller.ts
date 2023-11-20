@@ -21,6 +21,7 @@ export interface SubmissionController {
     req: RequestWithToken,
     res: Response,
   ) => Promise<void>
+  updateSubmissionState: (req: RequestWithToken, res: Response) => Promise<void>
 }
 
 export async function createSubmissionController(
@@ -41,6 +42,11 @@ export async function createSubmissionController(
     getSubmissionsByInvitationId: partial(
       getSubmissionsByInvitationId,
       submissionService,
+    ),
+    updateSubmissionState: partial(
+      updateSubmissionState,
+      submissionService,
+      validationService,
     ),
   }
 }
@@ -129,4 +135,22 @@ async function getSubmissionsByInvitationId(
   logger.info(`Getting all submissions for invitation: `, req.params.id)
   const submissions = await service.getSubmissionsByInvitationId(req.params.id)
   res.status(200).json(submissions)
+}
+
+async function updateSubmissionState(
+  submissionService: SubmissionService,
+  validationService: ValidationService,
+  req: RequestWithToken,
+  res: Response,
+) {
+  if (req.body.state !== 'approved' && req.body.state !== 'rejected') {
+    throw new Error(`Invalid submission state: ${req.body.state}`)
+  }
+  const submission = await submissionService.getSubmissionById(req.params.id)
+  await validationService.validateDids(submission.dids)
+  await validationService.validateSchemas(submission.credentials)
+  if (req.body.state === 'approved') {
+    const result = await submissionService.approveSubmission(submission)
+    res.status(200).json(result)
+  }
 }

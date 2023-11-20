@@ -263,6 +263,20 @@ describe('api', () => {
       expect(response.id).toEqual(expect.any(String))
     })
 
+    test('approve submission', async () => {
+      const result = await post(invitation.url, yomaSubmission)
+      const status = result.status
+      const response = await result.json()
+      expect(status).toEqual(201)
+      expect(response.id).toEqual(expect.any(String))
+      const result2 = await put(
+        `http://localhost:3000/api/submissions/${response.id}`,
+        { state: 'approved' },
+      )
+      const response2 = await result2.json()
+      console.log(response2)
+    })
+
     test('can send several submissions using same invitationUrl', async () => {
       await post(
         `http://localhost:${port}/api/submissions`,
@@ -625,6 +639,16 @@ function post(
     headers: {
       'Content-Type': 'application/json',
       Cookie: cookie,
+    },
+    body: JSON.stringify(payload),
+  })
+}
+
+function put(endpoint: string, payload: Record<string, unknown>) {
+  return fetch(endpoint, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
   })

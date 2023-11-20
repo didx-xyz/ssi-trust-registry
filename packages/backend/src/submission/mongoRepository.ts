@@ -16,7 +16,9 @@ export async function createSubmissionRepository(
       findSubmissionsByInvitationId,
       submissionCollection,
     ),
+    findSubmissionById: partial(findSubmissionById, submissionCollection),
     addSubmission: partial(addSubmission, submissionCollection),
+    reviewSubmission: partial(reviewSubmission, submissionCollection),
   }
 }
 
@@ -47,10 +49,31 @@ async function findSubmissionsByInvitationId(
   return result.map((s) => Submission.parse(s))
 }
 
+async function findSubmissionById(collection: Collection, id: string) {
+  const submission = await collection.findOne({ id })
+  return submission && Submission.parse(submission)
+}
+
 async function addSubmission(collection: Collection, submission: Submission) {
   const result = await collection.insertOne({ ...submission })
   logger.info(`Submission inserted to the database`, result)
   return submission
+}
+
+async function reviewSubmission(
+  collection: Collection,
+  id: string,
+  state: 'approved' | 'rejected',
+) {
+  const submission = await collection.findOneAndUpdate(
+    { id },
+    { $set: { state, updatedAt: new Date().toISOString() } },
+    { returnDocument: 'after' },
+  )
+  if (!submission) {
+    throw new Error(`Submission with id ${id} not found`)
+  }
+  return Submission.parse(submission)
 }
 
 async function getAllInvitations(collection: Collection) {
