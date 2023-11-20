@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "build": "yarn workspace @ssi-trust-registry/backend build",
-    "validate": "yarn workspace @ssi-trust-registry/backend validate",
+    "validate": "yarn workspace @ssi-trust-registry/backend validate && yarn workspace @ssi-trust-registry/frontend validate",
     "test": "yarn workspace @ssi-trust-registry/backend test",
     "dev": "yarn workspace @ssi-trust-registry/backend dev",
     "start": "yarn workspace @ssi-trust-registry/backend start",
