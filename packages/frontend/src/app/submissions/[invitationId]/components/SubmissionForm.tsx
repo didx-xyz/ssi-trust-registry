@@ -27,7 +27,7 @@ const schema = z.object({
       .min(1, 'Required')
       .refine(
         (e) =>
-          /did:([a-z0-9]+):((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)$/.test(e),
+          /^did:([a-z0-9]+):((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)$/.test(e),
         (e) => ({ message: `'${e}' is not a valid fully qualified DID` }),
       ),
   ),
