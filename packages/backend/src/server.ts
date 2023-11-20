@@ -23,7 +23,7 @@ const logger = createLogger(__filename)
 interface ServerConfig {
   port: number
   url: string
-  corsOriginUrl: string
+  frontendUrl: string
 }
 
 interface Context {
@@ -42,7 +42,7 @@ export function startServer(
     const app = express()
 
     const corsOptions = {
-      origin: config.corsOriginUrl, // Replace with your frontend URL
+      origin: config.frontendUrl, // Replace with your frontend URL
       credentials: true, // Allow cookies to be sent
     }
     app.use(cors(corsOptions))
@@ -120,6 +120,7 @@ export function startServer(
         logger.info(`Sending invitation to:`, payload.emailAddress)
         const invitation = await context.submissionService.generateInvitation(
           `${config.url}:${config.port}`,
+          config.frontendUrl,
           payload,
         )
         res.status(200).json(invitation)

@@ -118,7 +118,7 @@ describe('api', () => {
       const nonExistentSchemaId =
         'did:indy:sovrin:staging:nonexistingschemaid123'
       const result = await post(
-        invitation.url,
+        invitation.apiUrl,
         {
           ...absaSubmission,
           credentials: [nonExistentSchemaId],
@@ -135,7 +135,7 @@ describe('api', () => {
 
     test('invalid submission fails with 400 Bad Request error', async () => {
       console.log(invitation)
-      const result = await post(invitation.url, {}, cookie)
+      const result = await post(invitation.apiUrl, {}, cookie)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -187,7 +187,7 @@ describe('api', () => {
 
     test('submissions with DID of a different entity fail with 500 error', async () => {
       await entityService.loadEntities([exampleEntityDto])
-      const result = await post(invitation.url, absaSubmission, cookie)
+      const result = await post(invitation.apiUrl, absaSubmission, cookie)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -197,7 +197,7 @@ describe('api', () => {
     })
 
     test('correct submissions succeeds and adds it to the list', async () => {
-      await post(invitation.url, absaSubmission, cookie)
+      await post(invitation.apiUrl, absaSubmission, cookie)
 
       const result = await fetch(`http://localhost:${port}/api/submissions`, {
         headers: { Cookie: cookie },
@@ -232,7 +232,7 @@ describe('api', () => {
     })
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
-      const result = await post(invitation.url, yomaSubmission, cookie)
+      const result = await post(invitation.apiUrl, yomaSubmission, cookie)
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(201)
@@ -240,7 +240,7 @@ describe('api', () => {
     })
 
     test('can send several submissions using same invitationUrl', async () => {
-      await post(invitation.url, absaSubmission, cookie)
+      await post(invitation.apiUrl, absaSubmission, cookie)
       let result = await fetch(`http://localhost:${port}/api/submissions`, {
         headers: { Cookie: cookie },
       })
@@ -254,7 +254,7 @@ describe('api', () => {
         ]),
       )
       await post(
-        invitation.url,
+        invitation.apiUrl,
         {
           ...absaSubmission,
           name: 'Updated Absa Name',

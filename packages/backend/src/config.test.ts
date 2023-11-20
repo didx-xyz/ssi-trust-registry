@@ -8,7 +8,7 @@ describe('hideSecrets', () => {
         server: {
           port: 123,
           url: 'someurl',
-          corsOriginUrl: 'http://localhost:3001',
+          frontendUrl: 'http://localhost:3001',
         },
         db: {
           connectionString:
@@ -28,7 +28,7 @@ describe('hideSecrets', () => {
       server: {
         port: 123,
         url: 'someurl',
-        corsOriginUrl: 'http://localhost:3001',
+        frontendUrl: 'http://localhost:3001',
       },
       db: {
         connectionString:

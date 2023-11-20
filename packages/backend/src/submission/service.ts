@@ -40,7 +40,8 @@ export async function createSubmissionService(
 
 export interface SubmissionService {
   generateInvitation: (
-    domain: string,
+    backendUrl: string,
+    frontendUrl: string,
     payload: Record<string, unknown>,
   ) => Promise<InvitationWithUrl>
   getInvitationById: (id: string) => Promise<Invitation>
@@ -94,7 +95,8 @@ export const Invitation = InvitationDto.extend({
 
 export type InvitationWithUrl = z.infer<typeof InvitationWithUrl>
 export const InvitationWithUrl = Invitation.extend({
-  url: z.string(),
+  apiUrl: z.string(),
+  uiUrl: z.string(),
 })
 
 async function getAllSubmissions(repository: SubmissionRepository) {
@@ -166,7 +168,8 @@ async function getInvitationById(repository: SubmissionRepository, id: string) {
 async function generateInvitation(
   repository: SubmissionRepository,
   emailClient: EmailClient,
-  domain: string,
+  backendUrl: string,
+  frontendUrl: string,
   payload: Record<string, unknown>,
 ) {
   const invitationDto = InvitationDto.parse(payload)
@@ -175,13 +178,14 @@ async function generateInvitation(
     id: createId(),
     createdAt: new Date().toISOString(),
   }
-  const invitationUrl = `${domain}/api/submissions/${invitation.id}`
+  const invitationApiUrl = `${backendUrl}/api/submissions/${invitation.id}`
+  const invitationUiUrl = `${frontendUrl}/invitation/${invitation.id}`
   await repository.addInvitation(invitation)
   await emailClient.sendMailFromTemplate(
     invitation.emailAddress,
     'Invitation',
     './src/email/templates/invitation.html',
-    { invitationUrl, invitationId: invitation.id },
+    { invitationApiUrl, invitationUiUrl },
   )
-  return { ...invitation, url: invitationUrl }
+  return { ...invitation, apiUrl: invitationApiUrl, uiUrl: invitationUiUrl }
 }
