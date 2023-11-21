@@ -42,7 +42,9 @@ export function TextInput<T extends FieldValues>({
         </span>
       </label>
       <div className="relative focus-within:text-gray-600">
-        {icon}
+        <div className="pointer-events-none w-6 h-6 absolute top-1/2 transform -translate-y-1/2 left-3">
+          {icon}
+        </div>
         <input
           type={type}
           placeholder={placeholder}
