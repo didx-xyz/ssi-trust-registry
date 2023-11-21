@@ -10,34 +10,9 @@ import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch } from '@/api'
 import { PlusIcon } from '@/common/components/images/PlusIcon'
 
-interface FilterProps {
-  children: ReactNode
-}
-
-interface FilterButtonProps {
-  onClick: any
-  isActive: boolean
-  value: string
-}
-
 export default function Page() {
   const [submissions, setSubmissions] = useState([])
-  const [filterValues, setFilterValues] = useState<string[]>([])
-
-  function toggleFilterValue(filter: string): void {
-    if (filterValues.includes(filter)) {
-      const filterIndex = filterValues.indexOf(filter)
-
-      filterValues.splice(filterIndex, 1)
-      setFilterValues([...filterValues])
-    } else {
-      setFilterValues([...filterValues, filter])
-    }
-  }
-
-  function isActive(filter: string): boolean {
-    return filterValues.includes(filter)
-  }
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
 
   useEffect(() => {
     betterFetch('GET', 'http://localhost:3000/api/submissions')
@@ -55,23 +30,11 @@ export default function Page() {
         <Text4xlBold>Submissions</Text4xlBold>
       </PageHeading>
 
-      <Filter>
-        <FilterButton
-          isActive={isActive('pending')}
-          onClick={() => toggleFilterValue('pending')}
-          value="pending"
-        />
-        <FilterButton
-          isActive={isActive('declined')}
-          onClick={() => toggleFilterValue('declined')}
-          value="declined"
-        />
-        <FilterButton
-          isActive={isActive('approved')}
-          onClick={() => toggleFilterValue('approved')}
-          value="approved"
-        />
-      </Filter>
+      <Filter
+        options={['pending', 'declined', 'approved']}
+        selectedOptions={selectedFilters}
+        onChange={setSelectedFilters}
+      />
 
       <Table>
         <TableHeader>
@@ -84,7 +47,9 @@ export default function Page() {
         <TableBody>
           {submissions
             .filter((item: Submission) => {
-              return !filterValues.length || filterValues.includes(item.state)
+              return (
+                !selectedFilters.length || selectedFilters.includes(item.state)
+              )
             })
             .map((item: Submission, rowIndex: number) => {
               return (
@@ -140,11 +105,49 @@ export default function Page() {
   )
 }
 
-function Filter({ children }: FilterProps) {
+interface FilterProps {
+  options: string[]
+  selectedOptions: string[]
+  onChange: (value: string[]) => void
+}
+
+interface FilterButtonProps {
+  onClick: any
+  isActive: boolean
+  value: string
+}
+
+function Filter({ options, selectedOptions, onChange }: FilterProps) {
+  function toggleFilterValue(option: string): void {
+    if (selectedOptions.includes(option)) {
+      const optionIndex = selectedOptions.indexOf(option)
+
+      selectedOptions.splice(optionIndex, 1)
+      onChange([...selectedOptions])
+    } else {
+      onChange([...selectedOptions, option])
+    }
+  }
+
+  function isActive(filter: string): boolean {
+    return selectedOptions.includes(filter)
+  }
+
   return (
     <div className="flex flex-col">
       <TextSmBold className="ml-4 h-6 mb-2">Filters</TextSmBold>
-      <div className="flex gap-x-2 mb-6">{children}</div>
+      <div className="flex gap-x-2 mb-6">
+        {options.map((option) => {
+          return (
+            <FilterButton
+              key={option}
+              isActive={isActive(option)}
+              onClick={() => toggleFilterValue(option)}
+              value={option}
+            />
+          )
+        })}
+      </div>
     </div>
   )
 }
