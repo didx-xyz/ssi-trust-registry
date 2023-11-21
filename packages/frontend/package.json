@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "validate": "yarn format:check && yarn lint"
   },
   "dependencies": {
     "dayjs": "^1.11.10",
