@@ -1,6 +1,5 @@
 import { ReactComponentElement } from 'react'
 import { FieldError, FieldValues, Path, UseFormRegister } from 'react-hook-form'
-import { tv } from 'tailwind-variants'
 
 interface TextInputProps<T extends FieldValues> {
   type: string
@@ -11,6 +10,8 @@ interface TextInputProps<T extends FieldValues> {
   icon?: ReactComponentElement<any>
   error?: FieldError
   additionalClasses?: string
+  additionalLabelClasses?: string
+  additionalInputClasses?: string
 }
 
 export function TextInput<T extends FieldValues>({
@@ -22,65 +23,42 @@ export function TextInput<T extends FieldValues>({
   icon,
   error,
   additionalClasses,
+  additionalLabelClasses,
+  additionalInputClasses,
 }: TextInputProps<T>) {
-  const classNames = classes({ error: !!error?.message, icon: !!icon })
   return (
-    <div className={`${classNames.formControl()} ${additionalClasses}`}>
+    <div
+      className={`form-control w-full text-gray-400 ${
+        error?.message && 'text-error'
+      } ${additionalClasses}`}
+    >
       <label className={`label p-0 ml-4`}>
-        <span className={classNames.label()}>{label}</span>
+        <span
+          className={`label-text leading-6 ${
+            error?.message && 'text-error'
+          } ${additionalLabelClasses}`}
+        >
+          {label}
+        </span>
       </label>
       <div className="relative focus-within:text-gray-600">
-        {icon && <div className={classNames.icon()}>{icon}</div>}
+        <div className="pointer-events-none w-6 h-6 absolute top-1/2 transform -translate-y-1/2 left-3">
+          {icon}
+        </div>
         <input
           type={type}
           placeholder={placeholder}
-          className={classNames.input()}
+          className={`input w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
+            error?.message && 'input-error bg-error bg-opacity-20'
+          } ${icon && 'pl-12'} ${additionalInputClasses} `}
           {...register(name)}
         />
       </div>
       {error?.message && (
-        <p className="ml-4 text-error text-left text-sm leading-6">
+        <p className="text-error text-left ml-4 text-sm leading-6">
           {error?.message}
         </p>
       )}
     </div>
   )
 }
-
-const classes = tv({
-  slots: {
-    input: [
-      'input',
-      'bg-lightHover',
-      'w-full leading-6',
-      'text-sm text-gray-600 font-bold',
-      'placeholder:font-normal focus-within:placeholder:font-normal',
-    ],
-    formControl: ['form-control', 'w-full', 'text-gray-400'],
-    label: ['label-text', 'leading-6'],
-    icon: [
-      'pointer-events-none',
-      'w-6 h-6',
-      'absolute left-3 top-1/2 transform -translate-y-1/2',
-    ],
-  },
-  variants: {
-    icon: {
-      true: {
-        input: 'pl-12',
-      },
-    },
-    error: {
-      true: {
-        input: 'input-error bg-error bg-opacity-20',
-      },
-    },
-  },
-  compoundSlots: [
-    {
-      slots: ['formControl', 'label'],
-      error: true,
-      class: ['text-error'],
-    },
-  ],
-})
