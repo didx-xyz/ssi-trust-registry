@@ -1,3 +1,5 @@
+import { BaseError } from 'make-error'
+
 export interface LoginForm {
   email: string
   password: string
@@ -118,7 +120,7 @@ export async function betterFetch<T>(
   return responsePayload
 }
 
-export class FieldError extends Error {
+export class FieldError extends BaseError {
   field: string
   constructor(message: string, field: string) {
     super(message)

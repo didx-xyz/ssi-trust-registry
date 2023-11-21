@@ -34,7 +34,7 @@ export default async function SubmissionDetailPage({
         {invitation ? (
           <SubmissionForm invitation={invitation} />
         ) : (
-          <p>Unknown invitationId</p>
+          <p>Unknown invitation link</p>
         )}
       </div>
     </main>
