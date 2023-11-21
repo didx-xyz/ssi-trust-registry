@@ -1,7 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
-import Link from 'next/link'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
 import { Entity } from '@/common/interfaces'
@@ -9,6 +8,7 @@ import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch, getUser } from '@/api'
 import { getAuthToken } from '@/common/helpers'
+import { Button } from '@/common/components/Button'
 
 export default async function Home() {
   const entities: Entity[] = await getEntities()
@@ -20,14 +20,7 @@ export default async function Home() {
     <PageContainer>
       <PageHeading>
         <Text4xlBold>Trusted Entities</Text4xlBold>
-        {user.id && (
-          <Link
-            href="./invite"
-            className="btn bg-accent h-12 min-w-[192px] text-white normal-case hover:bg-accentHover"
-          >
-            Invite a company
-          </Link>
-        )}
+        {user.id && <Button href="./invite" title="Invite a company" />}
       </PageHeading>
       <Table>
         <TableHeader>

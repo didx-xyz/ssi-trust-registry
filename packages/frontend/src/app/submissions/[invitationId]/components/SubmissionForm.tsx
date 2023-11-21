@@ -9,6 +9,7 @@ import { Invitation } from '@/common/interfaces'
 import { TextArea } from '@/common/components/TextArea'
 import { Select } from '@/common/components/Select'
 import Success from '@/common/assets/Success.svg'
+import { Button } from '@/common/components/Button'
 
 interface Inputs {
   name: string
@@ -129,13 +130,11 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
         />
       </div>
       <div className="card-actions justify-center mt-8">
-        <button
-          className="btn btn-primary px-12 text-white normal-case"
+        <Button
+          title="Submit"
           onClick={handleSubmit(onSubmit)}
-        >
-          {isSubmitting && <span className="loading loading-spinner"></span>}
-          Submit
-        </button>
+          loading={isSubmitting}
+        />
       </div>
     </div>
   ) : (

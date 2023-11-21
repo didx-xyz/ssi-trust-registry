@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { logIn } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
+import { Button } from '@/common/components/Button'
 
 interface Inputs {
   email: string
@@ -44,12 +45,7 @@ export default function Login() {
               register={register}
             />
             <div className="card-actions justify-center">
-              <button
-                className="btn btn-primary"
-                onClick={handleSubmit(onSubmit)}
-              >
-                Log In
-              </button>
+              <Button onClick={handleSubmit(onSubmit)} title="Log in" />
             </div>
           </div>
         </div>

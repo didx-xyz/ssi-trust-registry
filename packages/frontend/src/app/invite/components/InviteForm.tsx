@@ -3,9 +3,9 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import Link from 'next/link'
 import { invite } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
+import { Button } from '@/common/components/Button'
 import Success from '@/common/assets/Success.svg'
 import EmailIcon from '../assets/EmailIcon.svg'
 
@@ -47,13 +47,11 @@ export function InviteForm({ authToken }: { authToken?: string }) {
         error={errors.emailAddress}
       />
       <div className="card-actions justify-center mt-8">
-        <button
-          className="btn btn-primary px-12 text-white normal-case"
+        <Button
+          title="Send Invitation"
           onClick={handleSubmit(onSubmit)}
-        >
-          {isSubmitting && <span className="loading loading-spinner"></span>}
-          Send invitation
-        </button>
+          loading={isSubmitting}
+        />
       </div>
     </div>
   ) : (
@@ -66,16 +64,12 @@ export function InviteForm({ authToken }: { authToken?: string }) {
         </p>
       </div>
       <div className="flex gap-4">
-        <button className="btn bg-medium  normal-case" onClick={() => reset()}>
-          {isSubmitting && <span className="loading loading-spinner"></span>}
-          Send another invitation
-        </button>
-        <Link
-          href="/"
-          className="btn bg-accent h-12 min-w-[192px] text-white normal-case hover:bg-accentHover"
-        >
-          Back to Trusted Entities
-        </Link>
+        <Button
+          type="secondary"
+          title="Send another invitation"
+          onClick={() => reset()}
+        />
+        <Button href="/" title="Back to Trusted Entities" />
       </div>
     </div>
   )
