@@ -11,7 +11,7 @@ import { Select } from '@/common/components/Select'
 import Success from '@/common/assets/Success.svg'
 import { Button } from '@/common/components/Button'
 
-interface Inputs {
+type Inputs = {
   name: string
   dids: string[]
   domain: string
@@ -49,6 +49,8 @@ const schema = z.object({
   logo_url: z.string().min(1, 'Required').url('Not a valid URL'),
 })
 
+type ServerError = { server?: never }
+
 export function SubmissionForm({ invitation }: { invitation: Invitation }) {
   const {
     register,
@@ -56,7 +58,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
     setError,
-  } = useForm<Inputs>({
+  } = useForm<Inputs & ServerError>({
     resolver: zodResolver(schema),
   })
   async function onSubmit(data: Inputs) {
@@ -68,6 +70,8 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           type: 'manual',
           message: error.message,
         })
+      } else {
+        setError('server', { type: 'manual', message: 'Something went wrong' })
       }
     }
   }

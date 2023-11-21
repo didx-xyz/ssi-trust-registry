@@ -15,6 +15,8 @@ interface Inputs {
 
 const schema = z.object({ emailAddress: z.string().min(1, 'Required').email() })
 
+type ServerError = { server?: never }
+
 export function InviteForm({ authToken }: { authToken?: string }) {
   const {
     register,
@@ -22,11 +24,16 @@ export function InviteForm({ authToken }: { authToken?: string }) {
     formState: { errors, isSubmitting, isSubmitSuccessful },
     getValues,
     reset,
-  } = useForm<Inputs>({
+    setError,
+  } = useForm<Inputs & ServerError>({
     resolver: zodResolver(schema),
   })
   async function onSubmit(data: Inputs) {
-    await invite(data, authToken)
+    try {
+      await invite(data, authToken)
+    } catch (e) {
+      setError('server', { type: 'manual', message: 'Something went wrong' })
+    }
   }
 
   return !isSubmitSuccessful ? (
