@@ -15,9 +15,6 @@ interface TextAreaProps<T extends FieldValues> {
   name: Path<T>
   icon?: ReactComponentElement<any>
   errors?: Merge<FieldError, (FieldError | undefined)[]>
-  additionalClasses?: string
-  additionalLabelClasses?: string
-  additionalInputClasses?: string
 }
 
 export function TextArea<T extends FieldValues>({
@@ -27,9 +24,6 @@ export function TextArea<T extends FieldValues>({
   name,
   icon,
   errors,
-  additionalClasses,
-  additionalLabelClasses,
-  additionalInputClasses,
 }: TextAreaProps<T>) {
   const _errors = createArrayFromFieldErrors(errors)
   return (
@@ -40,14 +34,14 @@ export function TextArea<T extends FieldValues>({
         return (
           <div
             className={`form-control w-full text-gray-400 ${
-              _errors?.length && 'text-error'
-            } ${additionalClasses}`}
+              _errors?.length && '!text-error'
+            }`}
           >
             <label className={`label p-0 ml-4`}>
               <span
                 className={`label-text leading-6 ${
-                  _errors?.length && 'text-error'
-                } ${additionalLabelClasses}`}
+                  _errors?.length && '!text-error'
+                }`}
               >
                 {label}
               </span>
@@ -61,8 +55,8 @@ export function TextArea<T extends FieldValues>({
                 }}
                 placeholder={placeholder}
                 className={`textarea h-16 resize-none	 w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
-                  _errors?.length && 'input-error bg-error bg-opacity-20'
-                } ${icon && 'pl-12'} ${additionalInputClasses} `}
+                  _errors?.length && '!textarea-error !bg-error !bg-opacity-20'
+                } ${icon && 'pl-12'}`}
               />
             </div>
             {_errors?.map((error, index) => (

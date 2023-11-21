@@ -9,9 +9,6 @@ interface TextInputProps<T extends FieldValues> {
   register: UseFormRegister<T>
   icon?: ReactComponentElement<any>
   error?: FieldError
-  additionalClasses?: string
-  additionalLabelClasses?: string
-  additionalInputClasses?: string
 }
 
 export function TextInput<T extends FieldValues>({
@@ -22,21 +19,16 @@ export function TextInput<T extends FieldValues>({
   register,
   icon,
   error,
-  additionalClasses,
-  additionalLabelClasses,
-  additionalInputClasses,
 }: TextInputProps<T>) {
   return (
     <div
       className={`form-control w-full text-gray-400 ${
-        error?.message && 'text-error'
-      } ${additionalClasses}`}
+        error?.message && '!text-error'
+      }`}
     >
       <label className={`label p-0 ml-4`}>
         <span
-          className={`label-text leading-6 ${
-            error?.message && 'text-error'
-          } ${additionalLabelClasses}`}
+          className={`label-text leading-6 ${error?.message && '!text-error'}`}
         >
           {label}
         </span>
@@ -49,8 +41,8 @@ export function TextInput<T extends FieldValues>({
           type={type}
           placeholder={placeholder}
           className={`input w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
-            error?.message && 'input-error bg-error bg-opacity-20'
-          } ${icon && 'pl-12'} ${additionalInputClasses} `}
+            error?.message && '!input-error !bg-error !bg-opacity-20'
+          } ${icon && 'pl-12'}`}
           {...register(name)}
         />
       </div>

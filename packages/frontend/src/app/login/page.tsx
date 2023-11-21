@@ -35,7 +35,6 @@ export default function Login() {
               label="E-mail address"
               placeholder="Enter e-mail address"
               register={register}
-              additionalClasses="max-w-xs"
             />
             <TextInput
               type="password"
@@ -43,7 +42,6 @@ export default function Login() {
               label="Password"
               placeholder="Enter password"
               register={register}
-              additionalClasses="max-w-xs"
             />
             <div className="card-actions justify-center">
               <button
