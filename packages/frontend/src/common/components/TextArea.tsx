@@ -1,4 +1,3 @@
-import { ReactComponentElement } from 'react'
 import {
   Control,
   Controller,
@@ -7,17 +6,15 @@ import {
   Merge,
   Path,
 } from 'react-hook-form'
+import { tv } from 'tailwind-variants'
 
 interface TextAreaProps<T extends FieldValues> {
   label: string
   placeholder: string
   control: Control<T>
   name: Path<T>
-  icon?: ReactComponentElement<any>
   errors?: Merge<FieldError, (FieldError | undefined)[]>
   additionalClasses?: string
-  additionalLabelClasses?: string
-  additionalInputClasses?: string
 }
 
 export function TextArea<T extends FieldValues>({
@@ -25,44 +22,30 @@ export function TextArea<T extends FieldValues>({
   placeholder,
   control,
   name,
-  icon,
   errors,
   additionalClasses,
-  additionalLabelClasses,
-  additionalInputClasses,
 }: TextAreaProps<T>) {
   const _errors = createArrayFromFieldErrors(errors)
+  const classNames = classes({ error: !!_errors?.length })
+
   return (
     <Controller
       name={name}
       control={control}
       render={({ field: { onChange } }) => {
         return (
-          <div
-            className={`form-control w-full text-gray-400 ${
-              _errors?.length && 'text-error'
-            } ${additionalClasses}`}
-          >
+          <div className={`${classNames.formControl()} ${additionalClasses}`}>
             <label className={`label p-0 ml-4`}>
-              <span
-                className={`label-text leading-6 ${
-                  _errors?.length && 'text-error'
-                } ${additionalLabelClasses}`}
-              >
-                {label}
-              </span>
+              <span className={classNames.label()}>{label}</span>
             </label>
-            <div className="relative focus-within:text-gray-600">
-              {icon}
+            <div className="focus-within:text-gray-600">
               <textarea
                 onChange={(e) => {
                   const value = e.target.value
                   onChange(value.trim().split('\n'))
                 }}
                 placeholder={placeholder}
-                className={`textarea h-16 resize-none	 w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
-                  _errors?.length && 'input-error bg-error bg-opacity-20'
-                } ${icon && 'pl-12'} ${additionalInputClasses} `}
+                className={classNames.input()}
               />
             </div>
             {_errors?.map((error, index) => (
@@ -85,3 +68,37 @@ function createArrayFromFieldErrors(
 ) {
   return !errors || Array.isArray(errors) ? errors : [errors]
 }
+
+const classes = tv({
+  slots: {
+    input: [
+      'textarea',
+      'bg-lightHover',
+      'resize-none',
+      'w-full h-16',
+      'text-sm text-gray-600 font-bold leading-6',
+      'placeholder:font-normal focus-within:placeholder:font-normal',
+    ],
+    formControl: ['form-control', 'w-full', 'text-gray-400'],
+    label: ['label-text', 'leading-6'],
+  },
+  variants: {
+    icon: {
+      true: {
+        input: 'pl-12',
+      },
+    },
+    error: {
+      true: {
+        input: 'input-error bg-error bg-opacity-20',
+      },
+    },
+  },
+  compoundSlots: [
+    {
+      slots: ['formControl', 'label'],
+      error: true,
+      class: ['text-error'],
+    },
+  ],
+})
