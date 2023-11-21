@@ -5,14 +5,14 @@ import { cookies } from 'next/headers'
 import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { Entity, TrustRegistry } from '@/common/interfaces'
+import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch, getUser } from '@/api'
 
-async function getEntities(): Promise<Entity[]> {
+async function getEntities() {
   try {
-    const response: TrustRegistry = await betterFetch(
+    const response = await betterFetch(
       'GET',
       'http://localhost:3000/api/registry',
     )

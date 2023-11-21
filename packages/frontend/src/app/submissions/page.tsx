@@ -11,7 +11,7 @@ import { Filter, FilterButton } from '@/common/components/Filter'
 import { betterFetch } from '@/api'
 
 export default function Page() {
-  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [submissions, setSubmissions] = useState([])
   const [filterValues, setFilterValues] = useState<string[]>([])
 
   function toggleFilterValue(filter: string): void {

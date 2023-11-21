@@ -1,8 +1,3 @@
-export interface TrustRegistry {
-  entities: Entity[]
-  schemas: Schema[]
-}
-
 export interface Entity {
   id: string
   name: string
