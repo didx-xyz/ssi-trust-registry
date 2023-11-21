@@ -20,6 +20,10 @@ interface Inputs {
   logo_url: string
 }
 
+const didRegex = /^did:([a-z0-9]+):((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)$/
+const schemaIdRegex =
+  /^did:([a-z0-9]+):((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)\/(?:[a-zA-Z0-9._%-]*)\/v[0-9]*\/SCHEMA\/(?:[a-zA-Z0-9._%-]*)\/(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/
+
 const schema = z.object({
   name: z.string().min(1, 'Required'),
   dids: z.array(
@@ -27,8 +31,7 @@ const schema = z.object({
       .string()
       .min(1, 'Required')
       .refine(
-        (e) =>
-          /^did:([a-z0-9]+):((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)$/.test(e),
+        (e) => didRegex.test(e),
         (e) => ({ message: `'${e}' is not a valid fully qualified DID` }),
       ),
   ),
@@ -39,10 +42,7 @@ const schema = z.object({
       .string()
       .min(1, 'Required')
       .refine(
-        (e) =>
-          /^did:([a-z0-9]+):((?:[a-zA-Z0-9._%-]*:)*[a-zA-Z0-9._%-]+)\/(?:[a-zA-Z0-9._%-]*)\/v[0-9]*\/SCHEMA\/(?:[a-zA-Z0-9._%-]*)\/(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(
-            e,
-          ),
+        (e) => schemaIdRegex.test(e),
         (e) => ({ message: `'${e}' is not a valid fully schema ID` }),
       ),
   ),
