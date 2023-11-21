@@ -10,18 +10,6 @@ import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch, getUser } from '@/api'
 
-async function getEntities() {
-  try {
-    const response = await betterFetch(
-      'GET',
-      'http://localhost:3000/api/registry',
-    )
-    return response.entities
-  } catch (error) {
-    return []
-  }
-}
-
 export default async function Home() {
   const entities: Entity[] = await getEntities()
   const token = getAuthToken()
@@ -93,4 +81,16 @@ function getAuthToken() {
   const cookieStore = cookies()
   const token = cookieStore.get('token')?.value
   return token
+}
+
+async function getEntities() {
+  try {
+    const response = await betterFetch(
+      'GET',
+      'http://localhost:3000/api/registry',
+    )
+    return response.entities
+  } catch (error) {
+    return []
+  }
 }
