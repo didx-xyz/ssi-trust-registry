@@ -6,9 +6,7 @@ export default function InvitePage() {
   const authToken = getAuthToken()
 
   return (
-    <main
-      className="flex flex-col w-full items-center"
-    >
+    <main className="flex flex-col w-full items-center">
       <NavigationBreadcrumbs rootHref="/" rootName="Trusted Entities" />
 
       <div className="card rounded-2xl p-16 bg-white text-center w-1/2 min-w-[40rem] max-w-4xl">
