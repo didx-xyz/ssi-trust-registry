@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { invite } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import { Button } from '@/common/components/Button'
 import Success from '@/common/assets/Success.svg'
 import EmailIcon from '../assets/EmailIcon.svg'
+import { betterFetch } from '@/api'
 
 interface Inputs {
   emailAddress: string
@@ -79,5 +79,17 @@ export function InviteForm({ authToken }: { authToken?: string }) {
         <Button href="/" title="Back to Trusted Entities" />
       </div>
     </div>
+  )
+}
+
+async function invite(
+  { emailAddress }: { emailAddress: string },
+  token?: string,
+) {
+  return betterFetch(
+    'POST',
+    'http://localhost:3000/api/invitation',
+    { Cookie: `token=${token}` },
+    { emailAddress },
   )
 }

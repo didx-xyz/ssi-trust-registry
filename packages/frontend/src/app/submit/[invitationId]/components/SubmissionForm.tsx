@@ -3,7 +3,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FieldError, submit } from '@/api'
+import { FieldError, betterFetch } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import { Invitation } from '@/common/interfaces'
 import { TextArea } from '@/common/components/TextArea'
@@ -160,5 +160,24 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
         </p>
       </div>
     </div>
+  )
+}
+
+export async function submit(
+  submission: {
+    name: string
+    dids: string[]
+    logo_url: string
+    domain: string
+    role: string[]
+    credentials: string[]
+  },
+  invitationId: string,
+) {
+  return betterFetch(
+    'POST',
+    `http://localhost:3000/api/submissions/${invitationId}`,
+    {},
+    submission,
   )
 }

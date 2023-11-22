@@ -3,17 +3,7 @@ import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumb
 import { Invitation } from '@/common/interfaces'
 import { SubmissionForm } from './components/SubmissionForm'
 
-async function getInvitationFromId(id: string) {
-  try {
-    const invitation: Invitation = await getInvitation({ invitationId: id })
-    return invitation
-  } catch (error) {
-    console.error(error)
-    return null
-  }
-}
-
-export default async function ApplyPage({
+export default async function SubmitPage({
   params,
 }: {
   params: { invitationId: string }
@@ -41,4 +31,14 @@ export default async function ApplyPage({
       </div>
     </main>
   )
+}
+
+async function getInvitationFromId(id: string) {
+  try {
+    const invitation: Invitation = await getInvitation({ invitationId: id })
+    return invitation
+  } catch (error) {
+    console.error(error)
+    return null
+  }
 }
