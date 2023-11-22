@@ -25,7 +25,9 @@ export function TextArea<T extends FieldValues>({
   icon,
   errors,
 }: TextAreaProps<T>) {
-  const _errors = createArrayFromFieldErrors(errors)
+  const errorsArray: FieldError[] = Array.isArray(errors)
+    ? errors.filter(Boolean)
+    : [errors].filter(Boolean)
   return (
     <Controller
       name={name}
@@ -34,13 +36,13 @@ export function TextArea<T extends FieldValues>({
         return (
           <div
             className={`form-control w-full text-gray-400 ${
-              _errors?.length && '!text-error'
+              errorsArray?.length && '!text-error'
             }`}
           >
             <label className={`label p-0 ml-4`}>
               <span
                 className={`label-text leading-6 ${
-                  _errors?.length && '!text-error'
+                  errorsArray?.length && '!text-error'
                 }`}
               >
                 {label}
@@ -55,11 +57,12 @@ export function TextArea<T extends FieldValues>({
                 }}
                 placeholder={placeholder}
                 className={`textarea h-16 resize-none	 w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
-                  _errors?.length && '!textarea-error !bg-error !bg-opacity-20'
+                  errorsArray?.length &&
+                  '!textarea-error !bg-error !bg-opacity-20'
                 } ${icon && 'pl-12'}`}
               />
             </div>
-            {_errors?.map((error, index) => (
+            {errorsArray?.map((error, index) => (
               <p
                 key={index}
                 className="text-error text-left ml-4 text-sm leading-6"
@@ -72,10 +75,4 @@ export function TextArea<T extends FieldValues>({
       }}
     />
   )
-}
-
-function createArrayFromFieldErrors(
-  errors?: Merge<FieldError, FieldError | undefined[]>,
-) {
-  return !errors || Array.isArray(errors) ? errors : [errors]
 }
