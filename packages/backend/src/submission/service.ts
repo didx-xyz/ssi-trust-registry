@@ -179,7 +179,7 @@ async function generateInvitation(
     createdAt: new Date().toISOString(),
   }
   const invitationApiUrl = `${backendUrl}/api/submissions/${invitation.id}`
-  const invitationUiUrl = `${frontendUrl}/submission/${invitation.id}`
+  const invitationUiUrl = `${frontendUrl}/submit/${invitation.id}`
   await repository.addInvitation(invitation)
   await emailClient.sendMailFromTemplate(
     invitation.emailAddress,

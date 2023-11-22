@@ -1,8 +1,7 @@
-import { getInvitation, getUser } from '@/api'
+import { getInvitation } from '@/api'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { Invitation } from '@/common/interfaces'
 import { SubmissionForm } from './components/SubmissionForm'
-import { getAuthToken } from '@/common/helpers'
 
 async function getInvitationFromId(id: string) {
   try {
@@ -14,21 +13,24 @@ async function getInvitationFromId(id: string) {
   }
 }
 
-export default async function SubmissionDetailPage({
+export default async function ApplyPage({
   params,
 }: {
   params: { invitationId: string }
 }) {
-  const token = getAuthToken()
-  const user = await getUser(token)
-
-  const invitation = await getInvitationFromId(params.invitationId)
+  const { invitationId } = params
+  console.log(invitationId)
+  const invitation = await getInvitationFromId(invitationId)
   return (
     <main className="flex flex-col w-full items-center">
       <NavigationBreadcrumbs
-        rootHref="/"
-        rootName="Trusted Entities"
-        admin={user.id}
+        breadcrumbs={[
+          { href: '/', title: 'Trusted Entities' },
+          {
+            href: `/submit/${invitationId}`,
+            title: 'Submission Form',
+          },
+        ]}
       />
       <div className="card rounded-2xl p-16 bg-white text-center w-1/2 min-w-[40rem] max-w-4xl">
         {invitation ? (
