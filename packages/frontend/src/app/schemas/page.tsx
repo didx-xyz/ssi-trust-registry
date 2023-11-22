@@ -1,23 +1,10 @@
 import React from 'react'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text4xlBold } from '@/common/components/Typography'
-import { Schema, TrustRegistry } from '@/common/interfaces'
+import { Schema } from '@/common/interfaces'
 import dayjs from 'dayjs'
 import { PageContainer } from '@/common/components/PageContainer'
 import { betterFetch } from '@/api'
-
-async function getSchemas(): Promise<Schema[]> {
-  try {
-    const response: TrustRegistry = await betterFetch(
-      'GET',
-      'http://localhost:3000/api/registry',
-    )
-
-    return response.schemas
-  } catch (error) {
-    return []
-  }
-}
 
 export default async function Schemas() {
   const schemas: Schema[] = await getSchemas()
@@ -77,4 +64,17 @@ export default async function Schemas() {
       </div>
     </PageContainer>
   )
+}
+
+async function getSchemas() {
+  try {
+    const response = await betterFetch(
+      'GET',
+      'http://localhost:3000/api/registry',
+    )
+
+    return response.schemas
+  } catch (error) {
+    return []
+  }
 }
