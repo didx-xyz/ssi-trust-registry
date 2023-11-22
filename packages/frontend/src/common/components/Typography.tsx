@@ -5,10 +5,10 @@ interface Props {
   className?: string
 }
 
-export function Text4xlBold({ children, className }: Props) {
-  return <h2 className={'text-2xl font-bold ' + className}>{children}</h2>
+export function Text4xlBold({ children }: Props) {
+  return <h2 className="text-2xl font-bold">{children}</h2>
 }
 
-export function TextSmBold({ children, className }: Props) {
-  return <p className={'text-sm font-bold ' + className}>{children}</p>
+export function TextSmBold({ children }: Props) {
+  return <p className="text-sm font-bold">{children}</p>
 }
