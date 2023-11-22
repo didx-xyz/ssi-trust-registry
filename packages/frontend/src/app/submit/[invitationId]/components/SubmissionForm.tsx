@@ -7,7 +7,7 @@ import { FieldError, submit } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import { Invitation } from '@/common/interfaces'
 import { TextArea } from '@/common/components/TextArea'
-import { Select } from '@/common/components/Select'
+import { Checkbox } from '@/common/components/Checkbox'
 import Success from '@/common/assets/Success.svg'
 import { Button } from '@/common/components/Button'
 
@@ -15,7 +15,7 @@ type Inputs = {
   name: string
   dids: string[]
   domain: string
-  role: string
+  role: string[]
   credentials: string[]
   logo_url: string
 }
@@ -36,7 +36,7 @@ const schema = z.object({
       ),
   ),
   domain: z.string().min(1, 'Required').url('Not a valid URL'),
-  role: z.string().min(1, 'Required'),
+  role: z.array(z.enum(['verifier', 'issuer'])),
   credentials: z.array(
     z
       .string()
@@ -60,10 +60,13 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
     setError,
   } = useForm<Inputs & ServerError>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      role: ['verifier'],
+    },
   })
   async function onSubmit(data: Inputs) {
     try {
-      await submit({ ...data, role: [data.role] }, invitation.id)
+      await submit(data, invitation.id)
     } catch (error: any) {
       if (error instanceof FieldError) {
         setError(error.field as keyof Inputs, {
@@ -106,16 +109,22 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           register={register}
           error={errors.domain}
         />
-        <Select
+        <Checkbox
           options={[
+            {
+              label: 'Verifier',
+              value: 'verifier',
+              always: true,
+              disabled: true,
+            },
+
             { label: 'Issuer', value: 'issuer' },
-            { label: 'Verifier', value: 'verifier' },
           ]}
           name="role"
           label="Role"
           placeholder="Role"
           register={register}
-          error={errors.role}
+          errors={errors.role}
         />
         <TextArea
           label="Schema IDs (split by newline)"
