@@ -135,7 +135,9 @@ function Filter({ options, selectedOptions, onChange }: FilterProps) {
 
   return (
     <div className="flex flex-col">
-      <TextSmBold className="ml-4 h-6 mb-2">Filters</TextSmBold>
+      <div className="pl-4 h-6 mb-2">
+        <TextSmBold className="h-6">Filters</TextSmBold>
+      </div>
       <div className="flex gap-x-2 mb-6">
         {options.map((option) => {
           return (
