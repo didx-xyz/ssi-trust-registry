@@ -12,6 +12,6 @@
 !yarn.lock
 !/packages/**/src
 !/packages/frontend/public
-!/packages/frontend/*.config.js
+!/packages/frontend/*.config.*
 !/packages/**/package.json
 !/packages/**/tsconfig.json
