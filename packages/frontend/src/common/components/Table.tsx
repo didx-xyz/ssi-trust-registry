@@ -14,7 +14,7 @@ export function Table({ children }: Props) {
 export function TableHeader({ children }: Props) {
   return (
     <thead>
-      <tr className="text-sm">{children}</tr>
+      <tr className="text-sm text-primary">{children}</tr>
     </thead>
   )
 }

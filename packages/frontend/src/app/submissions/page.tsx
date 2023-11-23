@@ -178,12 +178,13 @@ function FilterButton({ onClick, isActive, value }: FilterButtonProps) {
         'btn rounded-full min-h-0 h-10 text-sm normal-case transition ' +
         (isActive
           ? 'bg-primary hover:bg-primary text-white'
-          : 'bg-white hover:bg-white')
+          : 'bg-white hover:bg-white text-primary')
       }
     >
       <PlusIcon
         className={
-          'transition duration-500 ' + (isActive && 'rotate-45 text-white')
+          'transition duration-500 ' +
+          (isActive ? 'rotate-45 text-white' : 'text-primary')
         }
       />
       <p className="capitalize">{value}</p>
