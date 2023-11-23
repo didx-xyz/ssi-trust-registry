@@ -8,6 +8,7 @@ import { Button } from '@/common/components/Button'
 import Success from '@/common/assets/Success.svg'
 import EmailIcon from '../assets/EmailIcon.svg'
 import { betterFetch } from '@/api'
+import { Text2xlBold, TextSm } from '@/common/components/Typography'
 
 interface Inputs {
   emailAddress: string
@@ -37,13 +38,15 @@ export function InviteForm({ authToken }: { authToken?: string }) {
   }
 
   return !isSubmitSuccessful ? (
-    <div>
-      <p className="text-2xl font-bold leading-normal pb-2">Invite a company</p>
-      <p className="text-sm leading-normal">
-        Enter email address of the company&apos;s representative,
-        <br />
-        that you want to invite.
-      </p>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-2">
+        <Text2xlBold>Invite a company</Text2xlBold>
+        <TextSm>
+          Enter email address of the company&apos;s representative,
+          <br />
+          that you want to invite.
+        </TextSm>
+      </div>
       <TextInput
         type="email"
         name="emailAddress"
@@ -53,7 +56,7 @@ export function InviteForm({ authToken }: { authToken?: string }) {
         register={register}
         error={errors.emailAddress}
       />
-      <div className="card-actions justify-center mt-8">
+      <div className="card-actions justify-center">
         <Button
           title="Send Invitation"
           onClick={handleSubmit(onSubmit)}
@@ -62,13 +65,13 @@ export function InviteForm({ authToken }: { authToken?: string }) {
       </div>
     </div>
   ) : (
-    <div className="flex flex-col justify-center items-center text-primary">
+    <div className="flex flex-col gap-8 justify-center items-center text-primary">
       <Success />
-      <div className="py-8">
-        <p className="text-2xl font-bold">Invitation sent</p>
-        <p className="text-sm pt-2">
+      <div className="flex flex-col gap-2">
+        <Text2xlBold>Invitation sent</Text2xlBold>
+        <TextSm>
           Invitation was successfully sent to {getValues('emailAddress')}
-        </p>
+        </TextSm>
       </div>
       <div className="flex gap-4">
         <Button

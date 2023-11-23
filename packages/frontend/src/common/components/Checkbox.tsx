@@ -5,6 +5,7 @@ import {
   Path,
   UseFormRegister,
 } from 'react-hook-form'
+import { TextSm } from './Typography'
 
 interface Option<T extends string | number | readonly string[] | undefined> {
   value: T
@@ -67,11 +68,13 @@ export function Checkbox<
           </label>
         ))}
       </div>
-      {errorsArray?.map((error, index) => (
-        <p key={index} className="text-error text-left ml-4 text-sm leading-6">
-          {error?.message}
-        </p>
-      ))}
+      <div className="ml-4">
+        {errorsArray?.map((error, index) => (
+          <TextSm key={index} className="text-error text-left">
+            {error?.message}
+          </TextSm>
+        ))}
+      </div>
     </div>
   )
 }

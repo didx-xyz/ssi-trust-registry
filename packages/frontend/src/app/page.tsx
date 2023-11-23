@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import { PageHeading } from '@/common/components/PageHeading'
-import { Text4xlBold } from '@/common/components/Typography'
+import { Text2xlBold } from '@/common/components/Typography'
 import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
@@ -19,7 +19,7 @@ export default async function Home() {
   return (
     <PageContainer>
       <PageHeading>
-        <Text4xlBold>Trusted Entities</Text4xlBold>
+        <Text2xlBold>Trusted Entities</Text2xlBold>
         {user.id && <Button href="./invite" title="Invite a company" />}
       </PageHeading>
       <Table>

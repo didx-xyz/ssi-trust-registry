@@ -10,6 +10,7 @@ import { TextArea } from '@/common/components/TextArea'
 import { Checkbox } from '@/common/components/Checkbox'
 import Success from '@/common/assets/Success.svg'
 import { Button } from '@/common/components/Button'
+import { Text2xlBold, TextSm } from '@/common/components/Typography'
 
 type Inputs = {
   name: string
@@ -64,9 +65,9 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
     setError,
   } = useForm<Inputs & ServerError>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      role: ['verifier'],
-    },
+    // defaultValues: {
+    //   role: ['verifier'],
+    // },
   })
   async function onSubmit(data: Inputs) {
     try {
@@ -85,10 +86,14 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
 
   return !isSubmitSuccessful ? (
     <div>
-      <p className="text-2xl font-bold pb-2">Submission Form</p>
-      <p className="text-sm mb-8">
-        You are submitting this form as {invitation.emailAddress}{' '}
-      </p>
+      <div className="mb-2">
+        <Text2xlBold>Submission Form</Text2xlBold>
+      </div>
+      <div className="mb-8">
+        <TextSm>
+          You are submitting this form as {invitation.emailAddress}
+        </TextSm>
+      </div>
       <div className="flex flex-col gap-4">
         <TextInput
           type="text"
@@ -118,8 +123,8 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
             {
               label: 'Verifier',
               value: 'verifier',
-              always: true,
-              disabled: true,
+              // always: true,
+              // disabled: true,
             },
 
             { label: 'Issuer', value: 'issuer' },
@@ -155,13 +160,13 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
       </div>
     </div>
   ) : (
-    <div className="flex flex-col justify-center items-center text-primary">
+    <div className="flex flex-col gap-8 justify-center items-center text-primary">
       <Success />
-      <div className="mt-8 ">
-        <p className="text-2xl font-bold">Successfully submitted</p>
-        <p className="text-sm pt-2">
+      <div className="flex flex-col gap-2">
+        <Text2xlBold>Successfully submitted</Text2xlBold>
+        <TextSm>
           You will receive an email with approval or rejection within 24 hours.
-        </p>
+        </TextSm>
       </div>
     </div>
   )

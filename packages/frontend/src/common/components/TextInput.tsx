@@ -1,5 +1,6 @@
 import { ReactComponentElement } from 'react'
 import { FieldError, FieldValues, Path, UseFormRegister } from 'react-hook-form'
+import { TextSm } from './Typography'
 
 interface TextInputProps<T extends FieldValues> {
   type: string
@@ -46,11 +47,11 @@ export function TextInput<T extends FieldValues>({
           {...register(name)}
         />
       </div>
-      {error?.message && (
-        <p className="text-error text-left ml-4 text-sm leading-6">
-          {error?.message}
-        </p>
-      )}
+      <div className="ml-4">
+        {error?.message && (
+          <TextSm className="text-error text-left">{error?.message}</TextSm>
+        )}
+      </div>
     </div>
   )
 }

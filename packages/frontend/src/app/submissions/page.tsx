@@ -3,7 +3,7 @@ import React, { ReactNode, useEffect, useState } from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import { PageHeading } from '@/common/components/PageHeading'
-import { Text4xlBold, TextSmBold } from '@/common/components/Typography'
+import { Text2xlBold, TextSmBold } from '@/common/components/Typography'
 import { Submission, SubmissionWithEmail } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
@@ -27,7 +27,7 @@ export default function Page() {
   return (
     <PageContainer>
       <PageHeading>
-        <Text4xlBold>Submissions</Text4xlBold>
+        <Text2xlBold>Submissions</Text2xlBold>
       </PageHeading>
 
       <Filter
