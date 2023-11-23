@@ -1,6 +1,5 @@
 ## Ignore everyting
 **
-/packages/**/node_modules
 
 # Except the following
 !.eslintignore
@@ -12,5 +11,7 @@
 !tsconfig.json
 !yarn.lock
 !/packages/**/src
+!/packages/frontend/public
+!/packages/frontend/*.config.*
 !/packages/**/package.json
 !/packages/**/tsconfig.json
