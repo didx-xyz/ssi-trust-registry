@@ -56,7 +56,7 @@ export function TextArea<T extends FieldValues>({
                   onChange(value.trim().split('\n'))
                 }}
                 placeholder={placeholder}
-                className={`textarea h-16 resize-none	 w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
+                className={`textarea h-16 resize-none w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
                   errorsArray?.length &&
                   '!textarea-error !bg-error !bg-opacity-20'
                 } ${icon && 'pl-12'}`}
