@@ -51,7 +51,7 @@ export default function Page() {
                 !selectedFilters.length || selectedFilters.includes(item.state)
               )
             })
-            .map((item: Submission, rowIndex: number) => {
+            .map((item: SubmissionWithEmail, rowIndex: number) => {
               return (
                 <tr key={rowIndex}>
                   <td className="p-0 table-fixed break-all">
@@ -92,7 +92,7 @@ export default function Page() {
                   <td className="p-0 table-fixed break-all">
                     <div className="p-4 bg-white mb-1 rounded-r-lg">
                       <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {item.email}
+                        {item.emailAddress}
                       </p>
                     </div>
                   </td>
