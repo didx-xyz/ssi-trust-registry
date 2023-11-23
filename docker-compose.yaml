@@ -6,6 +6,7 @@ services:
     container_name: trust-registry
     ports:
       - 3000:3000
+      - 3001:3001
     healthcheck:
       test: curl -f http://localhost:3000/health
       interval: 15s
@@ -23,6 +24,7 @@ services:
       AUTH_JWT_SECRET_KEY: authjwtsecretkey
       AUTH_ADMIN_PASSWORD_HASH: passwordhash
       FRONTEND_URL: http://localhost:3001
+      SKIP_INITIAL_DATA_LOAD: true
     networks:
       - ssi-trust-registry
     depends_on:
