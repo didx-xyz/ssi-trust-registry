@@ -3,19 +3,19 @@ import React, { ReactNode, useEffect, useState } from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import { PageHeading } from '@/common/components/PageHeading'
-import { Text4xlBold, TextSmBold } from '@/common/components/Typography'
-import { Submission } from '@/common/interfaces'
+import { Text2xlBold, TextSmBold } from '@/common/components/Typography'
+import { Submission, SubmissionWithEmail } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
-import { betterFetch } from '@/api'
+import { betterFetch, getInvitation } from '@/api'
 import { PlusIcon } from '@/common/components/images/PlusIcon'
 
 export default function Page() {
-  const [submissions, setSubmissions] = useState([])
+  const [submissions, setSubmissions] = useState<SubmissionWithEmail[]>([])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
 
   useEffect(() => {
-    betterFetch('GET', 'http://localhost:3000/api/submissions')
+    getSubmissionsWithEmails()
       .then((submissions) => {
         setSubmissions(submissions)
       })
@@ -27,7 +27,7 @@ export default function Page() {
   return (
     <PageContainer>
       <PageHeading>
-        <Text4xlBold>Submissions</Text4xlBold>
+        <Text2xlBold>Submissions</Text2xlBold>
       </PageHeading>
 
       <Filter
@@ -152,6 +152,22 @@ function Filter({ options, selectedOptions, onChange }: FilterProps) {
       </div>
     </div>
   )
+}
+
+async function getSubmissionsWithEmails(): Promise<SubmissionWithEmail[]> {
+  const submissions = await betterFetch(
+    'GET',
+    'http://localhost:3000/api/submissions',
+  )
+  const submissionsWithEmails = await Promise.all(
+    submissions.map(async (submission: Submission) => {
+      const invitation = await getInvitation({
+        invitationId: submission.invitationId,
+      })
+      return { ...submission, email: invitation.emailAddress }
+    }),
+  )
+  return submissionsWithEmails
 }
 
 function FilterButton({ onClick, isActive, value }: FilterButtonProps) {

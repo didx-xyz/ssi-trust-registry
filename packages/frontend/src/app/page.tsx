@@ -1,14 +1,14 @@
 import React from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
-import { cookies } from 'next/headers'
-import { Button } from '@/common/components/Button'
 import { PageHeading } from '@/common/components/PageHeading'
-import { Text4xlBold } from '@/common/components/Typography'
+import { Text2xlBold } from '@/common/components/Typography'
 import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch, getUser } from '@/api'
+import { getAuthToken } from '@/common/helpers'
+import { Button } from '@/common/components/Button'
 
 export default async function Home() {
   const entities: Entity[] = await getEntities()
@@ -19,8 +19,8 @@ export default async function Home() {
   return (
     <PageContainer>
       <PageHeading>
-        <Text4xlBold>Trusted Entities</Text4xlBold>
-        {user.id && <Button title="Invite a company" />}
+        <Text2xlBold>Trusted Entities</Text2xlBold>
+        {user.id && <Button href="./invite" title="Invite a company" />}
       </PageHeading>
       <Table>
         <TableHeader>
@@ -75,12 +75,6 @@ export default async function Home() {
       </Table>
     </PageContainer>
   )
-}
-
-function getAuthToken() {
-  const cookieStore = cookies()
-  const token = cookieStore.get('token')?.value
-  return token
 }
 
 async function getEntities() {

@@ -17,6 +17,8 @@ export interface Schema {
 }
 
 export interface Submission {
+  id: string
+  invitationId: string
   name: string
   dids: string[]
   logo_url: string
@@ -26,5 +28,15 @@ export interface Submission {
   createdAt: string
   updatedAt: string
   state: string
-  email: string
+}
+
+export interface SubmissionWithEmail extends Submission {
+  emailAddress: string
+}
+
+export interface Invitation {
+  id: string
+  emailAddress: string
+  createdAt: string
+  entityId?: string
 }

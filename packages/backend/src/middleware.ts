@@ -6,6 +6,7 @@ import swaggerUi from 'swagger-ui-express'
 import { ZodError } from 'zod'
 import { createLogger } from './logger'
 import { RequestWithToken } from './auth/middleware'
+import { FieldError } from './errors'
 
 const logger = createLogger(__filename)
 
@@ -47,6 +48,9 @@ export function errorHandler(
   if (error instanceof ZodError) {
     logger.error(`Could not parse submission`, error.issues)
     res.status(400).json({ error: error.issues })
+  } else if (error instanceof FieldError) {
+    logger.error(`Field error: ${error.field}`, error.message)
+    res.status(400).json({ error: error.message, field: error.field })
   } else {
     res.status(500).json({ error: error.message || 'Unexpected error' })
   }

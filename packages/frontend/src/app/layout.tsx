@@ -1,7 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Roboto } from 'next/font/google'
-import { Header } from '@/common/components/Header'
+import { Header } from '@/common/components/navigation/Header'
 
 const roboto = Roboto({
   weight: ['400', '700'],
@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={roboto.className + ' h-screen bg-light'}>
+      <body className={roboto.className + '  min-h-screen h-fit bg-light'}>
         <Header />
         <div className="flex justify-center py-8 px-10">{children}</div>
       </body>

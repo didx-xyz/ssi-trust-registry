@@ -44,7 +44,7 @@ securityContext:
   #   - ALL
 
 config:
-  corsOriginUrl: http://localhost:3001
+  frontendUrl: http://localhost:3001
   url: http://0.0.0.0
   port: 3000
   # dbConnectionString: mongodb://{{ .Values.db.user }}:{{ .Values.db.password }}@{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.opts }}

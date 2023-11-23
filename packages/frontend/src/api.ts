@@ -1,10 +1,24 @@
+import { BaseError } from 'make-error'
+
 export interface LoginForm {
   email: string
   password: string
 }
 
+export async function getInvitation({
+  invitationId,
+}: {
+  invitationId: string
+}) {
+  console.log(invitationId)
+  return betterFetch(
+    'GET',
+    `http://localhost:3000/api/invitation/${invitationId}`,
+  )
+}
+
 export async function logIn(credentials: LoginForm) {
-  return betterFetch<LoginForm>(
+  return betterFetch(
     'POST',
     'http://localhost:3000/api/auth/login',
     {},
@@ -64,10 +78,21 @@ export async function betterFetch<T>(
 
   const responsePayload = await response.json()
   console.log('HTTP response: ', responsePayload)
+  if (responsePayload.field) {
+    throw new FieldError(responsePayload.error, responsePayload.field)
+  }
 
   if (response.status < 200 || response.status > 299) {
     throw new Error(`${response.status} ${response.statusText}`)
   }
 
   return responsePayload
+}
+
+export class FieldError extends BaseError {
+  field: string
+  constructor(message: string, field: string) {
+    super(message)
+    this.field = field
+  }
 }

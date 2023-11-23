@@ -8,6 +8,7 @@ import { EmailClient } from '../email/client'
 import { DidResolver } from '../did-resolver/did-resolver'
 import { EntityDto, EntityRepository } from '../entity/service'
 import { SchemaRepository } from '../schema/service'
+import { FieldError } from '../errors'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
@@ -33,14 +34,17 @@ export async function createSubmissionService(
       submissionRepository,
       emailClient,
     ),
+    getInvitationById: partial(getInvitationById, submissionRepository),
   }
 }
 
 export interface SubmissionService {
   generateInvitation: (
-    domain: string,
+    backendUrl: string,
+    frontendUrl: string,
     payload: Record<string, unknown>,
   ) => Promise<InvitationWithUrl>
+  getInvitationById: (id: string) => Promise<Invitation>
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (payload: Record<string, unknown>) => Promise<Submission>
 }
@@ -79,7 +83,7 @@ export const InvitationDto = z
       .string()
       .optional()
       .openapi({ example: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8' }),
-    emailAddress: z.string().openapi({ example: 'test@example.com' }),
+    emailAddress: z.string().email().openapi({ example: 'test@example.com' }),
   })
   .openapi('InvitationRequest')
 
@@ -91,7 +95,8 @@ export const Invitation = InvitationDto.extend({
 
 export type InvitationWithUrl = z.infer<typeof InvitationWithUrl>
 export const InvitationWithUrl = Invitation.extend({
-  url: z.string(),
+  apiUrl: z.string(),
+  uiUrl: z.string(),
 })
 
 async function getAllSubmissions(repository: SubmissionRepository) {
@@ -118,12 +123,13 @@ async function addSubmission(
   for (const did of submissionDto.dids) {
     const didDocument = await didResolver.resolveDid(did)
     if (!didDocument) {
-      throw new Error(`DID '${did}' is not resolvable`)
+      throw new FieldError(`DID '${did}' is not resolvable`, 'dids')
     }
     const existingEntity = await entityRepository.findByDid(did)
     if (existingEntity && existingEntity.id !== invitation.entityId) {
-      throw new Error(
+      throw new FieldError(
         `A different entity has already registered the did '${did}'`,
+        'dids',
       )
     }
   }
@@ -131,15 +137,16 @@ async function addSubmission(
     const registrySchema = await schemaRepository.findBySchemaId(schemaId)
     console.log(registrySchema, schemaId)
     if (!registrySchema) {
-      throw new Error(
+      throw new FieldError(
         `Schema '${schemaId}' is not present in the trust registry`,
+        'credentials',
       )
     }
   }
 
   const submission = {
     ...submissionDto,
-    id: createId(),
+    id: uuidv4(),
     createdAt: new Date().toISOString(),
     state: 'pending' as const,
     updatedAt: new Date().toISOString(),
@@ -150,25 +157,35 @@ async function addSubmission(
   return submission
 }
 
+async function getInvitationById(repository: SubmissionRepository, id: string) {
+  const invitation = await repository.findInvitationById(id)
+  if (!invitation) {
+    throw new Error('Invitation not found')
+  }
+  return invitation
+}
+
 async function generateInvitation(
   repository: SubmissionRepository,
   emailClient: EmailClient,
-  domain: string,
+  backendUrl: string,
+  frontendUrl: string,
   payload: Record<string, unknown>,
 ) {
   const invitationDto = InvitationDto.parse(payload)
   const invitation = {
     ...invitationDto,
-    id: uuidv4(),
+    id: createId(),
     createdAt: new Date().toISOString(),
   }
-  const invitationUrl = `${domain}/api/submissions/${invitation.id}`
+  const invitationApiUrl = `${backendUrl}/api/submissions/${invitation.id}`
+  const invitationUiUrl = `${frontendUrl}/submit/${invitation.id}`
   await repository.addInvitation(invitation)
   await emailClient.sendMailFromTemplate(
     invitation.emailAddress,
     'Invitation',
     './src/email/templates/invitation.html',
-    { invitationUrl },
+    { invitationApiUrl, invitationUiUrl },
   )
-  return { ...invitation, url: invitationUrl }
+  return { ...invitation, apiUrl: invitationApiUrl, uiUrl: invitationUiUrl }
 }

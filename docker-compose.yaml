@@ -22,7 +22,7 @@ services:
       SMTP_PASSWORD: password
       AUTH_JWT_SECRET_KEY: authjwtsecretkey
       AUTH_ADMIN_PASSWORD_HASH: passwordhash
-      CORS_ORIGIN_URL: http://localhost:3001
+      FRONTEND_URL: http://localhost:3001
     networks:
       - ssi-trust-registry
     depends_on:

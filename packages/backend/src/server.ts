@@ -4,7 +4,6 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import {
   asyncHandler,
-  disableInProduction,
   errorHandler,
   httpContext,
   httpContextRequestId,
@@ -24,7 +23,7 @@ const logger = createLogger(__filename)
 interface ServerConfig {
   port: number
   url: string
-  corsOriginUrl: string
+  frontendUrl: string
 }
 
 interface Context {
@@ -43,7 +42,7 @@ export function startServer(
     const app = express()
 
     const corsOptions = {
-      origin: config.corsOriginUrl, // Replace with your frontend URL
+      origin: config.frontendUrl, // Replace with your frontend URL
       credentials: true, // Allow cookies to be sent
     }
     app.use(cors(corsOptions))
@@ -84,7 +83,7 @@ export function startServer(
 
     apiRouter.get(
       '/submissions',
-      disableInProduction,
+      authenticate,
       asyncHandler(async (req, res) => {
         logger.info('Reading the registry from the file.')
         const submissions = await context.submissionService.getAllSubmissions()
@@ -94,7 +93,6 @@ export function startServer(
 
     apiRouter.post(
       '/submissions/:invitationId',
-      disableInProduction,
       asyncHandler(async (req, res) => {
         const payload = { ...req.body, invitationId: req.params.invitationId }
         logger.info(`Processing submission:`, payload)
@@ -104,14 +102,25 @@ export function startServer(
       }),
     )
 
+    apiRouter.get(
+      '/invitation/:id',
+      asyncHandler(async (req, res) => {
+        const invitation = await context.submissionService.getInvitationById(
+          req.params.id,
+        )
+        res.status(200).json(invitation)
+      }),
+    )
+
     apiRouter.post(
       '/invitation',
-      disableInProduction,
+      authenticate,
       asyncHandler(async (req, res) => {
         const payload = req.body
         logger.info(`Sending invitation to:`, payload.emailAddress)
         const invitation = await context.submissionService.generateInvitation(
           `${config.url}:${config.port}`,
+          config.frontendUrl,
           payload,
         )
         res.status(200).json(invitation)

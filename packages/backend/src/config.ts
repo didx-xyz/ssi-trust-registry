@@ -11,7 +11,7 @@ const ConfigSchema = z.object({
   server: z.object({
     port: z.coerce.number(),
     url: z.string(),
-    corsOriginUrl: z.string(),
+    frontendUrl: z.string(),
   }),
   logger: z.object({
     logLevel: z.enum(['error', 'warn', 'info', 'http', 'debug', 'verbose']),
@@ -42,7 +42,7 @@ export const config: Config = ConfigSchema.parse({
   server: {
     port: process.env.PORT,
     url: process.env.URL,
-    corsOriginUrl: process.env.CORS_ORIGIN_URL,
+    frontendUrl: process.env.FRONTEND_URL,
   },
   logger: {
     logLevel: process.env.LOGGER_LOG_LEVEL || 'http',
