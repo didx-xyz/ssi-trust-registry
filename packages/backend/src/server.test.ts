@@ -632,13 +632,13 @@ async function generateNewInvitation(
 function post(
   endpoint: string,
   payload: Record<string, unknown>,
-  cookie: string,
+  cookie?: string,
 ) {
   return fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Cookie: cookie,
+      Cookie: cookie ?? '',
     },
     body: JSON.stringify(payload),
   })
