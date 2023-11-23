@@ -65,9 +65,9 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
     setError,
   } = useForm<Inputs & ServerError>({
     resolver: zodResolver(schema),
-    // defaultValues: {
-    //   role: ['verifier'],
-    // },
+    defaultValues: {
+      role: ['verifier'],
+    },
   })
   async function onSubmit(data: Inputs) {
     try {
@@ -123,8 +123,8 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
             {
               label: 'Verifier',
               value: 'verifier',
-              // always: true,
-              // disabled: true,
+              always: true,
+              disabled: true,
             },
 
             { label: 'Issuer', value: 'issuer' },

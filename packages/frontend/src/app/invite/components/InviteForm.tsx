@@ -42,9 +42,8 @@ export function InviteForm({ authToken }: { authToken?: string }) {
       <div className="flex flex-col gap-2">
         <Text2xlBold>Invite a company</Text2xlBold>
         <TextSm>
-          Enter email address of the company&apos;s representative,
-          <br />
-          that you want to invite.
+          Enter email address of the company&apos;s representative, that you
+          want to invite.
         </TextSm>
       </div>
       <TextInput
