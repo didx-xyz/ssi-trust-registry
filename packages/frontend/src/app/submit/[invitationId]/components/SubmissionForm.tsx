@@ -46,7 +46,11 @@ const schema = z.object({
         (e) => ({ message: `'${e}' is not a valid fully schema ID` }),
       ),
   ),
-  logo_url: z.string().min(1, 'Required').url('Not a valid URL'),
+  logo_url: z
+    .string()
+    .min(1, 'Required')
+    .url('Not a valid URL')
+    .endsWith('.svg', 'Must be an SVG image'),
 })
 
 type ServerError = { server?: never }
