@@ -46,7 +46,7 @@ export default function Page() {
         </TableHeader>
         <TableBody>
           {submissions
-            .filter((item: Submission) => {
+            .filter((item: SubmissionWithEmail) => {
               return (
                 !selectedFilters.length || selectedFilters.includes(item.state)
               )
@@ -164,7 +164,7 @@ async function getSubmissionsWithEmails(): Promise<SubmissionWithEmail[]> {
       const invitation = await getInvitation({
         invitationId: submission.invitationId,
       })
-      return { ...submission, email: invitation.emailAddress }
+      return { ...submission, emailAddress: invitation.emailAddress }
     }),
   )
   return submissionsWithEmails
