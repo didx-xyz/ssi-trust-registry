@@ -32,7 +32,9 @@ export function Button({
     ? (props: any) => <Link {...props} href={href} />
     : (props: any) => <button {...props} onClick={onClick} />
   return (
-    <ParentComponent className={`${classes[type]} btn normal-case px-12`}>
+    <ParentComponent
+      className={`${classes[type]} btn normal-case px-12 min-w-[192px]`}
+    >
       {loading && <span className="loading loading-spinner"></span>}
       {title}
     </ParentComponent>
