@@ -3,25 +3,18 @@ import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import partial from 'lodash.partial'
 import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../logger'
-import { DidResolver } from '../did-resolver/did-resolver'
-import { SchemaRepository } from '../schema/service'
+import { ValidationService } from './validationService'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
 
 export async function createEntityService(
   entityRepository: EntityRepository,
-  schemaRepository: SchemaRepository,
-  didResolver: DidResolver,
+  validationService: ValidationService,
 ): Promise<EntityService> {
   return {
     getAllEntities: partial(getAllEntities, entityRepository),
-    loadEntities: partial(
-      loadEntities,
-      entityRepository,
-      schemaRepository,
-      didResolver,
-    ),
+    loadEntities: partial(loadEntities, entityRepository, validationService),
   }
 }
 
@@ -87,8 +80,7 @@ async function getAllEntities(repository: EntityRepository) {
 
 async function loadEntities(
   entityRepository: EntityRepository,
-  schemaRepository: SchemaRepository,
-  didResolver: DidResolver,
+  validationService: ValidationService,
   entityPayloads: Record<string, unknown>[],
 ) {
   const entityDtos = entityPayloads.map((e) => {
@@ -102,22 +94,8 @@ async function loadEntities(
 
   for (const e of entityDtos) {
     logger.info(`Importing entity ${e.id}`, e)
-
-    for (const schemaId of e.credentials) {
-      const schema = await schemaRepository.findBySchemaId(schemaId)
-      if (!schema) {
-        throw new Error(
-          `Schema ID ${schemaId} does not exists in trust registry`,
-        )
-      }
-    }
-
-    for (const did of e.dids) {
-      const didDocument = await didResolver.resolveDid(did)
-      if (!didDocument) {
-        throw new Error(`DID ${did} is not resolvable`)
-      }
-    }
+    await validationService.validateDids(e.dids)
+    await validationService.validateSchemas(e.credentials)
     const existingEntity = await entityRepository.findById(e.id)
     if (existingEntity) {
       logger.debug('Entity already exists, updating...')

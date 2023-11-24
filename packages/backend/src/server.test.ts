@@ -7,11 +7,11 @@ import { config } from './config'
 import { close, connect } from './database'
 import { SchemaService, exampleSchemaDto } from './schema/service'
 import { EntityService, exampleEntityDto } from './entity/service'
-import { InvitationWithUrl } from './submission/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { EmailClientStub, createEmailClientStub } from './email/client-stub'
 import { createFakeDidResolver } from './__tests__/helpers'
+import { Invitation } from './submission/interfaces'
 
 const { port, url } = config.server
 
@@ -83,7 +83,7 @@ describe('api', () => {
       ],
     }
 
-    let invitation: InvitationWithUrl
+    let invitation: Invitation & { url: string }
 
     beforeEach(async () => {
       await database.dropDatabase()
@@ -104,8 +104,8 @@ describe('api', () => {
 
     test('invalid invitationId fails with 500 error', async () => {
       const result = await post(
-        `${url}:${port}/api/submissions/invalid`,
-        absaSubmission,
+        `http://localhost:${port}/api/submissions`,
+        { ...absaSubmission, invitationId: 'invalid' },
         cookie,
       )
       const status = result.status
@@ -118,9 +118,10 @@ describe('api', () => {
       const nonExistentSchemaId =
         'did:indy:sovrin:staging:nonexistingschemaid123'
       const result = await post(
-        invitation.apiUrl,
+        `http://localhost:${port}/api/submissions`,
         {
           ...absaSubmission,
+          invitationId: invitation.id,
           credentials: [nonExistentSchemaId],
         },
         cookie,
@@ -129,13 +130,17 @@ describe('api', () => {
       const response = await result.json()
       expect(status).toEqual(400)
       expect(response.error).toEqual(
-        `Schema '${nonExistentSchemaId}' is not present in the trust registry`,
+        `Schema ID '${nonExistentSchemaId}' is not present in the trust registry`,
       )
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
       console.log(invitation)
-      const result = await post(invitation.apiUrl, {}, cookie)
+      const result = await post(
+        `http://localhost:${port}/api/submissions`,
+        {},
+        cookie,
+      )
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -182,12 +187,23 @@ describe('api', () => {
           path: ['credentials'],
           message: 'Required',
         },
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'undefined',
+          path: ['invitationId'],
+          message: 'Required',
+        },
       ])
     })
 
     test('submissions with DID of a different entity fail with 500 error', async () => {
       await entityService.loadEntities([exampleEntityDto])
-      const result = await post(invitation.apiUrl, absaSubmission, cookie)
+      const result = await post(
+        `http://localhost:${port}/api/submissions`,
+        { ...absaSubmission, invitationId: invitation.id },
+        cookie,
+      )
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(400)
@@ -197,7 +213,11 @@ describe('api', () => {
     })
 
     test('correct submissions succeeds and adds it to the list', async () => {
-      await post(invitation.apiUrl, absaSubmission, cookie)
+      await post(
+        `http://localhost:${port}/api/submissions`,
+        { ...absaSubmission, invitationId: invitation.id },
+        cookie,
+      )
 
       const result = await fetch(`http://localhost:${port}/api/submissions`, {
         headers: { Cookie: cookie },
@@ -232,7 +252,11 @@ describe('api', () => {
     })
 
     test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
-      const result = await post(invitation.apiUrl, yomaSubmission, cookie)
+      const result = await post(
+        `http://localhost:${port}/api/submissions`,
+        { ...yomaSubmission, invitationId: invitation.id },
+        cookie,
+      )
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(201)
@@ -240,7 +264,11 @@ describe('api', () => {
     })
 
     test('can send several submissions using same invitationUrl', async () => {
-      await post(invitation.apiUrl, absaSubmission, cookie)
+      await post(
+        `http://localhost:${port}/api/submissions`,
+        { ...absaSubmission, invitationId: invitation.id },
+        cookie,
+      )
       let result = await fetch(`http://localhost:${port}/api/submissions`, {
         headers: { Cookie: cookie },
       })
@@ -254,10 +282,11 @@ describe('api', () => {
         ]),
       )
       await post(
-        invitation.apiUrl,
+        `http://localhost:${port}/api/submissions`,
         {
           ...absaSubmission,
           name: 'Updated Absa Name',
+          invitationId: invitation.id,
         },
         cookie,
       )
@@ -554,7 +583,7 @@ describe('api', () => {
       await expect(() =>
         entityService.loadEntities(testEntities),
       ).rejects.toThrow(
-        'Schema ID did:indy:sovrin:staging:nonexistingschemaid123/anoncreds/v0/SCHEMA/e-KYC/1.0.0 does not exists in trust registry',
+        "Schema ID 'did:indy:sovrin:staging:nonexistingschemaid123/anoncreds/v0/SCHEMA/e-KYC/1.0.0' is not present in the trust registry",
       )
 
       const registry = await fetchRegistry()
@@ -572,17 +601,14 @@ async function generateNewInvitation(
   cookie: string,
   {
     emailAddress,
-    entityId,
   }: {
     emailAddress: string
-    entityId?: string
   } = { emailAddress: 'test@example.com' },
 ) {
   const response = await post(
-    `http://localhost:${port}/api/invitation`,
+    `http://localhost:${port}/api/invitations`,
     {
       emailAddress,
-      entityId,
     },
     cookie,
   )
