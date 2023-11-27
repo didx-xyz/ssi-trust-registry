@@ -7,6 +7,7 @@ import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { getAuthToken } from '@/common/helpers'
 import { betterFetch } from '@/api'
 import Link from 'next/link'
+import { Button } from '@/common/components/Button'
 
 export default async function InvitationsPage() {
   const token = getAuthToken()
@@ -15,6 +16,7 @@ export default async function InvitationsPage() {
     <PageContainer>
       <PageHeading>
         <Text2xlBold>Invitations</Text2xlBold>
+        <Button href="/invitations/new" title="Invite a company" />
       </PageHeading>
 
       <Table>
@@ -63,7 +65,7 @@ export default async function InvitationsPage() {
                 </td>
                 <td className="p-0 table-fixed break-all">
                   <div className="p-4 bg-white mb-1 rounded-r-lg">
-                    <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
+                    <div className="leading-6 min-h-6 h-6 overflow-hidden text-right">
                       {invitation.entityId ? (
                         <Link
                           href={`/entities/${invitation.entityId}`}
@@ -74,7 +76,7 @@ export default async function InvitationsPage() {
                       ) : (
                         <p>N/A</p>
                       )}
-                    </p>
+                    </div>
                   </div>
                 </td>
                 <td className="p-0 table-fixed break-all">

@@ -20,7 +20,6 @@ export default async function Home() {
     <PageContainer>
       <PageHeading>
         <Text2xlBold>Trusted Entities</Text2xlBold>
-        {user.id && <Button href="./invite" title="Invite a company" />}
       </PageHeading>
       <Table>
         <TableHeader>
