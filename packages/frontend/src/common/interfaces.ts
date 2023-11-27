@@ -14,6 +14,8 @@ export interface Entity {
 export interface Schema {
   schemaId: string
   name: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Submission {
