@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeading } from '@/common/components/PageHeading'
-import { Text4xlBold } from '@/common/components/Typography'
+import { Text2xlBold } from '@/common/components/Typography'
 import { Schema } from '@/common/interfaces'
 import dayjs from 'dayjs'
 import { PageContainer } from '@/common/components/PageContainer'
@@ -12,7 +12,7 @@ export default async function Schemas() {
   return (
     <PageContainer>
       <PageHeading>
-        <Text4xlBold>Schemas</Text4xlBold>
+        <Text2xlBold>Schemas</Text2xlBold>
       </PageHeading>
       <div className="overflow-x-auto">
         <table className="table">
