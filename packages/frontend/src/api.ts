@@ -13,7 +13,7 @@ export async function getInvitation({
   console.log(invitationId)
   return betterFetch(
     'GET',
-    `http://localhost:3000/api/invitation/${invitationId}`,
+    `http://localhost:3000/api/invitations/${invitationId}`,
   )
 }
 

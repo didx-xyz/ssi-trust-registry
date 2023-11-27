@@ -47,7 +47,7 @@ async function createInvitation(
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
   const invitation = await service.createInvitation(invitationDto)
   const submitApiUrl = `https://${config.server.url}:${config.server.port}/api/submissions`
-  const submitUiUrl = `https://${config.server.frontendUrl}/submit/${invitation.id}`
+  const submitUiUrl = `${config.server.frontendUrl}/submit/${invitation.id}`
   logger.info(`Sending invitation via email to: `, invitation.emailAddress)
   await emailClient.sendMailFromTemplate(
     invitation.emailAddress,

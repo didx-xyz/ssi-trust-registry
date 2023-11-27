@@ -90,7 +90,7 @@ async function invite(
 ) {
   return betterFetch(
     'POST',
-    'http://localhost:3000/api/invitation',
+    'http://localhost:3000/api/invitations',
     { Cookie: `token=${token}` },
     { emailAddress },
   )
