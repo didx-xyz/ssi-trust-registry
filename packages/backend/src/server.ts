@@ -105,6 +105,12 @@ export function startServer(
       asyncHandler(context.submissionController.getInvitationById),
     )
 
+    apiRouter.get(
+      '/invitations/:id/submissions',
+      authenticate,
+      asyncHandler(context.submissionController.getSubmissionsByInvitationId),
+    )
+
     apiRouter.post(
       '/invitations',
       authenticate,

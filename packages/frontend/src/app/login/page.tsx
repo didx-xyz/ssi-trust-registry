@@ -10,7 +10,7 @@ interface Inputs {
   password: string
 }
 
-export default function Login() {
+export default function LoginPage() {
   const router = useRouter()
   const { register, handleSubmit, formState } = useForm<Inputs>()
 

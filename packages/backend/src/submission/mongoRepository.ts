@@ -12,6 +12,10 @@ export async function createSubmissionRepository(
   const submissionCollection = database.collection('submissions')
   return {
     getAllSubmissions: partial(getAllSubmissions, submissionCollection),
+    findSubmissionsByInvitationId: partial(
+      findSubmissionsByInvitationId,
+      submissionCollection,
+    ),
     addSubmission: partial(addSubmission, submissionCollection),
   }
 }
@@ -29,6 +33,17 @@ export async function createInvitationRepository(
 
 async function getAllSubmissions(collection: Collection) {
   const result = await collection.find().toArray()
+  return result.map((s) => Submission.parse(s))
+}
+
+async function findSubmissionsByInvitationId(
+  collection: Collection,
+  id: string,
+) {
+  const result = await collection
+    .find({ invitationId: id })
+    .sort({ createdAt: -1 })
+    .toArray()
   return result.map((s) => Submission.parse(s))
 }
 
