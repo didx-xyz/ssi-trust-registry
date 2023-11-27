@@ -21,7 +21,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={roboto.className + '  min-h-screen h-fit bg-light'}>
+      <body
+        className={
+          roboto.className + ' min-h-screen h-fit bg-light text-primary'
+        }
+      >
         <Header />
         <div className="flex justify-center py-8 px-10">{children}</div>
       </body>
