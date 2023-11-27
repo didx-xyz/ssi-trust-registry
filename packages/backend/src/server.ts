@@ -17,6 +17,7 @@ import { SchemaService } from './schema/service'
 import { SubmissionService } from './submission/service'
 import { AuthController } from './auth/controller'
 import { authenticate } from './auth/middleware'
+import { SubmissionController } from './submission/controller'
 
 const logger = createLogger(__filename)
 
@@ -30,6 +31,7 @@ interface Context {
   entityService: EntityService
   schemaService: SchemaService
   submissionService: SubmissionService
+  submissionController: SubmissionController
   authController: AuthController
 }
 
@@ -84,47 +86,29 @@ export function startServer(
     apiRouter.get(
       '/submissions',
       authenticate,
-      asyncHandler(async (req, res) => {
-        logger.info('Reading the registry from the file.')
-        const submissions = await context.submissionService.getAllSubmissions()
-        res.status(200).json(submissions)
-      }),
+      asyncHandler(context.submissionController.getAllSubmissions),
     )
 
     apiRouter.post(
-      '/submissions/:invitationId',
-      asyncHandler(async (req, res) => {
-        const payload = { ...req.body, invitationId: req.params.invitationId }
-        logger.info(`Processing submission:`, payload)
-        const submission =
-          await context.submissionService.addSubmission(payload)
-        res.status(201).json(submission)
-      }),
+      '/submissions',
+      asyncHandler(context.submissionController.createSubmission),
     )
 
     apiRouter.get(
-      '/invitation/:id',
-      asyncHandler(async (req, res) => {
-        const invitation = await context.submissionService.getInvitationById(
-          req.params.id,
-        )
-        res.status(200).json(invitation)
-      }),
+      '/invitations',
+      authenticate,
+      asyncHandler(context.submissionController.getAllInvitations),
+    )
+
+    apiRouter.get(
+      '/invitations/:id',
+      asyncHandler(context.submissionController.getInvitationById),
     )
 
     apiRouter.post(
-      '/invitation',
+      '/invitations',
       authenticate,
-      asyncHandler(async (req, res) => {
-        const payload = req.body
-        logger.info(`Sending invitation to:`, payload.emailAddress)
-        const invitation = await context.submissionService.generateInvitation(
-          `${config.url}:${config.port}`,
-          config.frontendUrl,
-          payload,
-        )
-        res.status(200).json(invitation)
-      }),
+      asyncHandler(context.submissionController.createInvitation),
     )
 
     apiRouter.post('/auth/login', asyncHandler(context.authController.logIn))
