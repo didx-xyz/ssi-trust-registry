@@ -9,8 +9,8 @@ export default function InvitePage() {
     <main className="flex flex-col w-full items-center">
       <NavigationBreadcrumbs
         breadcrumbs={[
-          { href: '/', title: 'Trusted Entities' },
-          { href: '/invite', title: 'Invite a company' },
+          { href: '/invitations', title: 'Invitations' },
+          { href: '/invitations/new', title: 'Invite a company' },
         ]}
       />
 

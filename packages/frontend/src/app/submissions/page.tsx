@@ -1,5 +1,5 @@
 'use client'
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import { PageHeading } from '@/common/components/PageHeading'
@@ -10,7 +10,7 @@ import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch, getInvitation } from '@/api'
 import { PlusIcon } from '@/common/components/images/PlusIcon'
 
-export default function Page() {
+export default function SubmissionsPage() {
   const [submissions, setSubmissions] = useState<SubmissionWithEmail[]>([])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
 

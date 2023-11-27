@@ -18,6 +18,7 @@ export function Header() {
         <NavigationItem name="Trusted Entities" href="/" />
         <NavigationItem name="Schemas" href="/schemas" />
         <NavigationItem name="Submissions" href="/submissions" />
+        <NavigationItem name="Invitations" href="/invitations" />
         <NavigationItem name="Login as Admin" href="/login" />
       </nav>
     </div>

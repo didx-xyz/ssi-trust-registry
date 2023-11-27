@@ -19,6 +19,7 @@ extendZodWithOpenApi(z)
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (submission: Submission) => Promise<Submission>
+  findSubmissionsByInvitationId: (id: string) => Promise<Submission[]>
 }
 export interface InvitationRepository {
   addInvitation: (invitation: Invitation) => Promise<Invitation>
@@ -30,6 +31,7 @@ export interface SubmissionService {
   getAllInvitations: () => Promise<Invitation[]>
   getInvitationById: (id: string) => Promise<Invitation>
   getAllSubmissions: () => Promise<Submission[]>
+  getSubmissionsByInvitationId: (id: string) => Promise<Submission[]>
   addSubmission: (submissionDto: SubmissionDto) => Promise<Submission>
 }
 
@@ -43,6 +45,11 @@ export async function createSubmissionService(
     getAllInvitations: partial(getAllInvitations, invitationRepository),
     getInvitationById: partial(getInvitationById, invitationRepository),
     getAllSubmissions: partial(getAllSubmissions, submissionRepository),
+    getSubmissionsByInvitationId: partial(
+      getSubmissionsByInvitationId,
+      submissionRepository,
+      invitationRepository,
+    ),
     addSubmission: partial(
       addSubmission,
       submissionRepository,
@@ -57,6 +64,23 @@ async function getAllSubmissions(repository: SubmissionRepository) {
     ...s,
     _id: undefined,
   }))
+}
+
+async function getSubmissionsByInvitationId(
+  submissionRepository: SubmissionRepository,
+  invitationRepository: InvitationRepository,
+  id: string,
+) {
+  const invitation = await invitationRepository.findInvitationById(id)
+  if (!invitation) {
+    throw new Error('Invitation not found')
+  }
+  return (await submissionRepository.findSubmissionsByInvitationId(id)).map(
+    (s) => ({
+      ...s,
+      _id: undefined,
+    }),
+  )
 }
 
 async function addSubmission(
