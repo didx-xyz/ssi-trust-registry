@@ -17,6 +17,7 @@ export interface SubmissionController {
   getInvitationById: (req: Request, res: Response) => Promise<void>
   createSubmission: (req: Request, res: Response) => Promise<void>
   getAllSubmissions: (req: RequestWithToken, res: Response) => Promise<void>
+  getSubmissionById: (req: RequestWithToken, res: Response) => Promise<void>
   getSubmissionsByInvitationId: (
     req: RequestWithToken,
     res: Response,
@@ -39,6 +40,7 @@ export async function createSubmissionController(
       validationService,
     ),
     getAllSubmissions: partial(getAllSubmissions, submissionService),
+    getSubmissionById: partial(getSubmissionById, submissionService),
     getSubmissionsByInvitationId: partial(
       getSubmissionsByInvitationId,
       submissionService,
@@ -125,6 +127,16 @@ async function getAllSubmissions(
   logger.info(`Getting all submissions`)
   const submissions = await service.getAllSubmissions()
   res.status(200).json(submissions)
+}
+
+async function getSubmissionById(
+  service: SubmissionService,
+  req: RequestWithToken,
+  res: Response,
+) {
+  logger.info(`Getting submissions by id: `, req.params.id)
+  const submission = await service.getSubmissionById(req.params.id)
+  res.status(200).json(submission)
 }
 
 async function getSubmissionsByInvitationId(

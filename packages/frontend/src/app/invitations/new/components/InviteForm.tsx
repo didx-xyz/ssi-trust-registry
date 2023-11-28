@@ -78,7 +78,7 @@ export function InviteForm() {
           title="Send another invitation"
           onClick={() => reset()}
         />
-        <Button href="/" title="Back to Trusted Entities" />
+        <Button href="/invitations" title="Back to Invitations" />
       </div>
     </div>
   )

@@ -37,7 +37,7 @@ const schema = z.object({
       ),
   ),
   domain: z.string().min(1, 'Required').url('Not a valid URL'),
-  role: z.array(z.enum(['verifier', 'issuer'])),
+  role: z.array(z.enum(['verifier', 'issuer'])).default(['verifier']),
   credentials: z.array(
     z
       .string()

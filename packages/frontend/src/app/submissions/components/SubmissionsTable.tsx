@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Submission, SubmissionWithEmail } from '@/common/interfaces'
 import {
   Table,
@@ -14,6 +15,7 @@ import { backendUrl, betterFetch, getInvitation } from '@/api'
 import { PlusIcon } from '@/common/components/images/PlusIcon'
 
 export function SubmissionsTable() {
+  const router = useRouter()
   const [submissions, setSubmissions] = useState<SubmissionWithEmail[]>([])
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
 
@@ -45,39 +47,48 @@ export function SubmissionsTable() {
         </TableHeader>
         <TableBody>
           {submissions
-            .filter((item: SubmissionWithEmail) => {
+            .filter((submission: SubmissionWithEmail) => {
               return (
-                !selectedFilters.length || selectedFilters.includes(item.state)
+                !selectedFilters.length ||
+                selectedFilters.includes(submission.state)
               )
             })
-            .map((item: SubmissionWithEmail, rowIndex: number) => {
+            .map((submission: SubmissionWithEmail) => {
               return (
-                <tr key={rowIndex}>
+                <tr
+                  key={submission.id}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/submissions/${submission.id}`)}
+                >
                   <TableCell className="rounded-l-lg">
                     <Image
                       className="mr-2"
-                      src={item.logo_url}
-                      alt={item.name}
+                      src={submission.logo_url}
+                      alt={submission.name}
                       width={24}
                       height={24}
                     />
-                    <p>{item.name}</p>
+                    <p>{submission.name}</p>
                   </TableCell>
                   <TableCell>
-                    <p className="text-right w-full capitalize">{item.state}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-right w-full">
-                      {dayjs(item.updatedAt).format('DD/MM/YYYY')}
+                    <p className="text-right w-full capitalize">
+                      {submission.state}
                     </p>
                   </TableCell>
                   <TableCell>
                     <p className="text-right w-full">
-                      {dayjs(item.createdAt).format('DD/MM/YYYY')}
+                      {dayjs(submission.updatedAt).format('DD/MM/YYYY')}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-right w-full">
+                      {dayjs(submission.createdAt).format('DD/MM/YYYY')}
                     </p>
                   </TableCell>
                   <TableCell className="rounded-r-lg">
-                    <p className="text-right w-full">{item.emailAddress}</p>
+                    <p className="text-right w-full">
+                      {submission.emailAddress}
+                    </p>
                   </TableCell>
                 </tr>
               )
