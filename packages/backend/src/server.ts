@@ -91,6 +91,7 @@ export function startServer(
 
     apiRouter.put(
       '/submissions/:id',
+      authenticate,
       asyncHandler(context.submissionController.updateSubmissionState),
     )
 

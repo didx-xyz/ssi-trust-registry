@@ -264,7 +264,11 @@ describe('api', () => {
     })
 
     test('approve submission', async () => {
-      const result = await post(invitation.url, yomaSubmission)
+      const result = await post(
+        `http://localhost:${port}/api/submissions`,
+        { ...absaSubmission, invitationId: invitation.id },
+        cookie,
+      )
       const status = result.status
       const response = await result.json()
       expect(status).toEqual(201)
@@ -272,6 +276,7 @@ describe('api', () => {
       const result2 = await put(
         `http://localhost:3000/api/submissions/${response.id}`,
         { state: 'approved' },
+        cookie,
       )
       const response2 = await result2.json()
       console.log(response2)
@@ -644,11 +649,16 @@ function post(
   })
 }
 
-function put(endpoint: string, payload: Record<string, unknown>) {
+function put(
+  endpoint: string,
+  payload: Record<string, unknown>,
+  cookie?: string,
+) {
   return fetch(endpoint, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      Cookie: cookie ?? '',
     },
     body: JSON.stringify(payload),
   })
