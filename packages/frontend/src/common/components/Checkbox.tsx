@@ -57,11 +57,13 @@ export function Checkbox<
             }`}
           >
             <input
+              checked={option.always}
               value={option.value}
               type="checkbox"
-              className="checkbox"
-              checked={option.always}
-              disabled={option.disabled}
+              className={`checkbox ${option.disabled && 'opacity-25'}`}
+              onClick={(e) => {
+                if (option.disabled) e.preventDefault()
+              }}
               {...register(name)}
             />
             <span className="label-text">{option.label}</span>
