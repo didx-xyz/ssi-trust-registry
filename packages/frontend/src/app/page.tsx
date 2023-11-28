@@ -11,14 +11,10 @@ import {
   TableCell,
   TableHeader,
 } from '@/common/components/Table'
-import { backendUrl, betterFetch, getUser } from '@/api'
-import { getAuthToken } from '@/common/helpers'
+import { backendUrl, betterFetch } from '@/api'
 
 export default async function Home() {
   const entities: Entity[] = await getEntities()
-  const token = getAuthToken()
-  const user = await getUser(token)
-  console.log('user', user)
 
   return (
     <PageContainer>

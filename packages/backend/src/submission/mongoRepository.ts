@@ -1,7 +1,7 @@
 import partial from 'lodash.partial'
 import { Collection, Db } from 'mongodb'
 import { createLogger } from '../logger'
-import { Invitation, Submission } from './interfaces'
+import { Invitation, Submission } from './domain'
 import { InvitationRepository, SubmissionRepository } from './service'
 
 const logger = createLogger(__filename)
@@ -34,7 +34,7 @@ export async function createInvitationRepository(
 }
 
 async function getAllSubmissions(collection: Collection) {
-  const result = await collection.find().toArray()
+  const result = await collection.find().sort({ createdAt: -1 }).toArray()
   return result.map((s) => Submission.parse(s))
 }
 

@@ -11,7 +11,7 @@ import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { EmailClientStub, createEmailClientStub } from './email/client-stub'
 import { createFakeDidResolver } from './__tests__/helpers'
-import { Invitation } from './submission/interfaces'
+import { Invitation } from './submission/domain'
 
 const { port, url } = config.server
 

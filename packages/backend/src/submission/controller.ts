@@ -7,7 +7,7 @@ import { SubmissionService } from './service'
 import { EmailClient } from '../email/client'
 import { config } from '../config'
 import { FieldError } from '../errors'
-import { InvitationDto, SubmissionDto } from './interfaces'
+import { InvitationDto, SubmissionDto } from './domain'
 
 const logger = createLogger(__filename)
 

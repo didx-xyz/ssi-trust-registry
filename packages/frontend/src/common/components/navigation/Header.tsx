@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import uniqby from 'lodash.uniqby'
 import { NavigationItem } from '@/common/components/navigation/NavigationItem'
-import { getUser, logOut } from '@/api'
+import { betterFetch, getUser, logOut } from '@/api'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 
@@ -17,6 +18,7 @@ export function Header() {
   const currentPathname = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<User>({})
+  const [pendingSubmissionsCount, setPendingSubmissionsCount] = useState(0)
 
   useEffect(() => {
     getUser().then((user) => {
@@ -24,6 +26,7 @@ export function Header() {
         setUser(user)
       }
     })
+    getPendingSubmissionsCount().then(setPendingSubmissionsCount)
   }, [currentPathname])
 
   async function logOutUser() {
@@ -93,6 +96,22 @@ export function Header() {
       </nav>
     </div>
   )
+}
+
+async function getPendingSubmissionsCount(): Promise<number> {
+  try {
+    const submissions = await betterFetch(
+      'GET',
+      'http://localhost:3000/api/submissions',
+      {},
+    )
+    return uniqby(submissions, 'invitationId').filter(
+      (submission: any) => submission.state === 'pending',
+    ).length
+  } catch (e) {
+    console.error(e)
+    return 0
+  }
 }
 
 function isPageProtected(pathname: string) {
