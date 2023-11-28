@@ -43,7 +43,7 @@ export interface SubmissionService {
   approveSubmission: (
     submission: Submission,
   ) => Promise<{ submission: Submission; entity: Entity }>
-  // rejectSubmission: (id: string) => Promise<Submission>
+  rejectSubmission: (submission: Submission) => Promise<Submission>
 }
 
 export async function createSubmissionService(
@@ -74,6 +74,7 @@ export async function createSubmissionService(
       invitationRepository,
       entityRepository,
     ),
+    rejectSubmission: partial(rejectSubmission, submissionRepository),
   }
 }
 
@@ -144,34 +145,6 @@ async function addSubmission(
   return submission
 }
 
-async function createInvitation(
-  repository: InvitationRepository,
-  invitationDto: InvitationDto,
-) {
-  const invitation = {
-    ...invitationDto,
-    id: createId(),
-    createdAt: new Date().toISOString(),
-  }
-  await repository.addInvitation(invitation)
-  return invitation
-}
-
-async function getAllInvitations(repository: InvitationRepository) {
-  return (await repository.getAllInvitations()).map((i) => ({
-    ...i,
-    _id: undefined,
-  }))
-}
-
-async function getInvitationById(repository: InvitationRepository, id: string) {
-  const invitation = await repository.findInvitationById(id)
-  if (!invitation) {
-    throw new Error('Invitation not found')
-  }
-  return invitation
-}
-
 async function approveSubmission(
   submissionRepository: SubmissionRepository,
   invitationRepository: InvitationRepository,
@@ -231,4 +204,44 @@ async function approveSubmission(
   }
 
   return { submission: reviewedSubmission, entity }
+}
+
+async function rejectSubmission(
+  submissionRepository: SubmissionRepository,
+  submission: Submission,
+): Promise<Submission> {
+  const reviewedSubmission = await submissionRepository.reviewSubmission(
+    submission.id,
+    'rejected',
+  )
+  logger.info(`Submission ${submission.id} has been rejected in the database`)
+  return reviewedSubmission
+}
+
+async function createInvitation(
+  repository: InvitationRepository,
+  invitationDto: InvitationDto,
+) {
+  const invitation = {
+    ...invitationDto,
+    id: createId(),
+    createdAt: new Date().toISOString(),
+  }
+  await repository.addInvitation(invitation)
+  return invitation
+}
+
+async function getAllInvitations(repository: InvitationRepository) {
+  return (await repository.getAllInvitations()).map((i) => ({
+    ...i,
+    _id: undefined,
+  }))
+}
+
+async function getInvitationById(repository: InvitationRepository, id: string) {
+  const invitation = await repository.findInvitationById(id)
+  if (!invitation) {
+    throw new Error('Invitation not found')
+  }
+  return invitation
 }

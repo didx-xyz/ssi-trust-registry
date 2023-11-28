@@ -152,5 +152,8 @@ async function updateSubmissionState(
   if (req.body.state === 'approved') {
     const result = await submissionService.approveSubmission(submission)
     res.status(200).json(result)
+  } else {
+    const result = await submissionService.rejectSubmission(submission)
+    res.status(200).json(result)
   }
 }
