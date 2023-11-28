@@ -55,7 +55,11 @@ async function findSubmissionById(collection: Collection, id: string) {
 }
 
 async function addSubmission(collection: Collection, submission: Submission) {
-  const result = await collection.insertOne({ ...submission })
+  const result = await collection.replaceOne(
+    { invitationId: submission.invitationId, state: 'pending' },
+    { ...submission },
+    { upsert: true },
+  )
   logger.info(`Submission inserted to the database`, result)
   return submission
 }

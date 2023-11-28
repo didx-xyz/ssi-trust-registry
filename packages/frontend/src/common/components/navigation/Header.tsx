@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import uniqby from 'lodash.uniqby'
 import { NavigationItem } from '@/common/components/navigation/NavigationItem'
 import { betterFetch, getUser, logOut } from '@/api'
 import { usePathname } from 'next/navigation'
@@ -75,7 +74,7 @@ export function Header() {
         />
         <NavigationItem
           href="/submissions"
-          name="Submissions"
+          name={`Submissions (${pendingSubmissionsCount})`}
           hidden={isPageHidden('/submissions')}
         />
         <NavigationItem
@@ -105,7 +104,7 @@ async function getPendingSubmissionsCount(): Promise<number> {
       'http://localhost:3000/api/submissions',
       {},
     )
-    return uniqby(submissions, 'invitationId').filter(
+    return submissions.filter(
       (submission: any) => submission.state === 'pending',
     ).length
   } catch (e) {

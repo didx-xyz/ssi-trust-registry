@@ -358,7 +358,7 @@ describe('api', () => {
         headers: { Cookie: cookie },
       })
       submissions = await result.json()
-      expect(submissions.length).toBe(2)
+      expect(submissions.length).toBe(1)
       expect(submissions).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
