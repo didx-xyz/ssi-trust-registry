@@ -6,21 +6,23 @@ import { usePathname } from 'next/navigation'
 interface Props {
   name: string
   href: string
+  hidden?: boolean
 }
 
-export function NavigationItem({ name, href }: Props) {
+export function NavigationItem({ name, href, hidden }: Props) {
   const currentRoute = usePathname()
 
   return (
-    <Link
-      href={href}
-      prefetch={false}
-      className={
-        'btn btn-sm normal-case h-10 rounded-lg border-0 px-4 hover:bg-lightHover' +
-        (currentRoute !== href ? ' btn-ghost font-normal' : ' bg-light')
-      }
-    >
-      {name}
-    </Link>
+    !hidden && (
+      <Link
+        href={href}
+        className={
+          'btn btn-sm normal-case h-10 rounded-lg border-0 px-4 hover:bg-lightHover' +
+          (currentRoute !== href ? ' btn-ghost font-normal' : ' bg-light')
+        }
+      >
+        {name}
+      </Link>
+    )
   )
 }

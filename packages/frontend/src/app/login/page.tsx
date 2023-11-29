@@ -1,11 +1,12 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-import { logIn } from '@/api'
+import { getUser, logIn } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import { Button } from '@/common/components/Button'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Text2xlBold } from '@/common/components/Typography'
+import React, { useEffect } from 'react'
 
 interface Inputs {
   email: string
@@ -25,6 +26,17 @@ export default function LoginPage() {
       })
       .catch(console.error)
   }
+
+  useEffect(() => {
+    async function getUserData() {
+      const userData = await getUser()
+      if (userData.id) {
+        router.push('/')
+      }
+    }
+
+    getUserData()
+  }, [router])
 
   return (
     <PageContainer>
