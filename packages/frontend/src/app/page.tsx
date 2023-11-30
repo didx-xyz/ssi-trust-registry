@@ -11,7 +11,7 @@ import {
   TableCell,
   TableHeader,
 } from '@/common/components/Table'
-import { betterFetch, getUser } from '@/api'
+import { backendUrl, betterFetch, getUser } from '@/api'
 import { getAuthToken } from '@/common/helpers'
 
 export default async function Home() {
@@ -70,10 +70,7 @@ export default async function Home() {
 
 async function getEntities() {
   try {
-    const response = await betterFetch(
-      'GET',
-      'http://localhost:3000/api/registry',
-    )
+    const response = await betterFetch('GET', `${backendUrl}/api/registry`)
     return response.entities
   } catch (error) {
     return []

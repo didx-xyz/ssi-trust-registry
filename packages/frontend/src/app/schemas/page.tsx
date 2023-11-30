@@ -4,7 +4,7 @@ import { Text2xlBold } from '@/common/components/Typography'
 import { Schema } from '@/common/interfaces'
 import dayjs from 'dayjs'
 import { PageContainer } from '@/common/components/PageContainer'
-import { betterFetch } from '@/api'
+import { backendUrl, betterFetch } from '@/api'
 import {
   Table,
   TableBody,
@@ -58,10 +58,7 @@ export default async function Schemas() {
 
 async function getSchemas() {
   try {
-    const response = await betterFetch(
-      'GET',
-      'http://localhost:3000/api/registry',
-    )
+    const response = await betterFetch('GET', `${backendUrl}/api/registry`)
 
     return response.schemas
   } catch (error) {

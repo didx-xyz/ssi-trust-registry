@@ -10,7 +10,7 @@ import {
   TableHeader,
 } from '@/common/components/Table'
 import { getAuthToken } from '@/common/helpers'
-import { betterFetch } from '@/api'
+import { backendUrl, betterFetch } from '@/api'
 import Link from 'next/link'
 import { Button } from '@/common/components/Button'
 import { Protected } from '@/common/components/auth/Protected'
@@ -99,14 +99,14 @@ async function getInvitationsWithLatestSubmission(
   }
   const invitations = await betterFetch(
     'GET',
-    'http://localhost:3000/api/invitations',
+    `${backendUrl}/api/invitations`,
     { Cookie: `token=${token}` },
   )
   const getInvitationsWithLatestSubmission = await Promise.all(
     invitations.map(async (invitation: Invitation) => {
       const submissions: Submission[] = await betterFetch(
         'GET',
-        `http://localhost:3000/api/invitations/${invitation.id}/submissions`,
+        `${backendUrl}/api/invitations/${invitation.id}/submissions`,
         { Cookie: `token=${token}` },
       )
       if (submissions.length) {
