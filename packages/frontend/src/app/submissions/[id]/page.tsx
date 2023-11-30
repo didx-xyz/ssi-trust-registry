@@ -6,7 +6,7 @@ import { backendUrl, betterFetch } from '@/api'
 import { Submission } from '@/common/interfaces'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { Button } from '@/common/components/Button'
-import { LazySubmissionDetail } from './components/SubmissionDetail'
+import { LazySubmissionDetail } from './components/LazySubmissionDetail'
 import { ApproveContents } from './components/ApproveContents'
 import { RejectContents } from './components/RejectContents'
 
