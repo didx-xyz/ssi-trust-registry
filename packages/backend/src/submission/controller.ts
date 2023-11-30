@@ -49,6 +49,7 @@ export async function createSubmissionController(
       updateSubmissionState,
       submissionService,
       validationService,
+      emailClient,
     ),
   }
 }
@@ -152,6 +153,7 @@ async function getSubmissionsByInvitationId(
 async function updateSubmissionState(
   submissionService: SubmissionService,
   validationService: ValidationService,
+  emailClient: EmailClient,
   req: RequestWithToken,
   res: Response,
 ) {
@@ -163,14 +165,42 @@ async function updateSubmissionState(
   if (submission.state !== 'pending') {
     throw new Error(`Submission already processed: ${submission.state}`)
   }
+  const invitation = await submissionService.getInvitationById(
+    submission.invitationId,
+  )
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
 
   if (req.body.state === 'approved') {
     const result = await submissionService.approveSubmission(submission)
+    const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
+    logger.info(
+      `Sending submission approved email to: `,
+      invitation.emailAddress,
+    )
+    await emailClient.sendMailFromTemplate(
+      invitation.emailAddress,
+      'Congratulations! Your submission has been approved!',
+      './src/email/templates/approved.html',
+      {
+        entityUrl,
+      },
+    )
     res.status(200).json(result)
   } else {
     const result = await submissionService.rejectSubmission(submission)
+    logger.info(
+      `Sending submission rejected email to: `,
+      invitation.emailAddress,
+    )
+    await emailClient.sendMailFromTemplate(
+      invitation.emailAddress,
+      'Sorry. Your submission has been rejected.',
+      './src/email/templates/rejected.html',
+      {
+        invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
+      },
+    )
     res.status(200).json(result)
   }
 }
