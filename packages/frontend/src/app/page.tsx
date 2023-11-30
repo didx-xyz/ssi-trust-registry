@@ -8,7 +8,6 @@ import { PageContainer } from '@/common/components/PageContainer'
 import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import { betterFetch, getUser } from '@/api'
 import { getAuthToken } from '@/common/helpers'
-import { Button } from '@/common/components/Button'
 
 export default async function Home() {
   const entities: Entity[] = await getEntities()

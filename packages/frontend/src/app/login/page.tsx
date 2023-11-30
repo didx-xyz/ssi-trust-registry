@@ -1,9 +1,12 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-import { logIn } from '@/api'
+import { getUser, logIn } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import { Button } from '@/common/components/Button'
+import { PageContainer } from '@/common/components/PageContainer'
+import { Text2xlBold } from '@/common/components/Typography'
+import React, { useEffect } from 'react'
 
 interface Inputs {
   email: string
@@ -24,32 +27,42 @@ export default function LoginPage() {
       .catch(console.error)
   }
 
+  useEffect(() => {
+    getUser().then((user) => {
+      if (user.id) {
+        router.push('/')
+      }
+    })
+  }, [router])
+
   return (
-    <main className="container mx-auto">
-      <div className="flex justify-center">
-        <div className="card card-compact w-96 bg-base-100 shadow-xl">
-          <div className="card-body items-center">
-            <h1 className="text-3xl font-bold">Admin Login</h1>
-            <TextInput
-              type="email"
-              name="email"
-              label="E-mail address"
-              placeholder="Enter e-mail address"
-              register={register}
-            />
-            <TextInput
-              type="password"
-              name="password"
-              label="Password"
-              placeholder="Enter password"
-              register={register}
-            />
-            <div className="card-actions justify-center">
+    <PageContainer>
+      <div className="flex justify-center mt-14">
+        <div className="card card-compact bg-white shadow-xl p-16 w-full max-w-[585px]">
+          <div className="card-body items-center !p-0 gap-y-8">
+            <Text2xlBold>Admin Login</Text2xlBold>
+            <div className="flex flex-col w-full gap-y-4">
+              <TextInput
+                type="email"
+                name="email"
+                label="E-mail address"
+                placeholder="Enter e-mail address"
+                register={register}
+              />
+              <TextInput
+                type="password"
+                name="password"
+                label="Password"
+                placeholder="Enter password"
+                register={register}
+              />
+            </div>
+            <div className="card-actions justify-center w-full">
               <Button onClick={handleSubmit(onSubmit)} title="Log in" />
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </PageContainer>
   )
 }

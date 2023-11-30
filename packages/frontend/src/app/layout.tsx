@@ -27,7 +27,7 @@ export default function RootLayout({
         }
       >
         <Header />
-        <div className="flex justify-center py-8 px-10">{children}</div>
+        <main className="flex justify-center py-8 px-10">{children}</main>
       </body>
     </html>
   )

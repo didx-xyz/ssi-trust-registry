@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -18,7 +18,7 @@ const schema = z.object({ emailAddress: z.string().min(1, 'Required').email() })
 
 type ServerError = { server?: never }
 
-export function InviteForm({ authToken }: { authToken?: string }) {
+export function InviteForm() {
   const {
     register,
     handleSubmit,
@@ -31,7 +31,7 @@ export function InviteForm({ authToken }: { authToken?: string }) {
   })
   async function onSubmit(data: Inputs) {
     try {
-      await invite(data, authToken)
+      await invite(data)
     } catch (e) {
       setError('server', { type: 'manual', message: 'Something went wrong' })
     }
@@ -84,14 +84,11 @@ export function InviteForm({ authToken }: { authToken?: string }) {
   )
 }
 
-async function invite(
-  { emailAddress }: { emailAddress: string },
-  token?: string,
-) {
+async function invite({ emailAddress }: { emailAddress: string }) {
   return betterFetch(
     'POST',
     'http://localhost:3000/api/invitations',
-    { Cookie: `token=${token}` },
+    {},
     { emailAddress },
   )
 }

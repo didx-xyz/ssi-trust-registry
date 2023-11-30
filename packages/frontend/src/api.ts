@@ -26,9 +26,6 @@ export async function logOut() {
 
 export async function getUser(token?: string) {
   try {
-    if (!token) {
-      return {}
-    }
     const payload = await betterFetch('GET', `${backendUrl}/api/auth/whoami`, {
       Cookie: `token=${token}`,
     })
