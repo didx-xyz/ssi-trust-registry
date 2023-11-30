@@ -11,34 +11,42 @@ interface User {
   id?: string
 }
 
+const protectedPages = ['/submissions', '/invitations', '/invitations/new']
+
 export function Header() {
-  const pathname = usePathname()
+  const currentPathname = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<User>({})
-  const protectedPages = ['/submissions', '/invitations', '/invitations/new']
 
   useEffect(() => {
-    getUser().then((res) => {
-      if (res.id) {
-        setUser(res)
+    getUser().then((user) => {
+      if (user.id) {
+        setUser(user)
       }
     })
-  }, [pathname])
+  }, [currentPathname])
 
-  function logOutUser() {
-    logOut()
-    setUser({})
-    redirectIfPageIsProtected()
+  async function logOutUser() {
+    try {
+      await logOut()
+      setUser({})
+      redirectIfPageIsProtected()
+    } catch (error) {
+      console.log(error)
+      if (error instanceof Error) {
+        window.alert(error.message)
+      }
+    }
   }
 
   function redirectIfPageIsProtected() {
-    if (protectedPages.includes(pathname)) {
+    if (isPageProtected(currentPathname)) {
       router.push('/')
     }
   }
 
   function isPageHidden(pathname: string) {
-    return protectedPages.includes(pathname) && !user.id
+    return isPageProtected(pathname) && !user.id
   }
 
   return (
@@ -85,4 +93,8 @@ export function Header() {
       </nav>
     </div>
   )
+}
+
+function isPageProtected(pathname: string) {
+  return protectedPages.includes(pathname)
 }

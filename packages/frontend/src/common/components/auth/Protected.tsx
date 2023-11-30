@@ -16,9 +16,9 @@ export function Protected({ children }: Props) {
   const [isLoading, setLoading] = useState(true)
 
   useEffect(() => {
-    getUser().then((res) => {
-      if (res.id) {
-        setUser(res)
+    getUser().then((user) => {
+      if (user.id) {
+        setUser(user)
       }
       setLoading(false)
     })

@@ -28,8 +28,8 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
-    getUser().then((res) => {
-      if (res.id) {
+    getUser().then((user) => {
+      if (user.id) {
         router.push('/')
       }
     })
