@@ -5,7 +5,12 @@ import { PageHeading } from '@/common/components/PageHeading'
 import { Text2xlBold } from '@/common/components/Typography'
 import { Entity } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
-import { Table, TableBody, TableHeader } from '@/common/components/Table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+} from '@/common/components/Table'
 import { betterFetch, getUser } from '@/api'
 import { getAuthToken } from '@/common/helpers'
 
@@ -31,41 +36,29 @@ export default async function Home() {
           {entities.map((item: Entity, rowIndex: number) => {
             return (
               <tr key={rowIndex}>
-                <td className="p-0 table-fixed break-all">
-                  <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
-                    <Image
-                      className="mr-2"
-                      src={item.logo_url}
-                      alt={item.name}
-                      width={24}
-                      height={24}
-                    />
-                    <p className="leading-6 min-h-6 h-6 overflow-hidden">
-                      {item.name}
-                    </p>
-                  </div>
-                </td>
-                <td className="p-0 table-fixed break-all">
-                  <div className="p-4 bg-white mb-1">
-                    <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                      {item.status}
-                    </p>
-                  </div>
-                </td>
-                <td className="p-0 table-fixed break-all">
-                  <div className="p-4 bg-white mb-1 ">
-                    <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                      {dayjs(item.updatedAt).format('DD/MM/YYYY')}
-                    </p>
-                  </div>
-                </td>
-                <td className="p-0 table-fixed break-all">
-                  <div className="p-4 bg-white mb-1 rounded-r-lg">
-                    <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                      {dayjs(item.createdAt).format('DD/MM/YYYY')}
-                    </p>
-                  </div>
-                </td>
+                <TableCell className="rounded-l-lg">
+                  <Image
+                    className="mr-2"
+                    src={item.logo_url}
+                    alt={item.name}
+                    width={24}
+                    height={24}
+                  />
+                  <p>{item.name}</p>
+                </TableCell>
+                <TableCell>
+                  <p className="text-right w-full">{item.status}</p>
+                </TableCell>
+                <TableCell>
+                  <p className="text-right w-full">
+                    {dayjs(item.updatedAt).format('DD/MM/YYYY')}
+                  </p>
+                </TableCell>
+                <TableCell className="rounded-r-lg">
+                  <p className="text-right w-full">
+                    {dayjs(item.createdAt).format('DD/MM/YYYY')}
+                  </p>
+                </TableCell>
               </tr>
             )
           })}

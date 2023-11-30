@@ -5,6 +5,12 @@ import { Schema } from '@/common/interfaces'
 import dayjs from 'dayjs'
 import { PageContainer } from '@/common/components/PageContainer'
 import { betterFetch } from '@/api'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+} from '@/common/components/Table'
 
 export default async function Schemas() {
   const schemas: Schema[] = await getSchemas()
@@ -14,54 +20,38 @@ export default async function Schemas() {
       <PageHeading>
         <Text2xlBold>Schemas</Text2xlBold>
       </PageHeading>
-      <div className="overflow-x-auto">
-        <table className="table">
-          <thead>
-            <tr className="text-sm text-primary">
-              <th className="p-4 w-3/12">Name</th>
-              <th className="p-4 w-5/12">Schema</th>
-              <th className="p-4 w-2/12 text-right">Created</th>
-              <th className="p-4 w-2/12 text-right">Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schemas.map((item: Schema, rowIndex: number) => {
-              return (
-                <tr key={rowIndex}>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden">
-                        {item.name}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden">
-                        {item.schemaId}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {dayjs(item.createdAt).format('DD/MM/YYYY')}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1 rounded-r-lg">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {dayjs(item.updatedAt).format('DD/MM/YYYY')}
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+      <Table>
+        <TableHeader>
+          <th className="p-4 w-3/12">Name</th>
+          <th className="p-4 w-5/12">Schema</th>
+          <th className="p-4 w-2/12 text-right">Created</th>
+          <th className="p-4 w-2/12 text-right">Updated</th>
+        </TableHeader>
+        <TableBody>
+          {schemas.map((item: Schema, rowIndex: number) => {
+            return (
+              <tr key={rowIndex}>
+                <TableCell className="rounded-l-lg">
+                  <p>{item.name}</p>
+                </TableCell>
+                <TableCell>
+                  <p>{item.schemaId}</p>
+                </TableCell>
+                <TableCell>
+                  <p className="text-right w-full">
+                    {dayjs(item.createdAt).format('DD/MM/YYYY')}
+                  </p>
+                </TableCell>
+                <TableCell className="rounded-r-lg">
+                  <p className="text-right w-full">
+                    {dayjs(item.updatedAt).format('DD/MM/YYYY')}
+                  </p>
+                </TableCell>
+              </tr>
+            )
+          })}
+        </TableBody>
+      </Table>
     </PageContainer>
   )
 }

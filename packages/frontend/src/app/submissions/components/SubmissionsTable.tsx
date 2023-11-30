@@ -1,7 +1,12 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { Submission, SubmissionWithEmail } from '@/common/interfaces'
-import { Table, TableBody, TableHeader } from '@/common/components/Table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+} from '@/common/components/Table'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import { TextSmBold } from '@/common/components/Typography'
@@ -48,48 +53,32 @@ export function SubmissionsTable() {
             .map((item: SubmissionWithEmail, rowIndex: number) => {
               return (
                 <tr key={rowIndex}>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
-                      <Image
-                        className="mr-2"
-                        src={item.logo_url}
-                        alt={item.name}
-                        width={24}
-                        height={24}
-                      />
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden">
-                        {item.name}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right capitalize">
-                        {item.state}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1 ">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {dayjs(item.updatedAt).format('DD/MM/YYYY')}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {dayjs(item.createdAt).format('DD/MM/YYYY')}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1 rounded-r-lg">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {item.emailAddress}
-                      </p>
-                    </div>
-                  </td>
+                  <TableCell className="rounded-l-lg">
+                    <Image
+                      className="mr-2"
+                      src={item.logo_url}
+                      alt={item.name}
+                      width={24}
+                      height={24}
+                    />
+                    <p>{item.name}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-right w-full capitalize">{item.state}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-right w-full">
+                      {dayjs(item.updatedAt).format('DD/MM/YYYY')}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-right w-full">
+                      {dayjs(item.createdAt).format('DD/MM/YYYY')}
+                    </p>
+                  </TableCell>
+                  <TableCell className="rounded-r-lg">
+                    <p className="text-right w-full">{item.emailAddress}</p>
+                  </TableCell>
                 </tr>
               )
             })}

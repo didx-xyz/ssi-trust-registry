@@ -3,7 +3,12 @@ import { PageHeading } from '@/common/components/PageHeading'
 import { Text2xlBold } from '@/common/components/Typography'
 import { Invitation, Submission } from '@/common/interfaces'
 import { PageContainer } from '@/common/components/PageContainer'
-import { Table, TableBody, TableHeader } from '@/common/components/Table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+} from '@/common/components/Table'
 import { getAuthToken } from '@/common/helpers'
 import { betterFetch } from '@/api'
 import Link from 'next/link'
@@ -33,61 +38,49 @@ export default async function InvitationsPage() {
             {invitations.map((invitation, rowIndex) => {
               return (
                 <tr key={rowIndex}>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="flex p-4 bg-white mb-1 items-center rounded-l-lg">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden">
-                        {invitation.emailAddress}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right capitalize">
-                        {invitation.id}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1 ">
-                      <div className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {invitation.latestSubmission ? (
-                          <Link
-                            href={`/submissions/${invitation.latestSubmission.id}`}
-                            className="text-primary hover:opacity-70 underline"
-                          >
-                            {dayjs(
-                              invitation.latestSubmission.createdAt,
-                            ).format('DD/MM/YYYY')}
-                          </Link>
-                        ) : (
-                          <p>N/A</p>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1 rounded-r-lg">
-                      <div className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {invitation.entityId ? (
-                          <Link
-                            href={`/entities/${invitation.entityId}`}
-                            className="text-primary hover:opacity-70 underline"
-                          >
-                            {invitation.entityId}
-                          </Link>
-                        ) : (
-                          <p>N/A</p>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-0 table-fixed break-all">
-                    <div className="p-4 bg-white mb-1 ">
-                      <p className="leading-6 min-h-6 h-6 overflow-hidden text-right">
-                        {dayjs(invitation.createdAt).format('DD/MM/YYYY')}
-                      </p>
-                    </div>
-                  </td>
+                  <TableCell className="rounded-l-lg">
+                    <p>{invitation.emailAddress}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-right capitalize w-full">
+                      {invitation.id}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-right w-full">
+                      {invitation.latestSubmission ? (
+                        <Link
+                          href={`/submissions/${invitation.latestSubmission.id}`}
+                          className="text-primary hover:opacity-70 underline"
+                        >
+                          {dayjs(invitation.latestSubmission.createdAt).format(
+                            'DD/MM/YYYY',
+                          )}
+                        </Link>
+                      ) : (
+                        'N/A'
+                      )}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-right w-full">
+                      {invitation.entityId ? (
+                        <Link
+                          href={`/entities/${invitation.entityId}`}
+                          className="text-primary hover:opacity-70 underline"
+                        >
+                          {invitation.entityId}
+                        </Link>
+                      ) : (
+                        'N/A'
+                      )}
+                    </p>
+                  </TableCell>
+                  <TableCell className="rounded-r-lg">
+                    <p className="text-right w-full">
+                      {dayjs(invitation.createdAt).format('DD/MM/YYYY')}
+                    </p>
+                  </TableCell>
                 </tr>
               )
             })}
