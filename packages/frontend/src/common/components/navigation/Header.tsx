@@ -18,12 +18,11 @@ export function Header() {
   const protectedPages = ['/submissions', '/invitations', '/invitations/new']
 
   useEffect(() => {
-    async function getUserData() {
-      const userData = await getUser()
-      setUser(userData)
-    }
-
-    getUserData()
+    getUser().then((res) => {
+      if (res.id) {
+        setUser(res)
+      }
+    })
   }, [pathname])
 
   function redirectIfPageIsProtected() {

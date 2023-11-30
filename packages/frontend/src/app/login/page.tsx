@@ -28,14 +28,11 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
-    async function getUserData() {
-      const userData = await getUser()
-      if (userData.id) {
+    getUser().then((res) => {
+      if (res.id) {
         router.push('/')
       }
-    }
-
-    getUserData()
+    })
   }, [router])
 
   return (

@@ -16,15 +16,12 @@ export function Protected({ children }: Props) {
   const [isLoading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function getUserData() {
-      const userData = await getUser()
-      if (userData.id) {
-        setUser(userData)
+    getUser().then((res) => {
+      if (res.id) {
+        setUser(res)
       }
       setLoading(false)
-    }
-
-    getUserData()
+    })
   }, [])
 
   if (isLoading) {
