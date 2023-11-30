@@ -8,11 +8,13 @@ interface Props {
 }
 interface LinkProps extends Props {
   href: string
+  disabled?: never
   onClick?: never
 }
 
 interface ButtonProps extends Props {
   onClick: () => void
+  disabled?: boolean
   href?: never
 }
 
@@ -27,13 +29,16 @@ export function Button({
   href,
   onClick,
   loading,
+  disabled,
 }: LinkProps | ButtonProps) {
   const ParentComponent = href
     ? (props: any) => <Link {...props} href={href} />
-    : (props: any) => <button {...props} onClick={onClick} />
+    : (props: any) => (
+        <button {...props} onClick={onClick} disabled={disabled} />
+      )
   return (
     <ParentComponent
-      className={`${classes[type]} btn normal-case px-12 min-w-[192px]`}
+      className={`${classes[type]} btn normal-case px-4 py-3 w-48`}
     >
       {loading && <span className="loading loading-spinner"></span>}
       {title}

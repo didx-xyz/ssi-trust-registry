@@ -155,12 +155,17 @@ async function updateSubmissionState(
   req: RequestWithToken,
   res: Response,
 ) {
-  if (req.body.state !== 'approved' && req.body.state !== 'rejected') {
+  const { state } = req.body
+  if (state !== 'approved' && state !== 'rejected') {
     throw new Error(`Invalid submission state: ${req.body.state}`)
   }
   const submission = await submissionService.getSubmissionById(req.params.id)
+  if (submission.state !== 'pending') {
+    throw new Error(`Submission already processed: ${submission.state}`)
+  }
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
+
   if (req.body.state === 'approved') {
     const result = await submissionService.approveSubmission(submission)
     res.status(200).json(result)
