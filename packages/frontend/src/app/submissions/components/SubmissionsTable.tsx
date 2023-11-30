@@ -5,7 +5,7 @@ import { Table, TableBody, TableHeader } from '@/common/components/Table'
 import Image from 'next/image'
 import dayjs from 'dayjs'
 import { TextSmBold } from '@/common/components/Typography'
-import { betterFetch, getInvitation } from '@/api'
+import { backendUrl, betterFetch, getInvitation } from '@/api'
 import { PlusIcon } from '@/common/components/images/PlusIcon'
 
 export function SubmissionsTable() {
@@ -100,10 +100,7 @@ export function SubmissionsTable() {
 }
 
 async function getSubmissionsWithEmails(): Promise<SubmissionWithEmail[]> {
-  const submissions = await betterFetch(
-    'GET',
-    'http://localhost:3000/api/submissions',
-  )
+  const submissions = await betterFetch('GET', `${backendUrl}/api/submissions`)
   const submissionsWithEmails = await Promise.all(
     submissions.map(async (submission: Submission) => {
       const invitation = await getInvitation({
