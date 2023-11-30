@@ -148,22 +148,6 @@ function Filter({ options, selectedOptions, onChange }: FilterProps) {
   )
 }
 
-async function getSubmissionsWithEmails(): Promise<SubmissionWithEmail[]> {
-  const submissions = await betterFetch(
-    'GET',
-    'http://localhost:3000/api/submissions',
-  )
-  const submissionsWithEmails = await Promise.all(
-    submissions.map(async (submission: Submission) => {
-      const invitation = await getInvitation({
-        invitationId: submission.invitationId,
-      })
-      return { ...submission, emailAddress: invitation.emailAddress }
-    }),
-  )
-  return submissionsWithEmails
-}
-
 function FilterButton({ onClick, isActive, value }: FilterButtonProps) {
   return (
     <button
@@ -184,4 +168,20 @@ function FilterButton({ onClick, isActive, value }: FilterButtonProps) {
       <p className="capitalize">{value}</p>
     </button>
   )
+}
+
+async function getSubmissionsWithEmails(): Promise<SubmissionWithEmail[]> {
+  const submissions = await betterFetch(
+    'GET',
+    'http://localhost:3000/api/submissions',
+  )
+  const submissionsWithEmails = await Promise.all(
+    submissions.map(async (submission: Submission) => {
+      const invitation = await getInvitation({
+        invitationId: submission.invitationId,
+      })
+      return { ...submission, emailAddress: invitation.emailAddress }
+    }),
+  )
+  return submissionsWithEmails
 }

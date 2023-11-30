@@ -9,7 +9,6 @@ interface Props {
 
 interface User {
   id?: string
-  message?: string
 }
 
 export function Protected({ children }: Props) {

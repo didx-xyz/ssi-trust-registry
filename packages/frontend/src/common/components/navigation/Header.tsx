@@ -7,15 +7,14 @@ import { getUser, logOut } from '@/api'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 
-interface Props {
+interface User {
   id?: string
-  message?: string
 }
 
 export function Header() {
   const pathname = usePathname()
   const router = useRouter()
-  const [user, setUser] = useState<Props>({})
+  const [user, setUser] = useState<User>({})
   const protectedPages = ['/submissions', '/invitations', '/invitations/new']
 
   useEffect(() => {
