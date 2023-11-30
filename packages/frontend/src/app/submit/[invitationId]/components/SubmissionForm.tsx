@@ -3,7 +3,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FieldError, betterFetch } from '@/api'
+import { FieldError, backendUrl, betterFetch } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import { Invitation } from '@/common/interfaces'
 import { TextArea } from '@/common/components/TextArea'
@@ -185,7 +185,7 @@ export async function submit(
 ) {
   return betterFetch(
     'POST',
-    `http://localhost:3000/api/submissions`,
+    `${backendUrl}/api/submissions`,
     {},
     { ...submission, invitationId },
   )

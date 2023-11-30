@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { betterFetch } from '@/api'
+import { backendUrl, betterFetch } from '@/api'
 import { Submission } from '@/common/interfaces'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { Button } from '@/common/components/Button'
@@ -108,11 +108,11 @@ async function getSubmission(
 ): Promise<Submission & { emailAddress: string }> {
   const submission = await betterFetch(
     'GET',
-    `http://localhost:3000/api/submissions/${id}`,
+    `${backendUrl}/api/submissions/${id}`,
   )
   const invitation = await betterFetch(
     'GET',
-    `http://localhost:3000/api/invitations/${submission.invitationId}`,
+    `${backendUrl}/api/invitations/${submission.invitationId}`,
   )
   return { ...submission, emailAddress: invitation.emailAddress }
 }
@@ -120,7 +120,7 @@ async function getSubmission(
 function approveSubmission(submissionId: string) {
   return betterFetch(
     'PUT',
-    `http://localhost:3000/api/submissions/${submissionId}`,
+    `${backendUrl}/api/submissions/${submissionId}`,
     {},
     { state: 'approved' },
   )
@@ -129,7 +129,7 @@ function approveSubmission(submissionId: string) {
 function rejectSubmission(submissionId: string) {
   return betterFetch(
     'PUT',
-    `http://localhost:3000/api/submissions/${submissionId}`,
+    `${backendUrl}/api/submissions/${submissionId}`,
     {},
     { state: 'rejected' },
   )
