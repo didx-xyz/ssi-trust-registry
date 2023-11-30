@@ -25,14 +25,20 @@ export function Header() {
     })
   }, [pathname])
 
+  function logOutUser() {
+    logOut()
+    setUser({})
+    redirectIfPageIsProtected()
+  }
+
   function redirectIfPageIsProtected() {
     if (protectedPages.includes(pathname)) {
       router.push('/')
     }
   }
 
-  function isPageProtected(url: string) {
-    return protectedPages.includes(url) && !user.id
+  function isPageHidden(pathname: string) {
+    return protectedPages.includes(pathname) && !user.id
   }
 
   return (
@@ -49,31 +55,27 @@ export function Header() {
         <NavigationItem
           href="/"
           name="Trusted Entities"
-          hidden={isPageProtected('/')}
+          hidden={isPageHidden('/')}
         />
         <NavigationItem
           href="/schemas"
           name="Schemas"
-          hidden={isPageProtected('/schemas')}
+          hidden={isPageHidden('/schemas')}
         />
         <NavigationItem
           href="/submissions"
           name="Submissions"
-          hidden={isPageProtected('/submissions')}
+          hidden={isPageHidden('/submissions')}
         />
         <NavigationItem
           href="/invitations"
           name="Invitations"
-          hidden={isPageProtected('/invitations')}
+          hidden={isPageHidden('/invitations')}
         />
         {user.id ? (
           <button
             className="btn btn-sm normal-case h-10 rounded-lg border-0 px-4 hover:bg-lightHover btn-ghost font-normal"
-            onClick={() => {
-              logOut()
-              setUser({})
-              redirectIfPageIsProtected()
-            }}
+            onClick={logOutUser}
           >
             Log Out
           </button>
