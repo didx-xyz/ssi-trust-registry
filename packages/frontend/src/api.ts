@@ -1,5 +1,7 @@
 import { BaseError } from 'make-error'
 
+export const backendUrl = 'http://localhost:3000'
+
 export interface LoginForm {
   email: string
   password: string
@@ -11,23 +13,15 @@ export async function getInvitation({
   invitationId: string
 }) {
   console.log(invitationId)
-  return betterFetch(
-    'GET',
-    `http://localhost:3000/api/invitations/${invitationId}`,
-  )
+  return betterFetch('GET', `${backendUrl}/api/invitations/${invitationId}`)
 }
 
 export async function logIn(credentials: LoginForm) {
-  return betterFetch(
-    'POST',
-    'http://localhost:3000/api/auth/login',
-    {},
-    credentials,
-  )
+  return betterFetch('POST', `${backendUrl}/api/auth/login`, {}, credentials)
 }
 
 export async function logOut() {
-  return betterFetch('GET', 'http://localhost:3000/api/auth/logout')
+  return betterFetch('GET', `${backendUrl}/api/auth/logout`)
 }
 
 export async function getUser(token?: string) {
@@ -35,11 +29,9 @@ export async function getUser(token?: string) {
     if (!token) {
       return {}
     }
-    const payload = await betterFetch(
-      'GET',
-      'http://localhost:3000/api/auth/whoami',
-      { Cookie: `token=${token}` },
-    )
+    const payload = await betterFetch('GET', `${backendUrl}/api/auth/whoami`, {
+      Cookie: `token=${token}`,
+    })
     return payload
   } catch (error) {
     console.error(error)
