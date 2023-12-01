@@ -171,7 +171,7 @@ async function updateSubmissionState(
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
 
-  if (req.body.state === 'approved') {
+  if (state === 'approved') {
     const result = await submissionService.approveSubmission(submission)
     const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
     logger.info(
