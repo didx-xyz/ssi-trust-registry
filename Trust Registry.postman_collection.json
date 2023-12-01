@@ -1,301 +1,253 @@
 {
-	"info": {
-		"_postman_id": "96b74d03-bdf7-49df-a557-53631e25d9ab",
-		"name": "Trust Registry",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30827138"
-	},
-	"item": [
-		{
-			"name": "Authenticated Requests",
-			"item": [
-				{
-					"name": "Submissions",
-					"item": [
-						{
-							"name": "Get all",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{domain}}/api/submissions",
-									"host": [
-										"{{domain}}"
-									],
-									"path": [
-										"api",
-										"submissions"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get by Id",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{domain}}/api/submissions/{{submissionId}}",
-									"host": [
-										"{{domain}}"
-									],
-									"path": [
-										"api",
-										"submissions",
-										"{{submissionId}}"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Invitations",
-					"item": [
-						{
-							"name": "Get all",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{domain}}/api/invitations",
-									"host": [
-										"{{domain}}"
-									],
-									"path": [
-										"api",
-										"invitations"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get by Id",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{domain}}/api/invitations/{{invitationId}}",
-									"host": [
-										"{{domain}}"
-									],
-									"path": [
-										"api",
-										"invitations",
-										"{{invitationId}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.collectionVariables.set(\"invitationId\", pm.response.json().id);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"emailAddress\": \"{{$randomEmail}}\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{domain}}/api/invitations",
-									"host": [
-										"{{domain}}"
-									],
-									"path": [
-										"api",
-										"invitations"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				}
-			],
-			"auth": {
-				"type": "noauth"
-			},
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				}
-			]
-		},
-		{
-			"name": "Authenticate",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.collectionVariables.set(\"token\", pm.response.json().token);"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"email\":\"admin\",\n    \"password\":\"{{password}}\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api/auth/login",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api",
-						"auth",
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Submission",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"pm.sendRequest(\"https://indyscan.io/api/networks/SOVRIN_MAINNET/ledgers/domain/txs?filterTxNames=%5B%5D&format=expansion&size=1000&skip=0&sortFromRecent=true\", function (err, response) {",
-							"    const dids = response.json().map((e)=>e.idata.txn.metadata.from);",
-							"    const uniqueDids = [...new Set(dids)]",
-							"    pm.variables.set(\"did\",uniqueDids[_.random(0,uniqueDids.length)])",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"invitationId\":\"{{invitationId}}\",\n    \"name\": \"{{$randomCompanyName}}\",\n    \"dids\": [\"did:indy:sovrin:{{did}}\"],\n    \"logo_url\":\"https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg\",\n    \"domain\":\"https://{{$randomDomainName}}\",\n    \"role\":[\"verifier\"],\n    \"credentials\":[\"did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0\"]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{domain}}/api/submissions",
-					"host": [
-						"{{domain}}"
-					],
-					"path": [
-						"api",
-						"submissions"
-					]
-				}
-			},
-			"response": []
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "domain",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "password",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "submissionId",
-			"value": ""
-		},
-		{
-			"key": "invitationId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "submissionDid",
-			"value": "EyN78DDGHyok8qw6W96UBY",
-			"type": "string"
-		}
-	]
+  "info": {
+    "_postman_id": "96b74d03-bdf7-49df-a557-53631e25d9ab",
+    "name": "Trust Registry",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30827138"
+  },
+  "item": [
+    {
+      "name": "Authenticated Requests",
+      "item": [
+        {
+          "name": "Submissions",
+          "item": [
+            {
+              "name": "Get all",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{domain}}/api/submissions",
+                  "host": ["{{domain}}"],
+                  "path": ["api", "submissions"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get by Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{domain}}/api/submissions/{{submissionId}}",
+                  "host": ["{{domain}}"],
+                  "path": ["api", "submissions", "{{submissionId}}"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Invitations",
+          "item": [
+            {
+              "name": "Get all",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{domain}}/api/invitations",
+                  "host": ["{{domain}}"],
+                  "path": ["api", "invitations"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get by Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{domain}}/api/invitations/{{invitationId}}",
+                  "host": ["{{domain}}"],
+                  "path": ["api", "invitations", "{{invitationId}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [""],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.collectionVariables.set(\"invitationId\", pm.response.json().id);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"emailAddress\": \"{{$randomEmail}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{domain}}/api/invitations",
+                  "host": ["{{domain}}"],
+                  "path": ["api", "invitations"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [""]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [""]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authenticate",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.collectionVariables.set(\"token\", pm.response.json().token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\":\"admin\",\n    \"password\":\"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{domain}}/api/auth/login",
+          "host": ["{{domain}}"],
+          "path": ["api", "auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Submission",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "pm.sendRequest(\"https://indyscan.io/api/networks/SOVRIN_MAINNET/ledgers/domain/txs?filterTxNames=%5B%5D&format=expansion&size=1000&skip=0&sortFromRecent=true\", function (err, response) {",
+              "    const dids = response.json().map((e)=>e.idata.txn.metadata.from);",
+              "    const uniqueDids = [...new Set(dids)]",
+              "    pm.variables.set(\"did\",uniqueDids[_.random(0,uniqueDids.length)])",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"invitationId\":\"{{invitationId}}\",\n    \"name\": \"{{$randomCompanyName}}\",\n    \"dids\": [\"did:indy:sovrin:{{did}}\"],\n    \"logo_url\":\"https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg\",\n    \"domain\":\"https://{{$randomDomainName}}\",\n    \"role\":[\"verifier\"],\n    \"credentials\":[\"did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{domain}}/api/submissions",
+          "host": ["{{domain}}"],
+          "path": ["api", "submissions"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "domain",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "submissionId",
+      "value": ""
+    },
+    {
+      "key": "invitationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "submissionDid",
+      "value": "EyN78DDGHyok8qw6W96UBY",
+      "type": "string"
+    }
+  ]
 }
