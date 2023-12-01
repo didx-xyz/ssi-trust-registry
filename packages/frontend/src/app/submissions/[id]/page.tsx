@@ -6,7 +6,7 @@ import { backendUrl, betterFetch } from '@/api'
 import { Submission } from '@/common/interfaces'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { Button } from '@/common/components/Button'
-import { LazySubmissionDetail } from './components/LazySubmissionDetail'
+import { SubmissionDetail } from './components/SubmissionDetail'
 import { ApproveContents } from './components/ApproveContents'
 import { RejectContents } from './components/RejectContents'
 
@@ -76,7 +76,7 @@ export default function SubmissionDetailPage({
             <RejectContents submission={submission} />
           ) : (
             <>
-              <LazySubmissionDetail submission={submission} />
+              <SubmissionDetail submission={submission} />
               {submission?.state === 'pending' && (
                 <div className="card-actions gap-4">
                   <Button
