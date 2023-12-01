@@ -282,6 +282,14 @@ describe('api', () => {
       // Check that the entity is added to the registry
       const registry = await fetchRegistry()
       expect(registry.entities).toContainEqual(approvalResponse.entity)
+
+      expect(emailClient.sentMessages).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            subject: 'Congratulations! Your submission has been approved!',
+          }),
+        ]),
+      )
     })
 
     test('submission rejection - change submission state and no registry changes', async () => {
@@ -298,6 +306,13 @@ describe('api', () => {
       )
       const updatedSubmission = await rejectionResult.json()
       expect(updatedSubmission.state).toEqual('rejected')
+      expect(emailClient.sentMessages).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            subject: 'Sorry. Your submission has been rejected.',
+          }),
+        ]),
+      )
     })
 
     test('update submission state throws error if not "approved" or "rejected"', async () => {
