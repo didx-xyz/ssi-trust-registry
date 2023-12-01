@@ -166,6 +166,7 @@ async function approveSubmission(
   )
   logger.info(`Submission ${submission.id} has been approved in the database`)
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const {
     id: _,
     state,
@@ -174,6 +175,7 @@ async function approveSubmission(
     invitationId,
     ...entityData
   } = reviewedSubmission
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   let entity: Entity
   if (!invitation.entityId) {
     const newEntity = {
