@@ -37,7 +37,7 @@ export async function getUser(token?: string) {
 }
 
 export async function betterFetch<T>(
-  method: 'GET' | 'POST',
+  method: 'GET' | 'POST' | 'PUT',
   url: string,
   headers?: any,
   payload?: T,

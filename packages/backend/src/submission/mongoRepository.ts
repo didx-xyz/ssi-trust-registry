@@ -1,7 +1,7 @@
 import partial from 'lodash.partial'
 import { Collection, Db } from 'mongodb'
 import { createLogger } from '../logger'
-import { Invitation, Submission } from './interfaces'
+import { Invitation, Submission } from './domain'
 import { InvitationRepository, SubmissionRepository } from './service'
 
 const logger = createLogger(__filename)
@@ -16,7 +16,9 @@ export async function createSubmissionRepository(
       findSubmissionsByInvitationId,
       submissionCollection,
     ),
+    findSubmissionById: partial(findSubmissionById, submissionCollection),
     addSubmission: partial(addSubmission, submissionCollection),
+    reviewSubmission: partial(reviewSubmission, submissionCollection),
   }
 }
 
@@ -32,7 +34,7 @@ export async function createInvitationRepository(
 }
 
 async function getAllSubmissions(collection: Collection) {
-  const result = await collection.find().toArray()
+  const result = await collection.find().sort({ createdAt: -1 }).toArray()
   return result.map((s) => Submission.parse(s))
 }
 
@@ -47,10 +49,35 @@ async function findSubmissionsByInvitationId(
   return result.map((s) => Submission.parse(s))
 }
 
+async function findSubmissionById(collection: Collection, id: string) {
+  const submission = await collection.findOne({ id })
+  return submission && Submission.parse(submission)
+}
+
 async function addSubmission(collection: Collection, submission: Submission) {
-  const result = await collection.insertOne({ ...submission })
+  const result = await collection.replaceOne(
+    { invitationId: submission.invitationId, state: 'pending' },
+    { ...submission },
+    { upsert: true },
+  )
   logger.info(`Submission inserted to the database`, result)
   return submission
+}
+
+async function reviewSubmission(
+  collection: Collection,
+  id: string,
+  state: 'approved' | 'rejected',
+) {
+  const submission = await collection.findOneAndUpdate(
+    { id },
+    { $set: { state, updatedAt: new Date().toISOString() } },
+    { returnDocument: 'after' },
+  )
+  if (!submission) {
+    throw new Error(`Submission with id ${id} not found`)
+  }
+  return Submission.parse(submission)
 }
 
 async function getAllInvitations(collection: Collection) {

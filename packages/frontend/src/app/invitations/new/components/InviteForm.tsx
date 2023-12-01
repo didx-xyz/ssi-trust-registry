@@ -7,7 +7,7 @@ import { TextInput } from '@/common/components/TextInput'
 import { Button } from '@/common/components/Button'
 import Success from '@/common/assets/Success.svg'
 import EmailIcon from '../assets/EmailIcon.svg'
-import { betterFetch } from '@/api'
+import { backendUrl, betterFetch } from '@/api'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
 
 interface Inputs {
@@ -78,7 +78,7 @@ export function InviteForm() {
           title="Send another invitation"
           onClick={() => reset()}
         />
-        <Button href="/" title="Back to Trusted Entities" />
+        <Button href="/invitations" title="Back to Invitations" />
       </div>
     </div>
   )
