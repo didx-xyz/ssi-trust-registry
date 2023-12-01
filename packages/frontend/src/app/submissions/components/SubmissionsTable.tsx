@@ -32,7 +32,7 @@ export function SubmissionsTable() {
   return (
     <>
       <Filter
-        options={['pending', 'declined', 'approved']}
+        options={['pending', 'rejected', 'approved']}
         selectedOptions={selectedFilters}
         onChange={setSelectedFilters}
       />
