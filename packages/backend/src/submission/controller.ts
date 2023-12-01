@@ -159,7 +159,7 @@ async function updateSubmissionState(
 ) {
   const { state } = req.body
   if (state !== 'approved' && state !== 'rejected') {
-    throw new Error(`Invalid submission state: ${req.body.state}`)
+    throw new Error(`Invalid submission state: ${state}`)
   }
   const submission = await submissionService.getSubmissionById(req.params.id)
   if (submission.state !== 'pending') {
