@@ -101,27 +101,32 @@ export const submissionsStub = [
 export const invitationsStub = [
   {
     emailAddress: 'john.doe@example.com',
-    id: 'r5z5okertizd49ld6hzfubtq',
+    id: 's3gdwtyxt8w8dn87sbisxjn0',
     createdAt: '2023-11-16T14:50:02.207Z',
+    entityId: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
   },
   {
     emailAddress: 'charlotte.doe@example.com',
-    id: 's3gdwtyxt8w8dn87sbisxg7d',
+    id: 'k4o74jb1u6bto0owh9si0sux',
     createdAt: '2023-11-16T15:15:53.438Z',
+    entityId: '6na665b6-7fc5-4b0b-baee-6221b1844ea7',
   },
   {
     emailAddress: 'michael.doe@example.com',
-    id: 'ahfhmsklv7to75xy7alnivuc',
+    id: 'k4o74jb1u6bto0owh9si0jgs',
     createdAt: '2023-11-16T15:25:10.670Z',
+    entityId: '6na665b6-7fc5-4b0b-baee-6221b184h8d0',
   },
   {
     emailAddress: 'alice.doe@example.com',
     id: 'ib6o9ki9fssprzljkuth6fvj',
     createdAt: '2023-11-16T15:26:00.362Z',
+    entityId: '6na665b6-7fc5-4b0b-baee-6221b184v6k3',
   },
   {
     emailAddress: 'tom.doe@example.com',
     id: 'f7vahm7zfx5sw24rb8i589yj',
     createdAt: '2023-11-16T15:28:26.858Z',
+    entityId: '6na665b6-7fc5-4b0b-baee-6221b184lo8D',
   },
 ]
