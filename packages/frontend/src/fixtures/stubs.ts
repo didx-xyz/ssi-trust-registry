@@ -15,16 +15,16 @@ export const trustRegistryStub = {
       updatedAt: '2023-11-20T16:49:58.307Z',
     },
     {
-      name: 'Absa 2',
-      dids: ['did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmc'],
+      name: 'Example entity',
+      dids: ['did:indy:sovrin:staging:Pmi5CXJbv4HM8YttyomMoW'],
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
-      domain: 'www.absa.africa',
+      domain: 'www.example.com',
       role: ['issuer'],
       credentials: [
-        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmc/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+        'did:indy:sovrin:staging:Pmi5CXJbv4HM8YttyomMoW/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
       ],
-      id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
+      id: '6na665b6-7fc5-4b0b-baee-6221b1844ea7',
       createdAt: '2023-11-10T14:43:36.083Z',
       updatedAt: '2023-11-20T16:49:58.307Z',
     },
@@ -39,7 +39,7 @@ export const trustRegistryStub = {
     },
     {
       schemaId:
-        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmc/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+        'did:indy:sovrin:staging:Pmi5CXJbv4HM8YttyomMoW/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
       name: 'Digital Identity 2',
       createdAt: '2023-11-10T14:41:49.143Z',
       updatedAt: '2023-11-20T16:49:09.838Z',
@@ -78,7 +78,7 @@ export const submissionsStub = [
     id: '6a89a0fc-3e22-44d8-9d27-35c79b9f76c5',
     createdAt: '2023-11-16T15:39:09.694Z',
     updatedAt: '2023-11-16T15:39:09.694Z',
-    state: 'declined',
+    state: 'rejected',
   },
   {
     name: 'Michael Doe',
@@ -90,7 +90,7 @@ export const submissionsStub = [
     credentials: [
       'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
     ],
-    invitationId: 'k4o74jb1u6bto0owh9si0sux',
+    invitationId: 'k4o74jb1u6bto0owh9si0jgs',
     id: '5a89a0fc-3e22-44d8-9d27-35c79b9f76c3',
     createdAt: '2023-11-16T15:39:09.694Z',
     updatedAt: '2023-11-16T15:39:09.694Z',
