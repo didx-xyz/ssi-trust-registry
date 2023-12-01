@@ -27,8 +27,7 @@ export default async function Home() {
       </PageHeading>
       <Table>
         <TableHeader>
-          <th className="p-4 w-6/12">Company name</th>
-          <th className="p-4 w-2/12 text-right">State</th>
+          <th className="p-4 w-8/12">Company name</th>
           <th className="p-4 w-2/12 text-right">Updated</th>
           <th className="p-4 w-2/12 text-right">Registered</th>
         </TableHeader>
@@ -45,9 +44,6 @@ export default async function Home() {
                     height={24}
                   />
                   <p>{item.name}</p>
-                </TableCell>
-                <TableCell>
-                  <p className="text-right w-full">{item.status}</p>
                 </TableCell>
                 <TableCell>
                   <p className="text-right w-full">
