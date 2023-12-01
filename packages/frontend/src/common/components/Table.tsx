@@ -3,6 +3,12 @@ import React, { ReactNode } from 'react'
 interface Props {
   children: ReactNode
 }
+
+interface CellProps {
+  children: ReactNode
+  className?: string
+}
+
 export function Table({ children }: Props) {
   return (
     <div className="overflow-x-auto">
@@ -21,4 +27,16 @@ export function TableHeader({ children }: Props) {
 
 export function TableBody({ children }: Props) {
   return <tbody>{children}</tbody>
+}
+
+export function TableCell({ children, className }: CellProps) {
+  return (
+    <td className="p-0 table-fixed break-all">
+      <div className={`p-4 bg-white mb-1 w-full ${className ? className : ''}`}>
+        <div className="flex w-full leading-6 min-h-6 h-6 overflow-hidden">
+          {children}
+        </div>
+      </div>
+    </td>
+  )
 }
