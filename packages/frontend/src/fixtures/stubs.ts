@@ -106,7 +106,7 @@ export const invitationsStub = [
   },
   {
     emailAddress: 'charlotte.doe@example.com',
-    id: 's3gdwtyxt8w8dn87sbisxjn0',
+    id: 's3gdwtyxt8w8dn87sbisxg7d',
     createdAt: '2023-11-16T15:15:53.438Z',
   },
   {
