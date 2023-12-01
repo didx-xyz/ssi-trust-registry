@@ -212,7 +212,7 @@ describe('api', () => {
       )
     })
 
-    test('correct submissions succeeds and adds it to the list', async () => {
+    test('correct submission succeeds and adds it to the list', async () => {
       await post(
         `http://localhost:${port}/api/submissions`,
         { ...absaSubmission, invitationId: invitation.id },
@@ -251,7 +251,7 @@ describe('api', () => {
       })
     })
 
-    test('correct submissions succeeds with 201 Created and return ID of newly created submission', async () => {
+    test('correct submission succeeds with 201 Created and return ID of newly created submission', async () => {
       const result = await post(
         `http://localhost:${port}/api/submissions`,
         { ...yomaSubmission, invitationId: invitation.id },
@@ -263,16 +263,13 @@ describe('api', () => {
       expect(response.id).toEqual(expect.any(String))
     })
 
-    test('update submission state - approved', async () => {
+    test('submission approval - change submission state and add new entity', async () => {
       const submissionResult = await post(
         `http://localhost:${port}/api/submissions`,
         { ...absaSubmission, invitationId: invitation.id },
         cookie,
       )
-      const status = submissionResult.status
       const submissionResponse = await submissionResult.json()
-      expect(status).toEqual(201)
-      expect(submissionResponse.id).toEqual(expect.any(String))
       const approvalResult = await put(
         `http://localhost:3000/api/submissions/${submissionResponse.id}`,
         { state: 'approved' },
@@ -287,16 +284,13 @@ describe('api', () => {
       expect(registry.entities).toContainEqual(approvalResponse.entity)
     })
 
-    test('update submission state - rejected', async () => {
+    test('submission rejection - change submission state and no registry changes', async () => {
       const submissionResult = await post(
         `http://localhost:${port}/api/submissions`,
         { ...absaSubmission, invitationId: invitation.id },
         cookie,
       )
-      const status = submissionResult.status
       const response = await submissionResult.json()
-      expect(status).toEqual(201)
-      expect(response.id).toEqual(expect.any(String))
       const rejectionResult = await put(
         `http://localhost:3000/api/submissions/${response.id}`,
         { state: 'rejected' },
@@ -306,21 +300,19 @@ describe('api', () => {
       expect(updatedSubmission.state).toEqual('rejected')
     })
 
-    test('update submission state - unknown', async () => {
+    test('update submission state throws error if not "approved" or "rejected"', async () => {
       const result = await post(
         `http://localhost:${port}/api/submissions`,
         { ...absaSubmission, invitationId: invitation.id },
         cookie,
       )
-      const status = result.status
       const response = await result.json()
-      expect(status).toEqual(201)
-      expect(response.id).toEqual(expect.any(String))
       const invalidUpdateResult = await put(
         `http://localhost:3000/api/submissions/${response.id}`,
         { state: 'unknown' },
         cookie,
       )
+      expect(invalidUpdateResult.status).toEqual(500)
       const invalidUpdateResponse = await invalidUpdateResult.json()
       expect(invalidUpdateResponse.error).toEqual(
         'Invalid submission state: unknown',
