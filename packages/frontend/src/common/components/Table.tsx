@@ -35,10 +35,10 @@ export function TableBody({ children }: Props) {
   return <tbody>{children}</tbody>
 }
 
-export function TableRow({ children, className, onClick }: RowProps) {
+export function TableRow({ children, onClick }: RowProps) {
   return (
     <tr
-      className={`${className} ${onClick ? ' cursor-pointer group' : ''}`}
+      className={`${onClick ? ' cursor-pointer group' : ''}`}
       onClick={onClick}
     >
       {children}
@@ -51,7 +51,7 @@ export function TableCell({ children, className }: CellProps) {
     <td className="p-0 table-fixed break-all">
       <div
         className={`p-3.5 bg-white mb-1 w-full transition duration-300 border-y-2 border-white group-hover:border-medium ${
-          className ? className : ''
+          className || ''
         }`}
       >
         <div className="flex w-full leading-6 min-h-6 h-6 overflow-hidden">
