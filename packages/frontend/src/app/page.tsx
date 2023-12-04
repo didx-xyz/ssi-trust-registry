@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell,
   TableHeader,
+  TableRow,
 } from '@/common/components/Table'
 import { backendUrl, betterFetch } from '@/api'
 
@@ -30,8 +31,8 @@ export default async function Home() {
         <TableBody>
           {entities.map((item: Entity, rowIndex: number) => {
             return (
-              <tr key={rowIndex}>
-                <TableCell className="rounded-l-lg">
+              <TableRow key={rowIndex}>
+                <TableCell className="rounded-l-lg border-l-2">
                   <Image
                     className="mr-2"
                     src={item.logo_url}
@@ -46,12 +47,12 @@ export default async function Home() {
                     {dayjs(item.updatedAt).format('DD/MM/YYYY')}
                   </p>
                 </TableCell>
-                <TableCell className="rounded-r-lg">
+                <TableCell className="rounded-r-lg border-r-2">
                   <p className="text-right w-full">
                     {dayjs(item.createdAt).format('DD/MM/YYYY')}
                   </p>
                 </TableCell>
-              </tr>
+              </TableRow>
             )
           })}
         </TableBody>

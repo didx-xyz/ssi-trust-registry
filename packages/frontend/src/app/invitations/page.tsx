@@ -8,6 +8,7 @@ import {
   TableBody,
   TableCell,
   TableHeader,
+  TableRow,
 } from '@/common/components/Table'
 import { getAuthToken } from '@/common/helpers'
 import { backendUrl, betterFetch } from '@/api'
@@ -37,7 +38,7 @@ export default async function InvitationsPage() {
           <TableBody>
             {invitations.map((invitation, rowIndex) => {
               return (
-                <tr key={rowIndex}>
+                <TableRow key={rowIndex}>
                   <TableCell className="rounded-l-lg">
                     <p>{invitation.emailAddress}</p>
                   </TableCell>
@@ -81,7 +82,7 @@ export default async function InvitationsPage() {
                       {dayjs(invitation.createdAt).format('DD/MM/YYYY')}
                     </p>
                   </TableCell>
-                </tr>
+                </TableRow>
               )
             })}
           </TableBody>
