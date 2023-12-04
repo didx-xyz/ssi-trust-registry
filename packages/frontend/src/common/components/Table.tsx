@@ -11,7 +11,6 @@ interface CellProps {
 
 interface RowProps {
   children: ReactNode
-  className?: string
   onClick?: () => void
 }
 
