@@ -7,6 +7,7 @@ import {
   TableBody,
   TableCell,
   TableHeader,
+  TableRow,
 } from '@/common/components/Table'
 import Image from 'next/image'
 import dayjs from 'dayjs'
@@ -55,12 +56,11 @@ export function SubmissionsTable() {
             })
             .map((submission: SubmissionWithEmail) => {
               return (
-                <tr
+                <TableRow
                   key={submission.id}
-                  className="cursor-pointer"
                   onClick={() => router.push(`/submissions/${submission.id}`)}
                 >
-                  <TableCell className="rounded-l-lg">
+                  <TableCell className="rounded-l-lg border-l-2">
                     <Image
                       className="mr-2"
                       src={submission.logo_url}
@@ -85,12 +85,12 @@ export function SubmissionsTable() {
                       {dayjs(submission.createdAt).format('DD/MM/YYYY')}
                     </p>
                   </TableCell>
-                  <TableCell className="rounded-r-lg">
+                  <TableCell className="rounded-r-lg border-r-2">
                     <p className="text-right w-full">
                       {submission.emailAddress}
                     </p>
                   </TableCell>
-                </tr>
+                </TableRow>
               )
             })}
         </TableBody>

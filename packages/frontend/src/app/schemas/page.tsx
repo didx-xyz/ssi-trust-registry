@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell,
   TableHeader,
+  TableRow,
 } from '@/common/components/Table'
 
 export default async function Schemas() {
@@ -30,7 +31,7 @@ export default async function Schemas() {
         <TableBody>
           {schemas.map((item: Schema, rowIndex: number) => {
             return (
-              <tr key={rowIndex}>
+              <TableRow key={rowIndex}>
                 <TableCell className="rounded-l-lg">
                   <p>{item.name}</p>
                 </TableCell>
@@ -47,7 +48,7 @@ export default async function Schemas() {
                     {dayjs(item.updatedAt).format('DD/MM/YYYY')}
                   </p>
                 </TableCell>
-              </tr>
+              </TableRow>
             )
           })}
         </TableBody>
