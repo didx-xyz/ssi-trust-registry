@@ -1,6 +1,6 @@
 import { BaseError } from 'make-error'
 
-export const backendUrl = 'http://localhost:3000'
+export const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
 
 export interface LoginForm {
   email: string
