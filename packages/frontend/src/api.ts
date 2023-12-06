@@ -56,7 +56,7 @@ export async function betterFetch<T>(
   const responseContentType = response.headers.get('Content-Type')
 
   if (!responseContentType) {
-    throw new Error('PageContent-Type header is missing.')
+    throw new Error('Content-Type header is missing.')
   }
 
   if (!responseContentType.startsWith('application/json')) {
