@@ -11,7 +11,7 @@ interface User {
   id?: string
 }
 
-const protectedPages = ['/submissions', '/invitations', '/invitations/new']
+const protectedPages = ['/submissions', '/invitations']
 
 export function Header() {
   const currentPathname = usePathname()
@@ -114,5 +114,5 @@ async function getPendingSubmissionsCount(): Promise<number> {
 }
 
 function isPageProtected(pathname: string) {
-  return protectedPages.includes(pathname)
+  return !!protectedPages.find((page) => pathname.includes(page))
 }

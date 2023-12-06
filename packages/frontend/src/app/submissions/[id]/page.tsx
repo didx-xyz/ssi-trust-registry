@@ -1,4 +1,4 @@
-import { PageContent } from '@/app/submissions/[id]/components/PageContent'
+import { SubmissionDetailContent } from '@/app/submissions/[id]/components/SubmissionDetailContent'
 import { Protected } from '@/common/components/auth/Protected'
 import React from 'react'
 
@@ -9,7 +9,7 @@ export default function SubmissionDetailPage({
 }) {
   return (
     <Protected>
-      <PageContent id={params.id} />
+      <SubmissionDetailContent id={params.id} />
     </Protected>
   )
 }

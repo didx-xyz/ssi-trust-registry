@@ -9,7 +9,7 @@ import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDe
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 
-export function PageContent({ id }: { id: string }) {
+export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<
     Submission & { emailAddress: string }
   >()
