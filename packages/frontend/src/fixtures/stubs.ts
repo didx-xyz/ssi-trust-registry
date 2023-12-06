@@ -6,7 +6,7 @@ export const trustRegistryStub = {
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
-      role: ['issuer'],
+      role: ['issuer', 'verifier'],
       credentials: [
         'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
         'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC-mobile/1.0.0',
@@ -16,6 +16,17 @@ export const trustRegistryStub = {
       id: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
       createdAt: '2023-11-10T14:43:36.083Z',
       updatedAt: '2023-11-20T16:49:58.307Z',
+    },
+    {
+      name: 'DIDx',
+      dids: ['did:indy:sovrin:staging:L9YosTGp7hDUcHLmTC8dE9'],
+      logo_url: 'https://didx.net/static/media/logo.d4f6a758.png',
+      domain: 'https://didx.net',
+      role: ['issuer', 'verifier'],
+      credentials: [],
+      id: '9lagh5b6-7fc5-5b0b-bart-6561b9432eg5',
+      createdAt: '2023-10-10T14:43:36.083Z',
+      updatedAt: '2023-10-20T16:49:58.307Z',
     },
   ],
   schemas: [
