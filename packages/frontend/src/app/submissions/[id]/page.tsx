@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-
 import { backendUrl, betterFetch } from '@/api'
 import { Submission } from '@/common/interfaces'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
