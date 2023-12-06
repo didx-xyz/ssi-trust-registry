@@ -68,7 +68,7 @@ export const submissionsStub = [
     logo_url:
       'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
     domain: 'http://absa.co.za',
-    role: ['issuer'],
+    role: ['issuer', 'verifier'],
     credentials: [
       'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
     ],
@@ -76,7 +76,20 @@ export const submissionsStub = [
     id: '8f2917fa-139a-41eb-855e-245d6bed96df',
     createdAt: '2023-11-16T15:24:31.630Z',
     updatedAt: '2023-11-16T15:24:31.630Z',
-    state: 'pending',
+    state: 'approved',
+  },
+  {
+    name: 'DIDx',
+    dids: ['did:indy:sovrin:staging:L9YosTGp7hDUcHLmTC8dE9'],
+    logo_url: 'https://didx.net/static/media/logo.d4f6a758.png',
+    domain: 'https://didx.net',
+    role: ['issuer', 'verifier'],
+    credentials: [],
+    invitationId: '86fdhuyxG7w6dnk7sirmxen1',
+    id: '8f2917fa-139a-41eb-855e-245d6bed96df',
+    createdAt: '2023-10-16T15:24:31.630Z',
+    updatedAt: '2023-10-16T15:24:31.630Z',
+    state: 'approved',
   },
 ]
 
@@ -86,5 +99,11 @@ export const invitationsStub = [
     id: 's3gdwtyxt8w8dn87sbisxjn0',
     createdAt: '2023-11-16T14:50:02.207Z',
     entityId: '8fa665b6-7fc5-4b0b-baee-6221b1844ec8',
+  },
+  {
+    emailAddress: 'admin@didx.net',
+    id: '86fdhuyxG7w6dnk7sirmxen1',
+    createdAt: '2023-10-16T14:50:02.207Z',
+    entityId: '9lagh5b6-7fc5-5b0b-bart-6561b9432eg5',
   },
 ]
