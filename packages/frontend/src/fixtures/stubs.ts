@@ -53,7 +53,7 @@ export const trustRegistryStub = {
 export const submissionsStub = [
   {
     name: 'Absa',
-    dids: ['did:key:z6MkjBWPPa1njEKygyr3LR3pRKkqv714vyTkfnUdP6ToFSH5'],
+    dids: ['did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb'],
     logo_url:
       'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
     domain: 'http://absa.co.za',
