@@ -45,8 +45,11 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: backend
               containerPort: {{ .Values.config.port }}
+              protocol: TCP
+            - name: frontend
+              containerPort: 3001
               protocol: TCP
           envFrom:
             - secretRef:
@@ -66,15 +69,15 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: http
+              port: backend
           readinessProbe:
             httpGet:
               path: /health
-              port: http
+              port: backend
           startupProbe:
             httpGet:
               path: /health
-              port: http
+              port: backend
             failureThreshold: 30
             periodSeconds: 10
           resources:
