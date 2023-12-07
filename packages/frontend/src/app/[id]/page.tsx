@@ -64,7 +64,11 @@ export default async function EntityDetailsPage(params: {
                 </div>
                 <div className="flex flex-col gap-1">
                   <TextSm>Schema IDs</TextSm>
-                  <TextSmBold>{entity.name}</TextSmBold>
+                  <TextSmBold>
+                    {entity.credentials.map(
+                      (credentialSchema) => `${credentialSchema}\n`,
+                    )}
+                  </TextSmBold>
                 </div>
                 <div className="flex flex-col gap-1">
                   <TextSm>Logo URL (SVG format)</TextSm>
@@ -84,9 +88,13 @@ export default async function EntityDetailsPage(params: {
 }
 
 async function getEntityById(id: string) {
-  const trustRegistry = await betterFetch('GET', `${backendUrl}/api/registry`)
-  const entity = trustRegistry.entities.find(
-    (entity: Entity) => entity.id === id,
-  )
-  return entity || { id: null }
+  try {
+    const trustRegistry = await betterFetch('GET', `${backendUrl}/api/registry`)
+    const entity = trustRegistry.entities.find(
+      (entity: Entity) => entity.id === id,
+    )
+    return entity || { id: null }
+  } catch (error) {
+    return { id: null }
+  }
 }
