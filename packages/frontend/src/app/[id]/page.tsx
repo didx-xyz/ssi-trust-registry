@@ -3,7 +3,7 @@ import { Entity } from '@/common/interfaces'
 import { backendUrl, betterFetch } from '@/api'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import Image from 'next/image'
-import { Text4xlBold, TextSm, TextSmBold } from '@/common/components/Typography'
+import { Text3xlBold, TextSm, TextSmBold } from '@/common/components/Typography'
 
 export default async function EntityDetailsPage(params: {
   params: { id: string }
@@ -37,7 +37,7 @@ export default async function EntityDetailsPage(params: {
                   height={101}
                   alt="text"
                 />
-                <Text4xlBold>{entity.name}</Text4xlBold>
+                <Text3xlBold>{entity.name}</Text3xlBold>
               </div>
               <div className="flex flex-col gap-4 items-left text-left">
                 <div className="flex flex-col gap-1">
