@@ -35,7 +35,7 @@ export default async function EntityDetailsPage(params: {
                   src={entity.logo_url}
                   width={101}
                   height={101}
-                  alt="text"
+                  alt={entity.name}
                 />
                 <Text3xlBold>{entity.name}</Text3xlBold>
               </div>
