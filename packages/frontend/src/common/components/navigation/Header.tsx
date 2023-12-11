@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { NavigationItem } from '@/common/components/navigation/NavigationItem'
-import { betterFetch, getUser, logOut } from '@/api'
+import { backendUrl, betterFetch, getUser, logOut } from '@/api'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 
@@ -101,7 +101,7 @@ async function getPendingSubmissionsCount(): Promise<number> {
   try {
     const submissions = await betterFetch(
       'GET',
-      'http://localhost:3000/api/submissions',
+      `${backendUrl}/api/submissions`,
       {},
     )
     return submissions.filter(
