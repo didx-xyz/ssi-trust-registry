@@ -3,7 +3,7 @@ import { InviteForm } from './components/InviteForm'
 import { Protected } from '@/common/components/auth/Protected'
 import { Card } from '@/common/components/Card'
 import { PageContainer } from '@/common/components/PageContainer'
-import { AlignCenter } from '@/common/components/AlignCenter'
+import { AlignCardCenter } from '@/common/components/AlignCardCenter'
 
 export default function InvitePage() {
   return (
@@ -15,11 +15,11 @@ export default function InvitePage() {
             { href: '/invitations/new', title: 'Invite a company' },
           ]}
         />
-        <AlignCenter>
+        <AlignCardCenter>
           <Card>
             <InviteForm />
           </Card>
-        </AlignCenter>
+        </AlignCardCenter>
       </PageContainer>
     </Protected>
   )

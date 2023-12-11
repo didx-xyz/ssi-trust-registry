@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Card } from '@/common/components/Card'
 import { BreadcrumbsContainer } from '@/common/components/navigation/BreadcrumbsContainer'
-import { AlignCenter } from '@/common/components/AlignCenter'
+import { AlignCardCenter } from '@/common/components/AlignCardCenter'
 
 export function Unauthorized() {
   const router = useRouter()
@@ -14,7 +14,7 @@ export function Unauthorized() {
   return (
     <PageContainer>
       <BreadcrumbsContainer />
-      <AlignCenter>
+      <AlignCardCenter>
         <Card>
           <div className="flex flex-col items-center gap-y-8">
             <div className="flex flex-col items-center gap-y-2">
@@ -29,7 +29,7 @@ export function Unauthorized() {
             />
           </div>
         </Card>
-      </AlignCenter>
+      </AlignCardCenter>
     </PageContainer>
   )
 }

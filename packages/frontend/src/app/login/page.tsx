@@ -9,7 +9,7 @@ import { Text2xlBold } from '@/common/components/Typography'
 import React, { useEffect } from 'react'
 import { Card } from '@/common/components/Card'
 import { BreadcrumbsContainer } from '@/common/components/navigation/BreadcrumbsContainer'
-import { AlignCenter } from '@/common/components/AlignCenter'
+import { AlignCardCenter } from '@/common/components/AlignCardCenter'
 
 interface Inputs {
   email: string
@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <PageContainer>
       <BreadcrumbsContainer />
-      <AlignCenter>
+      <AlignCardCenter>
         <Card>
           <div className="flex flex-col items-center gap-y-8">
             <Text2xlBold>Admin Login</Text2xlBold>
@@ -66,7 +66,7 @@ export default function LoginPage() {
             </div>
           </div>
         </Card>
-      </AlignCenter>
+      </AlignCardCenter>
     </PageContainer>
   )
 }

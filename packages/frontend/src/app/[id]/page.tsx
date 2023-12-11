@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { Text2xlBold, TextSm, TextSmBold } from '@/common/components/Typography'
 import { Card } from '@/common/components/Card'
 import { PageContainer } from '@/common/components/PageContainer'
-import { AlignCenter } from '@/common/components/AlignCenter'
+import { AlignCardCenter } from '@/common/components/AlignCardCenter'
 
 export default async function EntityDetailsPage(params: {
   params: { id: string }
@@ -29,7 +29,7 @@ export default async function EntityDetailsPage(params: {
             : []),
         ]}
       />
-      <AlignCenter>
+      <AlignCardCenter>
         <Card>
           <div className="flex flex-col gap-8">
             {entity.id ? (
@@ -87,7 +87,7 @@ export default async function EntityDetailsPage(params: {
             )}
           </div>
         </Card>
-      </AlignCenter>
+      </AlignCardCenter>
     </PageContainer>
   )
 }

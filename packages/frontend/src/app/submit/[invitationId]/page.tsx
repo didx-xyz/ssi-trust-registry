@@ -4,7 +4,7 @@ import { Invitation } from '@/common/interfaces'
 import { SubmissionForm } from './components/SubmissionForm'
 import { Card } from '@/common/components/Card'
 import { PageContainer } from '@/common/components/PageContainer'
-import { AlignCenter } from '@/common/components/AlignCenter'
+import { AlignCardCenter } from '@/common/components/AlignCardCenter'
 
 export default async function SubmitPage({
   params,
@@ -25,7 +25,7 @@ export default async function SubmitPage({
           },
         ]}
       />
-      <AlignCenter>
+      <AlignCardCenter>
         <Card>
           {invitation ? (
             <SubmissionForm invitation={invitation} />
@@ -33,7 +33,7 @@ export default async function SubmitPage({
             <p>Unknown invitation link</p>
           )}
         </Card>
-      </AlignCenter>
+      </AlignCardCenter>
     </PageContainer>
   )
 }

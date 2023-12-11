@@ -4,7 +4,7 @@ interface Props {
   children?: ReactNode
 }
 
-export function AlignCenter({ children }: Props) {
+export function AlignCardCenter({ children }: Props) {
   return (
     <div className="flex flex-col w-full items-center mt-8">{children}</div>
   )
