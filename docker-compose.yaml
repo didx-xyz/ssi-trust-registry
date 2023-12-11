@@ -25,6 +25,8 @@ services:
       AUTH_ADMIN_PASSWORD_HASH: passwordhash
       FRONTEND_URL: http://localhost:3001
       SKIP_INITIAL_DATA_LOAD: true
+      LOGGER_LOG_LEVEL: debug
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:3000
     networks:
       - ssi-trust-registry
     depends_on:

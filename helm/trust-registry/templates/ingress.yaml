@@ -47,7 +47,14 @@ spec:
             service:
               name: {{ include "trust-registry.fullname" $ }}
               port:
-                number: {{ $.Values.service.port }}
+                number: {{ $.Values.service.frontend.port }}
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: {{ include "trust-registry.fullname" $ }}
+              port:
+                number: {{ $.Values.service.backend.port }}
       {{- else }}
         {{- range $paths := $rules.paths }}
         {{- if $paths.path }}
@@ -60,7 +67,7 @@ spec:
             service:
               name: {{ include "trust-registry.fullname" $ }}
               port:
-                number: {{ default $.Values.service.port $paths.port }}
+                number: {{ int64 (tpl (toString $paths.port) $) }}
         {{- end -}}
       {{- end -}}
     {{- end -}}

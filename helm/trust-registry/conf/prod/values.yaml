@@ -22,6 +22,10 @@ ingress:
     hosts:
       - host: trust-registry.didx.co.za
 
+config:
+  frontendUrl: https://trust-registry.didx.co.za
+  nextPublicBackendUrl: https://trust-registry.didx.co.za
+
 resources: {}
   # requests:
   #   cpu: 100m

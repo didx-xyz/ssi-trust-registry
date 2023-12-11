@@ -22,6 +22,10 @@ ingress:
     hosts:
       - host: ssi-trust-registry.cloudapi.dev.didxtech.com
 
+config:
+  frontendUrl: https://ssi-trust-registry.cloudapi.dev.didxtech.com
+  nextPublicBackendUrl: https://ssi-trust-registry.cloudapi.dev.didxtech.com
+
 resources: {}
   # requests:
   #   cpu: 100m
