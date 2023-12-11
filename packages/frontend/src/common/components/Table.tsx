@@ -25,7 +25,7 @@ export function Table({ children }: Props) {
 export function TableHeader({ children }: Props) {
   return (
     <thead>
-      <tr className="text-sm text-primary">{children}</tr>
+      <tr className="text-sm text-primary h-14">{children}</tr>
     </thead>
   )
 }

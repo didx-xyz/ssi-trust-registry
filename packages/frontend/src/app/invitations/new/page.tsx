@@ -1,22 +1,26 @@
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { InviteForm } from './components/InviteForm'
 import { Protected } from '@/common/components/auth/Protected'
+import { Card } from '@/common/components/Card'
+import { PageContainer } from '@/common/components/PageContainer'
+import { AlignCenter } from '@/common/components/AlignCenter'
 
 export default function InvitePage() {
   return (
     <Protected>
-      <main className="flex flex-col w-full items-center">
+      <PageContainer>
         <NavigationBreadcrumbs
           breadcrumbs={[
             { href: '/invitations', title: 'Invitations' },
             { href: '/invitations/new', title: 'Invite a company' },
           ]}
         />
-
-        <div className="card rounded-2xl p-16 bg-white text-center w-1/2 min-w-[40rem] max-w-4xl">
-          <InviteForm />
-        </div>
-      </main>
+        <AlignCenter>
+          <Card>
+            <InviteForm />
+          </Card>
+        </AlignCenter>
+      </PageContainer>
     </Protected>
   )
 }

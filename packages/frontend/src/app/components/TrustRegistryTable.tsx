@@ -30,9 +30,9 @@ export function TrustRegistryTable() {
   return (
     <Table>
       <TableHeader>
-        <th className="p-4 w-8/12">Company name</th>
-        <th className="p-4 w-2/12 text-right">Updated</th>
-        <th className="p-4 w-2/12 text-right">Registered</th>
+        <th className="w-8/12">Company name</th>
+        <th className="w-2/12 text-right">Updated</th>
+        <th className="w-2/12 text-right">Registered</th>
       </TableHeader>
       <TableBody>
         {entities.map((item: Entity, rowIndex: number) => {

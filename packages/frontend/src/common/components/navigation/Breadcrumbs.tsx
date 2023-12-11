@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { BreadcrumbsContainer } from '@/common/components/navigation/BreadcrumbsContainer'
 
 interface Props {
   breadcrumbs: Breadcrumb[]
@@ -11,7 +12,7 @@ type Breadcrumb = {
 
 export function NavigationBreadcrumbs({ breadcrumbs }: Props) {
   return (
-    <div className="text-sm breadcrumbs self-start pb-8">
+    <BreadcrumbsContainer>
       <ul>
         {breadcrumbs.map(({ href, title }, index) => {
           return (
@@ -24,6 +25,6 @@ export function NavigationBreadcrumbs({ breadcrumbs }: Props) {
           )
         })}
       </ul>
-    </div>
+    </BreadcrumbsContainer>
   )
 }

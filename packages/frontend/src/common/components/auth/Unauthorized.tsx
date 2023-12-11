@@ -4,15 +4,19 @@ import { Text2xlBold, TextSm } from '@/common/components/Typography'
 import { Button } from '@/common/components/Button'
 import { useRouter } from 'next/navigation'
 import { PageContainer } from '@/common/components/PageContainer'
+import { Card } from '@/common/components/Card'
+import { BreadcrumbsContainer } from '@/common/components/navigation/BreadcrumbsContainer'
+import { AlignCenter } from '@/common/components/AlignCenter'
 
 export function Unauthorized() {
   const router = useRouter()
 
   return (
     <PageContainer>
-      <div className="flex justify-center mt-14">
-        <div className="card card-compact bg-white shadow-xl p-16 w-full max-w-[585px]">
-          <div className="card-body items-center !p-0 gap-y-8">
+      <BreadcrumbsContainer />
+      <AlignCenter>
+        <Card>
+          <div className="flex flex-col items-center gap-y-8">
             <div className="flex flex-col items-center gap-y-2">
               <Text2xlBold>Unauthorized</Text2xlBold>
               <TextSm>You need to be authorized to access this page</TextSm>
@@ -24,8 +28,8 @@ export function Unauthorized() {
               }}
             />
           </div>
-        </div>
-      </div>
+        </Card>
+      </AlignCenter>
     </PageContainer>
   )
 }
