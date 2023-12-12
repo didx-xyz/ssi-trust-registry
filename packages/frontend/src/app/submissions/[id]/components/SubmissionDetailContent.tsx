@@ -9,7 +9,7 @@ import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDe
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 import { Card } from '@/common/components/Card'
-import { AlignCardCenter } from '@/common/components/AlignCardCenter'
+import { CardWrapper } from '@/common/components/CardWrapper'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<
@@ -64,7 +64,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
             : []),
         ]}
       />
-      <AlignCardCenter>
+      <CardWrapper>
         <Card>
           <div className="flex flex-col items-center gap-8">
             {isApproveSuccessful ? (
@@ -95,7 +95,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
             )}
           </div>
         </Card>
-      </AlignCardCenter>
+      </CardWrapper>
     </>
   )
 }

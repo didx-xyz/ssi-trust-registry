@@ -1,5 +1,5 @@
+import { ReactNode } from 'react'
 import Link from 'next/link'
-import { BreadcrumbsContainer } from '@/common/components/navigation/BreadcrumbsContainer'
 
 interface Props {
   breadcrumbs: Breadcrumb[]
@@ -8,6 +8,10 @@ interface Props {
 type Breadcrumb = {
   href: string
   title: string
+}
+
+interface BreadcrumbsContainerProps {
+  children?: ReactNode
 }
 
 export function NavigationBreadcrumbs({ breadcrumbs }: Props) {
@@ -26,5 +30,17 @@ export function NavigationBreadcrumbs({ breadcrumbs }: Props) {
         })}
       </ul>
     </BreadcrumbsContainer>
+  )
+}
+
+export function NavigationBreadcrumbsPlaceholder() {
+  return <BreadcrumbsContainer />
+}
+
+function BreadcrumbsContainer({ children }: BreadcrumbsContainerProps) {
+  return (
+    <div className="h-6 leading-6 text-sm breadcrumbs self-start p-0">
+      {children}
+    </div>
   )
 }

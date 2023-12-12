@@ -5,16 +5,16 @@ import { Button } from '@/common/components/Button'
 import { useRouter } from 'next/navigation'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Card } from '@/common/components/Card'
-import { BreadcrumbsContainer } from '@/common/components/navigation/BreadcrumbsContainer'
-import { AlignCardCenter } from '@/common/components/AlignCardCenter'
+import { NavigationBreadcrumbsPlaceholder } from '@/common/components/navigation/Breadcrumbs'
+import { CardWrapper } from '@/common/components/CardWrapper'
 
 export function Unauthorized() {
   const router = useRouter()
 
   return (
     <PageContainer>
-      <BreadcrumbsContainer />
-      <AlignCardCenter>
+      <NavigationBreadcrumbsPlaceholder />
+      <CardWrapper>
         <Card>
           <div className="flex flex-col items-center gap-y-8">
             <div className="flex flex-col items-center gap-y-2">
@@ -29,7 +29,7 @@ export function Unauthorized() {
             />
           </div>
         </Card>
-      </AlignCardCenter>
+      </CardWrapper>
     </PageContainer>
   )
 }
