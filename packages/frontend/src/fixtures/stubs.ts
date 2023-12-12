@@ -77,6 +77,9 @@ export const submissionsStub = [
     role: ['issuer', 'verifier'],
     credentials: [
       'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC/1.0.0',
+      'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC-mobile/1.0.0',
+      'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC-residence/7.0.0',
+      'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/test-absa-bank-account/1.0.0',
     ],
     invitationId: 's3gdwtyxt8w8dn87sbisxjn0',
     id: '8f2917fa-139a-41eb-855e-245d6bed96df',
