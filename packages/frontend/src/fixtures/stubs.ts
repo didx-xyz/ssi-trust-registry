@@ -2,7 +2,10 @@ export const trustRegistryStub = {
   entities: [
     {
       name: 'Absa',
-      dids: ['did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb'],
+      dids: [
+        'did:indy:sovrin:2NPnMDv5Lh57gVZ3p3SYu3',
+        'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb',
+      ],
       logo_url:
         'https://s3.eu-central-1.amazonaws.com/builds.eth.company/absa.svg',
       domain: 'www.absa.africa',
@@ -80,7 +83,7 @@ export const submissionsStub = [
   },
   {
     name: 'DIDx',
-    dids: ['did:indy:sovrin:staging:L9YosTGp7hDUcHLmTC8dE9'],
+    dids: ['did:indy:sovrin:builder:L9YosTGp7hDUcHLmTC8dE9'],
     logo_url: 'https://didx.net/static/media/logo.d4f6a758.png',
     domain: 'https://didx.net',
     role: ['issuer', 'verifier'],
