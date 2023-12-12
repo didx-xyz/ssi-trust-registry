@@ -1,7 +1,11 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 interface Props {
   children: React.ReactNode
+}
+
+interface CardWrapperProps {
+  children?: ReactNode
 }
 
 export function Card({ children }: Props) {
@@ -10,4 +14,8 @@ export function Card({ children }: Props) {
       {children}
     </div>
   )
+}
+
+export function CardWrapper({ children }: CardWrapperProps) {
+  return <div className="flex justify-center mt-8">{children}</div>
 }

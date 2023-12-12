@@ -7,9 +7,8 @@ import { Button } from '@/common/components/Button'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Text2xlBold } from '@/common/components/Typography'
 import React, { useEffect } from 'react'
-import { Card } from '@/common/components/Card'
+import { Card, CardWrapper } from '@/common/components/Card'
 import { NavigationBreadcrumbsPlaceholder } from '@/common/components/navigation/Breadcrumbs'
-import { CardWrapper } from '@/common/components/CardWrapper'
 
 interface Inputs {
   email: string

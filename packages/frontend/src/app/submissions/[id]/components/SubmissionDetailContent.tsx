@@ -8,8 +8,7 @@ import { RejectContents } from '@/app/submissions/[id]/components/RejectContents
 import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDetail'
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
-import { Card } from '@/common/components/Card'
-import { CardWrapper } from '@/common/components/CardWrapper'
+import { Card, CardWrapper } from '@/common/components/Card'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<

@@ -4,9 +4,8 @@ import { backendUrl, betterFetch } from '@/api'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import Image from 'next/image'
 import { Text2xlBold, TextSm, TextSmBold } from '@/common/components/Typography'
-import { Card } from '@/common/components/Card'
+import { Card, CardWrapper } from '@/common/components/Card'
 import { PageContainer } from '@/common/components/PageContainer'
-import { CardWrapper } from '@/common/components/CardWrapper'
 
 export default async function EntityDetailsPage(params: {
   params: { id: string }
