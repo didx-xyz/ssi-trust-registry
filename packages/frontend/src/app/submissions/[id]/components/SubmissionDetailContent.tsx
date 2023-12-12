@@ -9,7 +9,6 @@ import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDe
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 import { Card } from '@/common/components/Card'
-import { PageContainer } from '@/common/components/PageContainer'
 import { AlignCardCenter } from '@/common/components/AlignCardCenter'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
@@ -51,7 +50,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
     getSubmission(id).then(setSubmission)
   }, [id])
   return (
-    <PageContainer>
+    <>
       <NavigationBreadcrumbs
         breadcrumbs={[
           { href: '/submissions', title: 'Submissions' },
@@ -97,7 +96,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
           </div>
         </Card>
       </AlignCardCenter>
-    </PageContainer>
+    </>
   )
 }
 
