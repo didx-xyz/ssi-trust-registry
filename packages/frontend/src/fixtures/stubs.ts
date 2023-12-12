@@ -87,8 +87,8 @@ export const submissionsStub = [
   {
     name: 'DIDx',
     dids: ['did:indy:sovrin:builder:L9YosTGp7hDUcHLmTC8dE9'],
-    logo_url: 'https://didx.net/static/media/logo.d4f6a758.png',
-    domain: 'https://didx.net',
+    logo_url: 'https://www.safbc.co.za/logos/didx.png',
+    domain: 'https://www.didx.co.za',
     role: ['issuer', 'verifier'],
     credentials: [],
     invitationId: '86fdhuyxG7w6dnk7sirmxen1',
