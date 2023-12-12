@@ -20,8 +20,8 @@ export const trustRegistryStub = {
     {
       name: 'DIDx',
       dids: ['did:indy:sovrin:staging:L9YosTGp7hDUcHLmTC8dE9'],
-      logo_url: 'https://didx.net/static/media/logo.d4f6a758.png',
-      domain: 'https://didx.net',
+      logo_url: 'https://www.safbc.co.za/logos/didx.png',
+      domain: 'https://www.didx.co.za',
       role: ['issuer', 'verifier'],
       credentials: [],
       id: '9lagh5b6-7fc5-5b0b-bart-6561b9432eg5',
@@ -47,7 +47,7 @@ export const trustRegistryStub = {
     {
       schemaId:
         'did:indy:sovrin:staging:C279iyCR8wtKiPC8o9iPmb/anoncreds/v0/SCHEMA/e-KYC-residence/7.0.0',
-      name: 'Digital Identity',
+      name: 'Residence Credential',
       createdAt: '2023-12-11T14:41:49.143Z',
       updatedAt: '2023-12-21T16:49:09.838Z',
     },
