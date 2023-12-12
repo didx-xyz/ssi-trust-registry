@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 
-interface Props {
+interface CardProps {
   children: React.ReactNode
 }
 
@@ -8,7 +8,7 @@ interface CardWrapperProps {
   children?: ReactNode
 }
 
-export function Card({ children }: Props) {
+export function Card({ children }: CardProps) {
   return (
     <div className="card p-16 bg-white max-w-[40rem] w-full shadow-xl">
       {children}

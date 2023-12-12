@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import Link from 'next/link'
 
-interface Props {
+interface NavigationBreadcrumbsProps {
   breadcrumbs: Breadcrumb[]
 }
 
@@ -14,7 +14,9 @@ interface BreadcrumbsContainerProps {
   children?: ReactNode
 }
 
-export function NavigationBreadcrumbs({ breadcrumbs }: Props) {
+export function NavigationBreadcrumbs({
+  breadcrumbs,
+}: NavigationBreadcrumbsProps) {
   return (
     <BreadcrumbsContainer>
       <ul>
