@@ -22,6 +22,10 @@ COPY ./packages/backend/package.json ./packages/backend/
 RUN yarn install --frozen-lockfile
 
 COPY . .
+ARG NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 RUN yarn build
 
 ARG NODE_ENV=production

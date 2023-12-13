@@ -13,5 +13,6 @@
 !/packages/**/src
 !/packages/frontend/public
 !/packages/frontend/*.config.*
+!/packages/backend/package.json
 !/packages/**/package.json
 !/packages/**/tsconfig.json

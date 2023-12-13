@@ -28,7 +28,7 @@ We require fully qualified schemas. You can find how the unqualified should be t
 Start the database, you can use docker for that in the following way:
 
 ```sh
-docker run --name mongo -p 4000:27017 -d mongo:6.0
+docker run --name mongo -p 4000:27017 -d mongo:7.0
 ```
 
 You can change port but don't forget to update the `.env`.
@@ -51,7 +51,7 @@ cd packages/backend
 
 Create `.env`
 
-```
+```sh
 cp .env.example .env
 ```
 
@@ -69,7 +69,7 @@ cd packages/frontend
 
 Create `.env`
 
-```
+```sh
 cp .env.example .env
 ```
 
@@ -86,24 +86,34 @@ Start both
 Build Docker image
 
 ```sh
-docker build -t local/ssi-trust-registry .
+docker build --build-arg NEXT_PUBLIC_BACKEND_URL='http://localhost:3000' -t ssi-trust-registry .
 ```
 
-Create common `.env` file from the `packages/frontend/.env` and `packages/backend/.env`:
+The trust-registry docker container needs to communicate with the mongo container, so we have to set `host.docker.internal` to mongo URL env:
 
-```sh
-cat packages/backend/.env > .env && cat packages/frontend/.env >> .env
+`./packages/backend/.env`
+
+```
+DB_CONNECTION_STRING=mongodb://host.docker.internal:4000
 ```
 
 Run Docker container
 
 ```sh
-docker run -d -p 3000:3000 -p 3001:3001 --name trust-registry --env-file .env local/ssi-trust-registry
+docker run -d -p 3000:3000 -p 3001:3001 --name trust-registry --env-file ./packages/backend/.env ssi-trust-registry
 ```
 
 ### Run with Docker Compose
 
-...
+First, we have tag the image with `local` prefix because it's the prefix used in `docker-compose.yaml`
+
+```sh
+docker tag ssi-trust-registry local/ssi-trust-registry
+```
+
+```sh
+docker-compose up -d
+```
 
 ### Run Tests
 
@@ -121,6 +131,6 @@ docker run --name mongo -p 4000:27017 -d mongo:6.0
 
 Now, you can run tests:
 
-```
+```sh
 yarn test
 ```
