@@ -19,11 +19,11 @@ export async function InvitationsTable() {
   return (
     <Table>
       <TableHeader>
-        <th className="p-4 w-5/12">Email Address</th>
-        <th className="p-4 w-2/12 text-right">Invitation Link</th>
-        <th className="p-4 w-2/12 text-right">Latest Submission</th>
-        <th className="p-4 w-2/12 text-right">Entity</th>
-        <th className="p-4 w-1/12 text-right">Invitation Sent</th>
+        <th className="w-5/12">Email Address</th>
+        <th className="w-2/12 text-right">Invitation Link</th>
+        <th className="w-2/12 text-right">Latest Submission</th>
+        <th className="w-2/12 text-right">Entity</th>
+        <th className="w-1/12 text-right">Invitation Sent</th>
       </TableHeader>
       <TableBody>
         {invitations.map((invitation, rowIndex) => {

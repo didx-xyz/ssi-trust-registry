@@ -85,7 +85,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
   }
 
   return !isSubmitSuccessful ? (
-    <div>
+    <div className="text-center">
       <div className="mb-2">
         <Text2xlBold>Submission Form</Text2xlBold>
       </div>
@@ -162,7 +162,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
   ) : (
     <div className="flex flex-col gap-8 justify-center items-center text-primary">
       <Success />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-center">
         <Text2xlBold>Successfully submitted</Text2xlBold>
         <TextSm>
           You will receive an email with approval or rejection within 24 hours.

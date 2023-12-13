@@ -40,11 +40,11 @@ export function SubmissionsTable() {
 
       <Table>
         <TableHeader>
-          <th className="p-4 w-5/12">Company name</th>
-          <th className="p-4 w-1/12 text-right">State</th>
-          <th className="p-4 w-2/12 text-right">Updated</th>
-          <th className="p-4 w-2/12 text-right">Submitted</th>
-          <th className="p-4 w-2/12 text-right">Email</th>
+          <th className="w-5/12">Company name</th>
+          <th className="w-1/12 text-right">State</th>
+          <th className="w-2/12 text-right">Updated</th>
+          <th className="w-2/12 text-right">Submitted</th>
+          <th className="w-2/12 text-right">Email</th>
         </TableHeader>
         <TableBody>
           {submissions

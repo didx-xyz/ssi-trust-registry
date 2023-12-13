@@ -8,6 +8,7 @@ import { RejectContents } from '@/app/submissions/[id]/components/RejectContents
 import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDetail'
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
+import { Card, CardWrapper } from '@/common/components/Card'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<
@@ -48,7 +49,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
     getSubmission(id).then(setSubmission)
   }, [id])
   return (
-    <main className="flex flex-col w-full items-center">
+    <>
       <NavigationBreadcrumbs
         breadcrumbs={[
           { href: '/submissions', title: 'Submissions' },
@@ -62,37 +63,39 @@ export function SubmissionDetailContent({ id }: { id: string }) {
             : []),
         ]}
       />
-      <div className="card rounded-2xl p-16 bg-white text-center w-1/2 min-w-[40rem] max-w-4xl">
-        <div className="flex flex-col items-center gap-8">
-          {isApproveSuccessful ? (
-            <ApproveContents submission={submission} />
-          ) : isRejectSuccessful ? (
-            <RejectContents submission={submission} />
-          ) : (
-            <>
-              <SubmissionDetail submission={submission} />
-              {submission?.state === 'pending' && (
-                <div className="card-actions gap-4">
-                  <Button
-                    disabled={isApproving || isRejecting}
-                    type="secondary"
-                    loading={isRejecting}
-                    onClick={handleReject(onRejectSubmission)}
-                    title="Reject"
-                  />
-                  <Button
-                    disabled={isApproving || isRejecting}
-                    loading={isApproving}
-                    onClick={handleApprove(onApproveSubmission)}
-                    title="Approve"
-                  />
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    </main>
+      <CardWrapper>
+        <Card>
+          <div className="flex flex-col items-center gap-8">
+            {isApproveSuccessful ? (
+              <ApproveContents submission={submission} />
+            ) : isRejectSuccessful ? (
+              <RejectContents submission={submission} />
+            ) : (
+              <>
+                <SubmissionDetail submission={submission} />
+                {submission?.state === 'pending' && (
+                  <div className="card-actions gap-4">
+                    <Button
+                      disabled={isApproving || isRejecting}
+                      type="secondary"
+                      loading={isRejecting}
+                      onClick={handleReject(onRejectSubmission)}
+                      title="Reject"
+                    />
+                    <Button
+                      disabled={isApproving || isRejecting}
+                      loading={isApproving}
+                      onClick={handleApprove(onApproveSubmission)}
+                      title="Approve"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </Card>
+      </CardWrapper>
+    </>
   )
 }
 

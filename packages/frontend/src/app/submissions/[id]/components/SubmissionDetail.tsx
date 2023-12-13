@@ -11,7 +11,7 @@ export function SubmissionDetail({
   return (
     submission && (
       <>
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 text-center">
           <Image
             className="mr-2"
             src={submission.logo_url}

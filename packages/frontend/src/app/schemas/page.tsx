@@ -23,10 +23,10 @@ export default async function Schemas() {
       </PageHeading>
       <Table>
         <TableHeader>
-          <th className="p-4 w-3/12">Name</th>
-          <th className="p-4 w-5/12">Schema</th>
-          <th className="p-4 w-2/12 text-right">Created</th>
-          <th className="p-4 w-2/12 text-right">Updated</th>
+          <th className="w-3/12">Name</th>
+          <th className="w-5/12">Schema</th>
+          <th className="w-2/12 text-right">Created</th>
+          <th className="w-2/12 text-right">Updated</th>
         </TableHeader>
         <TableBody>
           {schemas.map((item: Schema, rowIndex: number) => {

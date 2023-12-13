@@ -11,7 +11,7 @@ export function RejectContents({
   return (
     <>
       <Failure />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-center">
         <Text2xlBold>Rejected</Text2xlBold>
         <TextSm>{submission?.name} will receive an email with rejection</TextSm>
       </div>

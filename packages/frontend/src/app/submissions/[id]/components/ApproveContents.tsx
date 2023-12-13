@@ -11,7 +11,7 @@ export function ApproveContents({
   return (
     <>
       <Success />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-center">
         <Text2xlBold>Approved</Text2xlBold>
         <TextSm>{submission?.name} will receive an email with approval</TextSm>
       </div>

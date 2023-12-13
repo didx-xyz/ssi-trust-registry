@@ -2,6 +2,8 @@ import { getInvitation } from '@/api'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { Invitation } from '@/common/interfaces'
 import { SubmissionForm } from './components/SubmissionForm'
+import { Card, CardWrapper } from '@/common/components/Card'
+import { PageContainer } from '@/common/components/PageContainer'
 
 export default async function SubmitPage({
   params,
@@ -12,7 +14,7 @@ export default async function SubmitPage({
   console.log(invitationId)
   const invitation = await getInvitationFromId(invitationId)
   return (
-    <main className="flex flex-col w-full items-center">
+    <PageContainer>
       <NavigationBreadcrumbs
         breadcrumbs={[
           { href: '/', title: 'Trusted Entities' },
@@ -22,14 +24,16 @@ export default async function SubmitPage({
           },
         ]}
       />
-      <div className="card rounded-2xl p-16 bg-white text-center w-1/2 min-w-[40rem] max-w-4xl">
-        {invitation ? (
-          <SubmissionForm invitation={invitation} />
-        ) : (
-          <p>Unknown invitation link</p>
-        )}
-      </div>
-    </main>
+      <CardWrapper>
+        <Card>
+          {invitation ? (
+            <SubmissionForm invitation={invitation} />
+          ) : (
+            <p>Unknown invitation link</p>
+          )}
+        </Card>
+      </CardWrapper>
+    </PageContainer>
   )
 }
 

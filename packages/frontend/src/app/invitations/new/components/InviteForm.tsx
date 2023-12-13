@@ -39,7 +39,7 @@ export function InviteForm() {
 
   return !isSubmitSuccessful ? (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-center">
         <Text2xlBold>Invite a company</Text2xlBold>
         <TextSm>
           Enter email address of the company&apos;s representative, that you
@@ -66,7 +66,7 @@ export function InviteForm() {
   ) : (
     <div className="flex flex-col gap-8 justify-center items-center text-primary">
       <Success />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-center">
         <Text2xlBold>Invitation sent</Text2xlBold>
         <TextSm>
           Invitation was successfully sent to {getValues('emailAddress')}

@@ -1,6 +1,7 @@
+import { ReactNode } from 'react'
 import Link from 'next/link'
 
-interface Props {
+interface NavigationBreadcrumbsProps {
   breadcrumbs: Breadcrumb[]
 }
 
@@ -9,9 +10,15 @@ type Breadcrumb = {
   title: string
 }
 
-export function NavigationBreadcrumbs({ breadcrumbs }: Props) {
+interface BreadcrumbsContainerProps {
+  children?: ReactNode
+}
+
+export function NavigationBreadcrumbs({
+  breadcrumbs,
+}: NavigationBreadcrumbsProps) {
   return (
-    <div className="text-sm breadcrumbs self-start pb-8">
+    <BreadcrumbsContainer>
       <ul>
         {breadcrumbs.map(({ href, title }, index) => {
           return (
@@ -24,6 +31,18 @@ export function NavigationBreadcrumbs({ breadcrumbs }: Props) {
           )
         })}
       </ul>
+    </BreadcrumbsContainer>
+  )
+}
+
+export function NavigationBreadcrumbsPlaceholder() {
+  return <BreadcrumbsContainer />
+}
+
+function BreadcrumbsContainer({ children }: BreadcrumbsContainerProps) {
+  return (
+    <div className="h-6 leading-6 text-sm breadcrumbs self-start p-0">
+      {children}
     </div>
   )
 }
