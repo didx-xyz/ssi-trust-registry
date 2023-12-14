@@ -1,5 +1,9 @@
 import type { NextFunction, Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
+import jwt, {
+  JsonWebTokenError,
+  NotBeforeError,
+  TokenExpiredError,
+} from 'jsonwebtoken'
 import { config } from '../config'
 
 export interface RequestWithToken extends Request {
@@ -14,7 +18,20 @@ export function authenticate(
   const { token } = req.cookies
   if (token) {
     const secretKey = config.auth.jwtSecretKey
-    const verification = jwt.verify(token, secretKey)
+    let verification
+
+    try {
+      verification = jwt.verify(token, secretKey)
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        res.status(403).json({ error: 'Your token has expired.' })
+      } else if (error instanceof NotBeforeError) {
+        res.status(403).json({ error: 'Current time is before the nbf claim.' })
+      } else if (error instanceof JsonWebTokenError) {
+        res.status(403).json({ error: 'Invalid signature.' })
+      }
+    }
+
     if (typeof verification === 'string') {
       next(
         new Error(`Malformed JWT token: received 'string', expected 'object'`),
