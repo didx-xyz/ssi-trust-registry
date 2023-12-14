@@ -18,10 +18,9 @@ export function authenticate(
   const { token } = req.cookies
   if (token) {
     const secretKey = config.auth.jwtSecretKey
-    let verification
 
     try {
-      verification = jwt.verify(token, secretKey)
+      const verification = jwt.verify(token, secretKey)
 
       if (typeof verification === 'string') {
         next(
