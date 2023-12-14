@@ -22,6 +22,17 @@ export function authenticate(
 
     try {
       verification = jwt.verify(token, secretKey)
+
+      if (typeof verification === 'string') {
+        next(
+          new Error(
+            `Malformed JWT token: received 'string', expected 'object'`,
+          ),
+        )
+      } else {
+        ;(req as RequestWithToken).jwtPayload = verification
+        next()
+      }
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         res.status(403).json({ error: 'Your token has expired.' })
@@ -32,15 +43,6 @@ export function authenticate(
       } else {
         res.status(403).json({ error: 'Unknown token error.' })
       }
-    }
-
-    if (typeof verification === 'string') {
-      next(
-        new Error(`Malformed JWT token: received 'string', expected 'object'`),
-      )
-    } else {
-      ;(req as RequestWithToken).jwtPayload = verification
-      next()
     }
   } else {
     res.status(403).json({ error: 'You are not logged in.' })
