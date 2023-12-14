@@ -93,7 +93,10 @@ export default async function EntityDetailsPage(params: {
 
 async function getEntityById(id: string) {
   try {
-    const trustRegistry = await betterFetch('GET', `${backendUrl}/api/registry`)
+    const trustRegistry = await betterFetch(
+      'GET',
+      `${await backendUrl}/api/registry`,
+    )
     const entity = trustRegistry.entities.find(
       (entity: Entity) => entity.id === id,
     )

@@ -87,7 +87,7 @@ export function InviteForm() {
 async function invite({ emailAddress }: { emailAddress: string }) {
   return betterFetch(
     'POST',
-    `${backendUrl}/api/invitations`,
+    `${await backendUrl}/api/invitations`,
     {},
     { emailAddress },
   )

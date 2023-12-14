@@ -1,6 +1,35 @@
 import { BaseError } from 'make-error'
 
-export const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+const isBuilding = process.env.CI === 'true'
+
+export const backendUrl =
+  process.env.NEXT_PUBLIC_BACKEND_URL ??
+  fetchClientEnv().then((env) => env?.NEXT_PUBLIC_BACKEND_URL)
+
+export async function fetchClientEnv() {
+  try {
+    if (!isBuilding) {
+      let resp: Response
+      if (typeof window === 'undefined') {
+        // Running on the server
+        resp = await fetch('http://127.0.0.1:3000/api/config')
+      } else {
+        // Running in the browser
+        resp = await fetch('/api/config')
+      }
+      if (resp.ok) {
+        const data = await resp.json()
+        console.debug('Client environment variables:', data)
+        return data
+      } else {
+        console.error('Failed to fetch client environment variables')
+      }
+    }
+    return {}
+  } catch (error) {
+    console.error('Error fetching client environment variables:', error)
+  }
+}
 
 export interface LoginForm {
   email: string
@@ -13,22 +42,34 @@ export async function getInvitation({
   invitationId: string
 }) {
   console.log(invitationId)
-  return betterFetch('GET', `${backendUrl}/api/invitations/${invitationId}`)
+  return betterFetch(
+    'GET',
+    `${await backendUrl}/api/invitations/${invitationId}`,
+  )
 }
 
 export async function logIn(credentials: LoginForm) {
-  return betterFetch('POST', `${backendUrl}/api/auth/login`, {}, credentials)
+  return betterFetch(
+    'POST',
+    `${await backendUrl}/api/auth/login`,
+    {},
+    credentials,
+  )
 }
 
 export async function logOut() {
-  return betterFetch('GET', `${backendUrl}/api/auth/logout`)
+  return betterFetch('GET', `${await backendUrl}/api/auth/logout`)
 }
 
 export async function getUser(token?: string) {
   try {
-    const payload = await betterFetch('GET', `${backendUrl}/api/auth/whoami`, {
-      Cookie: `token=${token}`,
-    })
+    const payload = await betterFetch(
+      'GET',
+      `${await backendUrl}/api/auth/whoami`,
+      {
+        Cookie: `token=${token}`,
+      },
+    )
     return payload
   } catch (error) {
     console.error(error)

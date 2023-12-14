@@ -185,7 +185,7 @@ export async function submit(
 ) {
   return betterFetch(
     'POST',
-    `${backendUrl}/api/submissions`,
+    `${await backendUrl}/api/submissions`,
     {},
     { ...submission, invitationId },
   )

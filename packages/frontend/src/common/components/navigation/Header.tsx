@@ -101,7 +101,7 @@ async function getPendingSubmissionsCount(): Promise<number> {
   try {
     const submissions = await betterFetch(
       'GET',
-      `${backendUrl}/api/submissions`,
+      `${await backendUrl}/api/submissions`,
       {},
     )
     return submissions.filter(

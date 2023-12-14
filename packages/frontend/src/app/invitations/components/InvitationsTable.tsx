@@ -86,14 +86,14 @@ async function getInvitationsWithLatestSubmission(
   }
   const invitations = await betterFetch(
     'GET',
-    `${backendUrl}/api/invitations`,
+    `${await backendUrl}/api/invitations`,
     { Cookie: `token=${token}` },
   )
   const getInvitationsWithLatestSubmission = await Promise.all(
     invitations.map(async (invitation: Invitation) => {
       const submissions: Submission[] = await betterFetch(
         'GET',
-        `${backendUrl}/api/invitations/${invitation.id}/submissions`,
+        `${await backendUrl}/api/invitations/${invitation.id}/submissions`,
         { Cookie: `token=${token}` },
       )
       if (submissions.length) {

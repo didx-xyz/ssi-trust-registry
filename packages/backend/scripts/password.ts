@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 
 async function main() {
-  const password = ''
+  const password = 'password'
   const hash = await hashPassword(password)
   const match = await verifyPassword(password, hash)
   if (!match) throw new Error('Password verification failed.')

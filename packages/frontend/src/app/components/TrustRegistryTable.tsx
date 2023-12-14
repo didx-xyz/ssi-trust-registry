@@ -67,6 +67,6 @@ export function TrustRegistryTable() {
 }
 
 async function getEntities() {
-  const response = await betterFetch('GET', `${backendUrl}/api/registry`)
+  const response = await betterFetch('GET', `${await backendUrl}/api/registry`)
   return response.entities
 }

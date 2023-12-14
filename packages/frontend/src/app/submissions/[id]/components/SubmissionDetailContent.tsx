@@ -104,28 +104,28 @@ async function getSubmission(
 ): Promise<Submission & { emailAddress: string }> {
   const submission = await betterFetch(
     'GET',
-    `${backendUrl}/api/submissions/${id}`,
+    `${await backendUrl}/api/submissions/${id}`,
   )
   const invitation = await betterFetch(
     'GET',
-    `${backendUrl}/api/invitations/${submission.invitationId}`,
+    `${await backendUrl}/api/invitations/${submission.invitationId}`,
   )
   return { ...submission, emailAddress: invitation.emailAddress }
 }
 
-function approveSubmission(submissionId: string) {
+async function approveSubmission(submissionId: string) {
   return betterFetch(
     'PUT',
-    `${backendUrl}/api/submissions/${submissionId}`,
+    `${await backendUrl}/api/submissions/${submissionId}`,
     {},
     { state: 'approved' },
   )
 }
 
-function rejectSubmission(submissionId: string) {
+async function rejectSubmission(submissionId: string) {
   return betterFetch(
     'PUT',
-    `${backendUrl}/api/submissions/${submissionId}`,
+    `${await backendUrl}/api/submissions/${submissionId}`,
     {},
     { state: 'rejected' },
   )

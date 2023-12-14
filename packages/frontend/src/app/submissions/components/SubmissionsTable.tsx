@@ -100,7 +100,10 @@ export function SubmissionsTable() {
 }
 
 async function getSubmissionsWithEmails(): Promise<SubmissionWithEmail[]> {
-  const submissions = await betterFetch('GET', `${backendUrl}/api/submissions`)
+  const submissions = await betterFetch(
+    'GET',
+    `${await backendUrl}/api/submissions`,
+  )
   const submissionsWithEmails = await Promise.all(
     submissions.map(async (submission: Submission) => {
       const invitation = await getInvitation({
