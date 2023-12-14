@@ -29,6 +29,8 @@ export function authenticate(
         res.status(403).json({ error: 'Current time is before the nbf claim.' })
       } else if (error instanceof JsonWebTokenError) {
         res.status(403).json({ error: 'Invalid signature.' })
+      } else {
+        res.status(403).json({ error: 'Unknown token error.' })
       }
     }
 
