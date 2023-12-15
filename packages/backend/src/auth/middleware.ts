@@ -20,7 +20,6 @@ export function authenticate(
     const secretKey = config.auth.jwtSecretKey
     try {
       const verification = jwt.verify(token, secretKey)
-
       if (typeof verification === 'string') {
         next(
           new Error(
