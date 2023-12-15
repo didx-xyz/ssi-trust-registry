@@ -1,6 +1,7 @@
 import { BaseError } from 'make-error'
+import { env } from 'next-runtime-env'
 
-export const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+export const backendUrl = env('NEXT_PUBLIC_BACKEND_URL')
 
 export interface LoginForm {
   email: string

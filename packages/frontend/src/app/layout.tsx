@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import { PublicEnvScript } from 'next-runtime-env'
 import { Roboto } from 'next/font/google'
 import { Header } from '@/common/components/navigation/Header'
 
@@ -21,6 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <PublicEnvScript />
+      </head>
       <body
         className={
           roboto.className + ' min-h-screen h-fit bg-light text-primary'
