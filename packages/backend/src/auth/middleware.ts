@@ -38,10 +38,10 @@ export function authenticate(
       } else if (error instanceof JsonWebTokenError) {
         res.status(403).json({ error: 'Invalid signature.' })
       } else {
-        res.status(403).json({ error: 'Unknown token error.' })
+        next(error)
       }
     }
   } else {
-    res.status(403).json({ error: 'You are not logged in.' })
+    res.status(401).json({ error: 'You are not logged in.' })
   }
 }
