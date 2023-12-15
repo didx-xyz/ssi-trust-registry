@@ -18,7 +18,6 @@ export function authenticate(
   const { token } = req.cookies
   if (token) {
     const secretKey = config.auth.jwtSecretKey
-
     try {
       const verification = jwt.verify(token, secretKey)
 
