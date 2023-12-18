@@ -62,10 +62,10 @@ describe('auth', () => {
     ).toBe(true)
   })
 
-  test('access protected endpoint returns 403 Forbidden', async () => {
+  test('unauthorized access to protected endpoint returns 401 Unauthorized', async () => {
     const response = await fetch(`${backendUrl}/api/auth/whoami`)
     const result = await response.json()
-    expect(response.status).toEqual(403)
+    expect(response.status).toEqual(401)
     expect(result.error).toEqual('You are not logged in.')
   })
 
