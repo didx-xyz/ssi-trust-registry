@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@aries-framework/askar": "0.4.1",
-    "@aries-framework/core": "0.4.1",
+    "@aries-framework/core": "0.4.2",
     "@aries-framework/indy-vdr": "0.4.1",
     "@aries-framework/node": "0.4.1",
     "@asteasolutions/zod-to-openapi": "^6.2.0",
