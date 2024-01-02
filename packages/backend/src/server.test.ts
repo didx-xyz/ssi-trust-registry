@@ -294,13 +294,23 @@ describe('api', () => {
       )
       const submissionResponse = await submissionResult.json()
       const approvalResult = await put(
-        `http://localhost:3000/api/submissions/${submissionResponse.id}`,
+        `http://localhost:${port}/api/submissions/${submissionResponse.id}`,
         { state: 'approved' },
         cookie,
       )
       const approvalResponse = await approvalResult.json()
       expect(approvalResponse.submission.state).toEqual('approved')
       expect(approvalResponse.entity).toBeDefined()
+
+      // Check that invitation is now associated with entity
+      const invitationResponse = await fetch(
+        `http://localhost:${port}/api/invitations/${invitation.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      const updatedInvitation = await invitationResponse.json()
+      expect(updatedInvitation.entityId).toEqual(approvalResponse.entity.id)
 
       // Check that the entity is added to the registry
       const registry = await fetchRegistry()
@@ -323,7 +333,7 @@ describe('api', () => {
       )
       const response = await submissionResult.json()
       const rejectionResult = await put(
-        `http://localhost:3000/api/submissions/${response.id}`,
+        `http://localhost:${port}/api/submissions/${response.id}`,
         { state: 'rejected' },
         cookie,
       )

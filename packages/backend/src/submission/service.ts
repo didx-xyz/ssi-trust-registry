@@ -199,6 +199,10 @@ async function approveSubmission(
       updatedAt: new Date().toISOString(),
     }
     entity = await entityRepository.addEntity(newEntity)
+    await invitationRepository.updateInvitation({
+      ...invitation,
+      entityId: entity.id,
+    })
     logger.info(`Entity ${entity.id} has been inserted to the database`)
   } else {
     const existingEntity = await entityRepository.findById(invitation.entityId)
