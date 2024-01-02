@@ -1,5 +1,5 @@
 import partial from 'lodash.partial'
-import { Collection, Db } from 'mongodb'
+import { ClientSession, Collection, Db } from 'mongodb'
 import { createLogger } from '../logger'
 import { Entity, EntityRepository } from './service'
 
@@ -43,11 +43,15 @@ async function findByDid(collection: Collection, did: string) {
   return result && Entity.parse(result)
 }
 
-async function addEntity(collection: Collection, entity: Entity) {
+async function addEntity(
+  collection: Collection,
+  entity: Entity,
+  config?: { session?: ClientSession },
+) {
   const entityData = {
     ...entity,
   }
-  await collection.insertOne(entityData)
+  await collection.insertOne(entityData, config)
   return entity
 }
 

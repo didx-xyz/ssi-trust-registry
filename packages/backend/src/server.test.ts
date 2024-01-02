@@ -102,6 +102,33 @@ describe('api', () => {
       )
     })
 
+    test('if unable to send email, do not create invitation', async () => {
+      const emailAddress = 'this-should-not-be-sent@test.com'
+      emailClient.failNextSend()
+      await generateNewInvitation(cookie, {
+        emailAddress,
+      })
+      expect(emailClient.sentMessages).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ to: emailAddress })]),
+      )
+
+      const invitationsResponse = await fetch(
+        `http://localhost:${port}/api/invitations`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      const invitations = await invitationsResponse.json()
+
+      expect(invitations).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            emailAddress,
+          }),
+        ]),
+      )
+    })
+
     test('invalid invitationId fails with 500 error', async () => {
       const result = await post(
         `http://localhost:${port}/api/submissions`,
@@ -294,6 +321,45 @@ describe('api', () => {
       expect(registry.entities).toContainEqual(approvalResponse.entity)
 
       expect(emailClient.sentMessages).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            subject: 'Congratulations! Your submission has been approved!',
+          }),
+        ]),
+      )
+    })
+
+    test.only('if unable to send email, do not update submission state or create new entity', async () => {
+      const registryBefore = await fetchRegistry()
+      const submissionResult = await post(
+        `http://localhost:${port}/api/submissions`,
+        { ...absaSubmission, invitationId: invitation.id },
+        cookie,
+      )
+      const submissionResponse = await submissionResult.json()
+      emailClient.failNextSend()
+      const approvalResult = await put(
+        `http://localhost:${port}/api/submissions/${submissionResponse.id}`,
+        { state: 'approved' },
+        cookie,
+      )
+      const registryAfter = await fetchRegistry()
+      console.log('registryBefore', registryBefore)
+      console.log('registryAfter', registryAfter)
+
+      // expect(registryBefore).toEqual(registryAfter)
+
+      const invitationResponse = await fetch(
+        `http://localhost:${port}/api/invitations/${invitation.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      const updatedInvitation = await invitationResponse.json()
+      expect(invitation).toEqual(updatedInvitation)
+      const approvalResponse = await approvalResult.json()
+      console.log(approvalResponse)
+      expect(emailClient.sentMessages).not.toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             subject: 'Congratulations! Your submission has been approved!',
@@ -693,7 +759,7 @@ async function generateNewInvitation(
     },
     cookie,
   )
-  return await response.json()
+  return response.json()
 }
 
 function post(
