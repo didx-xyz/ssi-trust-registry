@@ -63,19 +63,24 @@ async function createInvitation(
   const invitationDto = InvitationDto.parse(req.body)
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
   const invitation = await service.createInvitation(invitationDto)
-  const submitApiUrl = `https://${config.server.url}:${config.server.port}/api/submissions`
-  const submitUiUrl = `${config.server.frontendUrl}/submit/${invitation.id}`
-  logger.info(`Sending invitation via email to: `, invitation.emailAddress)
-  await emailClient.sendMailFromTemplate(
-    invitation.emailAddress,
-    'Invitation',
-    './src/email/templates/invitation.html',
-    {
-      submitApiUrl,
-      submitUiUrl,
-    },
-  )
-  res.status(201).json({ ...invitation, url: submitUiUrl })
+  try {
+    const submitApiUrl = `https://${config.server.url}:${config.server.port}/api/submissions`
+    const submitUiUrl = `${config.server.frontendUrl}/submit/${invitation.id}`
+    logger.info(`Sending invitation via email to: `, invitation.emailAddress)
+    await emailClient.sendMailFromTemplate(
+      invitation.emailAddress,
+      'Invitation',
+      './src/email/templates/invitation.html',
+      {
+        submitApiUrl,
+        submitUiUrl,
+      },
+    )
+    res.status(201).json({ ...invitation, url: submitUiUrl })
+  } catch (error) {
+    await service.deleteInvitation(invitation.id)
+    throw error
+  }
 }
 
 async function getAllInvitations(
@@ -170,37 +175,42 @@ async function updateSubmissionState(
   )
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
-
-  if (state === 'approved') {
-    const result = await submissionService.approveSubmission(submission)
-    const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
-    logger.info(
-      `Sending submission approved email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Congratulations! Your submission has been approved!',
-      './src/email/templates/approved.html',
-      {
-        entityUrl,
-      },
-    )
-    res.status(200).json(result)
-  } else {
-    const result = await submissionService.rejectSubmission(submission)
-    logger.info(
-      `Sending submission rejected email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Sorry. Your submission has been rejected.',
-      './src/email/templates/rejected.html',
-      {
-        invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
-      },
-    )
-    res.status(200).json(result)
+  try {
+    if (state === 'approved') {
+      const result = await submissionService.approveSubmission(submission)
+      const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
+      logger.info(
+        `Sending submission approved email to: `,
+        invitation.emailAddress,
+      )
+      await emailClient.sendMailFromTemplate(
+        invitation.emailAddress,
+        'Congratulations! Your submission has been approved!',
+        './src/email/templates/approved.html',
+        {
+          entityUrl,
+        },
+      )
+      res.status(200).json(result)
+    } else {
+      const result = await submissionService.rejectSubmission(submission)
+      logger.info(
+        `Sending submission rejected email to: `,
+        invitation.emailAddress,
+      )
+      await emailClient.sendMailFromTemplate(
+        invitation.emailAddress,
+        'Sorry. Your submission has been rejected.',
+        './src/email/templates/rejected.html',
+        {
+          invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
+        },
+      )
+      res.status(200).json(result)
+    }
+  } catch (error) {
+    await submissionService.updateSubmission(submission)
+    await submissionService.updateInvitation(invitation)
+    throw error
   }
 }
