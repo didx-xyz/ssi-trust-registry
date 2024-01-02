@@ -6,7 +6,7 @@ import swaggerUi from 'swagger-ui-express'
 import { ZodError } from 'zod'
 import { createLogger } from './logger'
 import { RequestWithToken } from './auth/middleware'
-import { FieldError } from './errors'
+import { AuthError, FieldError } from './errors'
 
 const logger = createLogger(__filename)
 
@@ -45,7 +45,9 @@ export function errorHandler(
   next: NextFunction,
 ): void {
   logger.error('Error handler caught an error:', error, error.message)
-  if (error instanceof ZodError) {
+  if (error instanceof AuthError) {
+    res.status(403).json({ error: error.message })
+  } else if (error instanceof ZodError) {
     logger.error(`Could not parse submission`, error.issues)
     res.status(400).json({ error: error.issues })
   } else if (error instanceof FieldError) {

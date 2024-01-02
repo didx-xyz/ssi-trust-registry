@@ -7,3 +7,9 @@ export class FieldError extends BaseError {
     this.field = field
   }
 }
+
+export class AuthError extends BaseError {
+  constructor(message: string) {
+    super(message)
+  }
+}

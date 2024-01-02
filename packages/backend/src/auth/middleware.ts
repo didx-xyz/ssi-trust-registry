@@ -4,6 +4,7 @@ import jwt, {
   NotBeforeError,
   TokenExpiredError,
 } from 'jsonwebtoken'
+import { AuthError } from '../errors'
 import { config } from '../config'
 
 export interface RequestWithToken extends Request {
@@ -21,25 +22,23 @@ export function authenticate(
     try {
       const verification = jwt.verify(token, secretKey)
       if (typeof verification === 'string') {
-        next(
-          new Error(
-            `Malformed JWT token: received 'string', expected 'object'`,
-          ),
+        throw new Error(
+          `Malformed JWT token: received 'string', expected 'object'`,
         )
       } else {
         ;(req as RequestWithToken).jwtPayload = verification
         next()
       }
     } catch (error) {
+      let authError: AuthError | undefined
       if (error instanceof TokenExpiredError) {
-        res.status(403).json({ error: 'Your token has expired.' })
+        authError = new AuthError('Your token has expired.')
       } else if (error instanceof NotBeforeError) {
-        res.status(403).json({ error: 'Current time is before the nbf claim.' })
+        authError = new AuthError('Current time is before the nbf claim.')
       } else if (error instanceof JsonWebTokenError) {
-        res.status(403).json({ error: 'Invalid signature.' })
-      } else {
-        next(error)
+        authError = new AuthError('Invalid signature.')
       }
+      next(authError ?? error)
     }
   } else {
     res.status(401).json({ error: 'You are not logged in.' })
