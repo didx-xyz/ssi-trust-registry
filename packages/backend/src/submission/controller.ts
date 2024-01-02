@@ -103,9 +103,14 @@ async function createInvitation(
   const invitationDto = InvitationDto.parse(req.body)
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
   const invitation = await service.createInvitation(invitationDto)
-  const { submitUiUrl } = getSubmitUrls(invitation)
-  await emailService.sendInvitationEmail(invitation)
-  res.status(201).json({ ...invitation, url: submitUiUrl })
+  try {
+    const { submitUiUrl } = getSubmitUrls(invitation)
+    await emailService.sendInvitationEmail(invitation)
+    res.status(201).json({ ...invitation, url: submitUiUrl })
+  } catch (error) {
+    await service.deleteInvitation(invitation.id)
+    throw error
+  }
 }
 
 async function resendInvitation(
@@ -212,16 +217,21 @@ async function updateSubmissionState(
   )
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
-
-  let result
-  if (state === 'approved') {
-    result = await submissionService.approveSubmission(submission)
-    await emailService.sendApprovalEmail(invitation, result.entity.id)
-  } else {
-    result = await submissionService.rejectSubmission(submission)
-    await emailService.sendRejectionEmail(invitation)
+  try {
+    let result
+    if (state === 'approved') {
+      result = await submissionService.approveSubmission(submission)
+      await emailService.sendApprovalEmail(invitation, result.entity.id)
+    } else {
+      result = await submissionService.rejectSubmission(submission)
+      await emailService.sendRejectionEmail(invitation)
+    }
+    res.status(200).json(result)
+  } catch (error) {
+    await submissionService.updateSubmission(submission)
+    await submissionService.updateInvitation(invitation)
+    throw error
   }
-  res.status(200).json(result)
 }
 
 function getRouteConfigDocs(): RouteConfig[] {
