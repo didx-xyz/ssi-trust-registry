@@ -34,22 +34,24 @@ services:
         condition: service_healthy
   mongo:
     image: mongo:7.0
-    container_name: mongo
+    command: "mongod --bind_ip_all --replSet rs0 --wiredTigerCacheSizeGB 2 --dbpath /data/db --port 27017"
     ports:
       - 27017:27017
+    hostname: mongo
+    expose:
+      - "27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo
       MONGO_INITDB_DATABASE: trust-registry
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 15s
-      timeout: 5s
-      start_period: 5s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - "mongo-data:/data/db"
+      - "./keyfile:/data/keyfile:ro"
+      - "./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro"
     networks:
       - ssi-trust-registry
-    volumes:
-      - mongo:/data/db
   mongo-express:
     image: mongo-express:latest
     container_name: mongo-express
@@ -88,8 +90,9 @@ services:
         condition: service_healthy
 
 volumes:
-  mongo:
+  mongo-data:
   smtp4dev-data:
+
 
 networks:
   ssi-trust-registry:

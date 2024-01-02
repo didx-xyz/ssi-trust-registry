@@ -1,5 +1,5 @@
 import partial from 'lodash.partial'
-import { Collection, Db } from 'mongodb'
+import { ClientSession, Collection, Db } from 'mongodb'
 import { Invitation, Submission } from '@ssi-trust-registry/common'
 import { createLogger } from '../logger'
 import { InvitationRepository, SubmissionRepository } from './service'
@@ -69,16 +69,18 @@ async function addSubmission(collection: Collection, submission: Submission) {
 async function updateSubmission(
   collection: Collection,
   submission: Submission,
-  { newDatestamps = true }: { newDatestamps?: boolean } = {},
+  config: { session?: ClientSession; newDatestamps?: boolean } = {
+    newDatestamps: true,
+  },
 ) {
   const { id, ...data } = submission
-  if (newDatestamps) {
+  if (config.newDatestamps) {
     data.updatedAt = new Date().toISOString()
   }
   const updatedSubmission = await collection.findOneAndUpdate(
     { id },
     { $set: { ...data } },
-    { returnDocument: 'after' },
+    { returnDocument: 'after', session: config.session },
   )
   if (!updatedSubmission) {
     throw new Error(`Submission with id ${id} not found`)
@@ -105,12 +107,13 @@ async function addInvitation(collection: Collection, invitation: Invitation) {
 async function updateInvitation(
   collection: Collection,
   invitation: Invitation,
+  config?: { session?: ClientSession },
 ) {
   const { id, ...data } = invitation
   const updatedInvitation = await collection.findOneAndUpdate(
     { id },
     { $set: { ...data } },
-    { returnDocument: 'after' },
+    { ...config, returnDocument: 'after' },
   )
   if (!updatedInvitation) {
     throw new Error(`Invitation with id ${id} not found`)
