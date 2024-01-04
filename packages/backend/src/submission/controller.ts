@@ -190,7 +190,7 @@ async function updateSubmissionState(
       const result = await submissionService.approveSubmission(submission, {
         session,
       })
-      const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
+      const entityUrl = `${config.server.frontendUrl}/${result.entity.id}`
       logger.info(
         `Sending submission approved email to: `,
         invitation.emailAddress,
