@@ -1,10 +1,7 @@
 import partial from 'lodash.partial'
 import { Collection, Db } from 'mongodb'
-import { createLogger } from '../logger'
 import { Invitation, Submission } from './domain'
 import { InvitationRepository, SubmissionRepository } from './service'
-
-const logger = createLogger(__filename)
 
 export async function createSubmissionRepository(
   database: Db,
@@ -18,7 +15,7 @@ export async function createSubmissionRepository(
     ),
     findSubmissionById: partial(findSubmissionById, submissionCollection),
     addSubmission: partial(addSubmission, submissionCollection),
-    reviewSubmission: partial(reviewSubmission, submissionCollection),
+    updateSubmission: partial(updateSubmission, submissionCollection),
   }
 }
 
@@ -28,6 +25,8 @@ export async function createInvitationRepository(
   const invitationCollection = database.collection('invitations')
   return {
     addInvitation: partial(addInvitation, invitationCollection),
+    updateInvitation: partial(updateInvitation, invitationCollection),
+    deleteInvitation: partial(deleteInvitation, invitationCollection),
     getAllInvitations: partial(getAllInvitations, invitationCollection),
     findInvitationById: partial(findInvitationById, invitationCollection),
   }
@@ -55,29 +54,32 @@ async function findSubmissionById(collection: Collection, id: string) {
 }
 
 async function addSubmission(collection: Collection, submission: Submission) {
-  const result = await collection.replaceOne(
+  await collection.replaceOne(
     { invitationId: submission.invitationId, state: 'pending' },
     { ...submission },
     { upsert: true },
   )
-  logger.info(`Submission inserted to the database`, result)
   return submission
 }
 
-async function reviewSubmission(
+async function updateSubmission(
   collection: Collection,
-  id: string,
-  state: 'approved' | 'rejected',
+  submission: Submission,
+  { newDatestamps = true }: { newDatestamps?: boolean } = {},
 ) {
-  const submission = await collection.findOneAndUpdate(
+  const { id, ...data } = submission
+  if (newDatestamps) {
+    data.updatedAt = new Date().toISOString()
+  }
+  const updatedSubmission = await collection.findOneAndUpdate(
     { id },
-    { $set: { state, updatedAt: new Date().toISOString() } },
+    { $set: { ...data } },
     { returnDocument: 'after' },
   )
-  if (!submission) {
+  if (!updatedSubmission) {
     throw new Error(`Submission with id ${id} not found`)
   }
-  return Submission.parse(submission)
+  return Submission.parse(updatedSubmission)
 }
 
 async function getAllInvitations(collection: Collection) {
@@ -91,7 +93,29 @@ async function findInvitationById(collection: Collection, id: string) {
 }
 
 async function addInvitation(collection: Collection, invitation: Invitation) {
-  const result = await collection.insertOne({ ...invitation })
-  logger.info(`Invitation inserted to the database`, result)
+  await collection.insertOne({ ...invitation })
   return invitation
+}
+
+async function updateInvitation(
+  collection: Collection,
+  invitation: Invitation,
+) {
+  const { id, ...data } = invitation
+  const updatedInvitation = await collection.findOneAndUpdate(
+    { id },
+    {
+      $set: { ...data },
+      $unset: invitation.entityId ? {} : { entityId: '' },
+    },
+    { returnDocument: 'after' },
+  )
+  if (!updatedInvitation) {
+    throw new Error(`Invitation with id ${id} not found`)
+  }
+  return Invitation.parse(updatedInvitation)
+}
+
+async function deleteInvitation(collection: Collection, id: string) {
+  await collection.deleteOne({ id })
 }

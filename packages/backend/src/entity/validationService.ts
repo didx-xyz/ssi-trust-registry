@@ -12,12 +12,15 @@ export async function createValidationService(
   didResolver: DidResolver,
 ): Promise<ValidationService> {
   return {
-    validateDids: partial(validateDids, didResolver),
+    validateDids: partial(validateResolvableDids, didResolver),
     validateSchemas: partial(validateSchemas, schemaRepository),
   }
 }
 
-async function validateDids(didResolver: DidResolver, dids: string[]) {
+async function validateResolvableDids(
+  didResolver: DidResolver,
+  dids: string[],
+) {
   for (const did of dids) {
     const didDocument = await didResolver.resolveDid(did)
     if (!didDocument) {

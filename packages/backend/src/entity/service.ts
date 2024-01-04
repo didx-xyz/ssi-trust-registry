@@ -14,21 +14,30 @@ export async function createEntityService(
 ): Promise<EntityService> {
   return {
     getAllEntities: partial(getAllEntities, entityRepository),
+    getEntityById: partial(getEntityById, entityRepository),
+    getEntityByDid: partial(getEntityByDid, entityRepository),
     loadEntities: partial(loadEntities, entityRepository, validationService),
+    updateEntity: partial(updateEntity, entityRepository),
+    deleteEntity: partial(deleteEntity, entityRepository),
   }
 }
 
 export interface EntityService {
   getAllEntities: () => Promise<Entity[]>
+  getEntityById: (id: string) => Promise<Entity | null>
+  getEntityByDid: (did: string) => Promise<Entity | null>
   loadEntities: (schemas: Record<string, unknown>[]) => Promise<void>
+  updateEntity: (entity: Entity) => Promise<Entity>
+  deleteEntity: (id: string) => Promise<void>
 }
 
 export interface EntityRepository {
   getAllEntities: () => Promise<Entity[]>
-  findById: (id: string) => Promise<Entity | null>
-  findByDid: (did: string) => Promise<Entity | null>
+  findEntityById: (id: string) => Promise<Entity | null>
+  findEntityByDid: (did: string) => Promise<Entity | null>
   addEntity: (entity: Entity) => Promise<Entity>
   updateEntity: (entity: Entity) => Promise<Entity>
+  deleteEntity: (id: string) => Promise<void>
 }
 
 export type Entity = z.infer<typeof Entity>
@@ -77,6 +86,12 @@ export const Entity = EntityDto.extend({
 async function getAllEntities(repository: EntityRepository) {
   return repository.getAllEntities()
 }
+async function getEntityById(repository: EntityRepository, id: string) {
+  return repository.findEntityById(id)
+}
+async function getEntityByDid(repository: EntityRepository, did: string) {
+  return repository.findEntityByDid(did)
+}
 
 async function loadEntities(
   entityRepository: EntityRepository,
@@ -96,19 +111,19 @@ async function loadEntities(
     logger.info(`Importing entity ${e.id}`, e)
     await validationService.validateDids(e.dids)
     await validationService.validateSchemas(e.credentials)
-    const existingEntity = await entityRepository.findById(e.id)
+    const existingEntity = await entityRepository.findEntityById(e.id)
     if (existingEntity) {
       logger.debug('Entity already exists, updating...')
-      return updateEntity(entityRepository, { ...existingEntity, ...e })
+      await updateEntity(entityRepository, { ...existingEntity, ...e })
     } else {
       for (const did of e.dids) {
-        const didExists = await entityRepository.findByDid(did)
+        const didExists = await entityRepository.findEntityByDid(did)
         if (didExists) {
           throw new Error(`DID ${did} already exists`)
         }
       }
       logger.debug('Entity does not exist, creating...')
-      return addEntity(entityRepository, e, { entityId: e.id })
+      await addEntity(entityRepository, e, { entityId: e.id })
     }
   }
 }
@@ -117,7 +132,7 @@ async function addEntity(
   repository: EntityRepository,
   entityDto: EntityDto,
   { entityId }: { entityId?: string } = {},
-): Promise<void> {
+) {
   const entity = {
     ...entityDto,
     id: entityId || uuidv4(),
@@ -126,13 +141,11 @@ async function addEntity(
   }
   await repository.addEntity(entity)
   logger.info(`Entity ${entity.id} has been added`)
+  return entity
 }
 
-async function updateEntity(
-  repository: EntityRepository,
-  entity: Entity,
-): Promise<void> {
-  if (!(await repository.findById(entity.id))) {
+async function updateEntity(repository: EntityRepository, entity: Entity) {
+  if (!(await repository.findEntityById(entity.id))) {
     throw new Error('Trying to update an Entity that does not exists')
   }
   const updatedEntity = {
@@ -141,4 +154,13 @@ async function updateEntity(
   }
   await repository.updateEntity(updatedEntity)
   logger.info(`Entity ${entity.id} has been updated`)
+  return updatedEntity
+}
+
+async function deleteEntity(
+  repository: EntityRepository,
+  id: string,
+): Promise<void> {
+  await repository.deleteEntity(id)
+  logger.info(`Entity ${id} has been deleted from the database`)
 }

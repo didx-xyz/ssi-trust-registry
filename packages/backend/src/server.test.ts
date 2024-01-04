@@ -83,12 +83,12 @@ describe('api', () => {
       ],
     }
 
-    let invitation: Invitation & { url: string }
+    let invitationWithUrl: Invitation & { url: string }
 
     beforeEach(async () => {
       await database.dropDatabase()
       await schemaService.loadSchemas([exampleSchemaDto])
-      invitation = await generateNewInvitation(cookie)
+      invitationWithUrl = await generateNewInvitation(cookie)
     })
 
     test('invitation endpoint sends email', async () => {
@@ -98,6 +98,33 @@ describe('api', () => {
       expect(emailClient.sentMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ to: 'this-is-an-example@test.com' }),
+        ]),
+      )
+    })
+
+    test('when unable to send email, do not create invitation', async () => {
+      const emailAddress = 'this-should-not-be-sent@test.com'
+      emailClient.failNextSend()
+      await generateNewInvitation(cookie, {
+        emailAddress,
+      })
+      expect(emailClient.sentMessages).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ to: emailAddress })]),
+      )
+
+      const invitationsResponse = await fetch(
+        `http://localhost:${port}/api/invitations`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      const invitations = await invitationsResponse.json()
+
+      expect(invitations).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            emailAddress,
+          }),
         ]),
       )
     })
@@ -121,7 +148,7 @@ describe('api', () => {
         `http://localhost:${port}/api/submissions`,
         {
           ...absaSubmission,
-          invitationId: invitation.id,
+          invitationId: invitationWithUrl.id,
           credentials: [nonExistentSchemaId],
         },
         cookie,
@@ -135,7 +162,7 @@ describe('api', () => {
     })
 
     test('invalid submission fails with 400 Bad Request error', async () => {
-      console.log(invitation)
+      console.log(invitationWithUrl)
       const result = await post(
         `http://localhost:${port}/api/submissions`,
         {},
@@ -201,7 +228,7 @@ describe('api', () => {
       await entityService.loadEntities([exampleEntityDto])
       const result = await post(
         `http://localhost:${port}/api/submissions`,
-        { ...absaSubmission, invitationId: invitation.id },
+        { ...absaSubmission, invitationId: invitationWithUrl.id },
         cookie,
       )
       const status = result.status
@@ -215,7 +242,7 @@ describe('api', () => {
     test('correct submission succeeds and adds it to the list', async () => {
       await post(
         `http://localhost:${port}/api/submissions`,
-        { ...absaSubmission, invitationId: invitation.id },
+        { ...absaSubmission, invitationId: invitationWithUrl.id },
         cookie,
       )
 
@@ -254,7 +281,7 @@ describe('api', () => {
     test('correct submission succeeds with 201 Created and return ID of newly created submission', async () => {
       const result = await post(
         `http://localhost:${port}/api/submissions`,
-        { ...yomaSubmission, invitationId: invitation.id },
+        { ...yomaSubmission, invitationId: invitationWithUrl.id },
         cookie,
       )
       const status = result.status
@@ -266,18 +293,28 @@ describe('api', () => {
     test('submission approval - change submission state and add new entity', async () => {
       const submissionResult = await post(
         `http://localhost:${port}/api/submissions`,
-        { ...absaSubmission, invitationId: invitation.id },
+        { ...absaSubmission, invitationId: invitationWithUrl.id },
         cookie,
       )
       const submissionResponse = await submissionResult.json()
       const approvalResult = await put(
-        `http://localhost:3000/api/submissions/${submissionResponse.id}`,
+        `http://localhost:${port}/api/submissions/${submissionResponse.id}`,
         { state: 'approved' },
         cookie,
       )
       const approvalResponse = await approvalResult.json()
       expect(approvalResponse.submission.state).toEqual('approved')
       expect(approvalResponse.entity).toBeDefined()
+
+      // Check that invitation is now associated with entity
+      const invitationResponse = await fetch(
+        `http://localhost:${port}/api/invitations/${invitationWithUrl.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      const updatedInvitation = await invitationResponse.json()
+      expect(updatedInvitation.entityId).toEqual(approvalResponse.entity.id)
 
       // Check that the entity is added to the registry
       const registry = await fetchRegistry()
@@ -292,15 +329,61 @@ describe('api', () => {
       )
     })
 
-    test('submission rejection - change submission state and no registry changes', async () => {
-      const submissionResult = await post(
+    test('submission approval - when unable to send email, do not update submission state or create new entity', async () => {
+      const emailAddress = 'this-should-not-be-sent@test.com'
+      const invitation: Invitation = await generateNewInvitation(cookie, {
+        emailAddress,
+      })
+      const registry = await fetchRegistry()
+      const submissionResponse = await post(
         `http://localhost:${port}/api/submissions`,
         { ...absaSubmission, invitationId: invitation.id },
         cookie,
       )
+      const submission = await submissionResponse.json()
+      emailClient.failNextSend()
+      await put(
+        `http://localhost:${port}/api/submissions/${submission.id}`,
+        { state: 'approved' },
+        cookie,
+      )
+      const updatedRegistry = await fetchRegistry()
+      expect(registry).toEqual(updatedRegistry)
+      const updatedInvitationResponse = await fetch(
+        `http://localhost:${port}/api/invitations/${invitation.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      const updatedInvitation = await updatedInvitationResponse.json()
+      expect(invitation).toMatchObject(updatedInvitation)
+      const updatedSubmissionResponse = await fetch(
+        `http://localhost:${port}/api/submissions/${submission.id}`,
+        {
+          headers: { Cookie: cookie },
+        },
+      )
+      const updatedSubmission = await updatedSubmissionResponse.json()
+      expect(submission).toEqual(updatedSubmission)
+      expect(emailClient.sentMessages).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            to: emailAddress,
+            subject: 'Congratulations! Your submission has been approved!',
+          }),
+        ]),
+      )
+    })
+
+    test('submission rejection - change submission state and no registry changes', async () => {
+      const submissionResult = await post(
+        `http://localhost:${port}/api/submissions`,
+        { ...absaSubmission, invitationId: invitationWithUrl.id },
+        cookie,
+      )
       const response = await submissionResult.json()
       const rejectionResult = await put(
-        `http://localhost:3000/api/submissions/${response.id}`,
+        `http://localhost:${port}/api/submissions/${response.id}`,
         { state: 'rejected' },
         cookie,
       )
@@ -318,7 +401,7 @@ describe('api', () => {
     test('update submission state throws error if not "approved" or "rejected"', async () => {
       const result = await post(
         `http://localhost:${port}/api/submissions`,
-        { ...absaSubmission, invitationId: invitation.id },
+        { ...absaSubmission, invitationId: invitationWithUrl.id },
         cookie,
       )
       const response = await result.json()
@@ -337,7 +420,7 @@ describe('api', () => {
     test('can send several submissions using same invitationUrl', async () => {
       await post(
         `http://localhost:${port}/api/submissions`,
-        { ...absaSubmission, invitationId: invitation.id },
+        { ...absaSubmission, invitationId: invitationWithUrl.id },
         cookie,
       )
       let result = await fetch(`http://localhost:${port}/api/submissions`, {
@@ -357,7 +440,7 @@ describe('api', () => {
         {
           ...absaSubmission,
           name: 'Updated Absa Name',
-          invitationId: invitation.id,
+          invitationId: invitationWithUrl.id,
         },
         cookie,
       )
@@ -683,7 +766,7 @@ async function generateNewInvitation(
     },
     cookie,
   )
-  return await response.json()
+  return response.json()
 }
 
 function post(

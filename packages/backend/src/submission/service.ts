@@ -14,21 +14,28 @@ extendZodWithOpenApi(z)
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (submission: Submission) => Promise<Submission>
-  reviewSubmission: (
-    id: string,
-    state: 'approved' | 'rejected',
+  updateSubmission: (
+    submission: Submission,
+    config?: { newDatestamps?: boolean },
   ) => Promise<Submission>
   findSubmissionById: (id: string) => Promise<Submission | null>
   findSubmissionsByInvitationId: (id: string) => Promise<Submission[]>
 }
 export interface InvitationRepository {
   addInvitation: (invitation: Invitation) => Promise<Invitation>
+  updateInvitation: (
+    invitation: Invitation,
+    config?: { newDatestamps?: boolean },
+  ) => Promise<Invitation>
+  deleteInvitation: (id: string) => Promise<void>
   getAllInvitations: () => Promise<Invitation[]>
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
 export interface SubmissionService {
   createInvitation: (invitationDto: InvitationDto) => Promise<Invitation>
+  updateInvitation: (invitation: Invitation) => Promise<Invitation>
+  deleteInvitation: (id: string) => Promise<void>
   getAllInvitations: () => Promise<Invitation[]>
   getInvitationById: (id: string) => Promise<Invitation>
   getSubmissionById: (id: string) => Promise<Submission>
@@ -39,6 +46,10 @@ export interface SubmissionService {
     submission: Submission,
   ) => Promise<{ submission: Submission; entity: Entity }>
   rejectSubmission: (submission: Submission) => Promise<Submission>
+  updateSubmission: (
+    submission: Submission,
+    config?: { newDatestamps?: boolean },
+  ) => Promise<Submission>
 }
 
 export async function createSubmissionService(
@@ -48,6 +59,8 @@ export async function createSubmissionService(
 ): Promise<SubmissionService> {
   return {
     createInvitation: partial(createInvitation, invitationRepository),
+    updateInvitation: partial(updateInvitation, invitationRepository),
+    deleteInvitation: partial(deleteInvitation, invitationRepository),
     getAllInvitations: partial(getAllInvitations, invitationRepository),
     getInvitationById: partial(getInvitationById, invitationRepository),
     getAllSubmissions: partial(getAllSubmissions, submissionRepository),
@@ -70,6 +83,7 @@ export async function createSubmissionService(
       entityRepository,
     ),
     rejectSubmission: partial(rejectSubmission, submissionRepository),
+    updateSubmission: partial(updateSubmission, submissionRepository),
   }
 }
 
@@ -118,7 +132,7 @@ async function addSubmission(
     throw new Error('Invitation not found')
   }
   for (const did of submissionDto.dids) {
-    const existingEntity = await entityRepository.findByDid(did)
+    const existingEntity = await entityRepository.findEntityByDid(did)
     if (existingEntity && existingEntity.id !== invitation.entityId) {
       throw new FieldError(
         `A different entity has already registered the did '${did}'`,
@@ -153,17 +167,17 @@ async function approveSubmission(
     throw new Error('Invitation not found')
   }
   for (const did of submission.dids) {
-    const existingEntity = await entityRepository.findByDid(did)
+    const existingEntity = await entityRepository.findEntityByDid(did)
     if (existingEntity && existingEntity.id !== invitation.entityId) {
       throw new Error(
         `A different entity has already registered the did '${did}'`,
       )
     }
   }
-  const reviewedSubmission = await submissionRepository.reviewSubmission(
-    submission.id,
-    'approved',
-  )
+  const reviewedSubmission = await submissionRepository.updateSubmission({
+    ...submission,
+    state: 'approved',
+  })
   logger.info(`Submission ${submission.id} has been approved in the database`)
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -185,9 +199,15 @@ async function approveSubmission(
       updatedAt: new Date().toISOString(),
     }
     entity = await entityRepository.addEntity(newEntity)
+    await invitationRepository.updateInvitation({
+      ...invitation,
+      entityId: entity.id,
+    })
     logger.info(`Entity ${entity.id} has been inserted to the database`)
   } else {
-    const existingEntity = await entityRepository.findById(invitation.entityId)
+    const existingEntity = await entityRepository.findEntityById(
+      invitation.entityId,
+    )
     if (!existingEntity) {
       throw new Error('Existing entity not found')
     }
@@ -207,12 +227,24 @@ async function rejectSubmission(
   submissionRepository: SubmissionRepository,
   submission: Submission,
 ): Promise<Submission> {
-  const reviewedSubmission = await submissionRepository.reviewSubmission(
-    submission.id,
-    'rejected',
-  )
+  const reviewedSubmission = await submissionRepository.updateSubmission({
+    ...submission,
+    state: 'rejected',
+  })
   logger.info(`Submission ${submission.id} has been rejected in the database`)
   return reviewedSubmission
+}
+
+async function updateSubmission(
+  repository: SubmissionRepository,
+  submission: Submission,
+  { newDatestamps = true }: { newDatestamps?: boolean } = {},
+): Promise<Submission> {
+  const updatedSubmission = await repository.updateSubmission(submission, {
+    newDatestamps,
+  })
+  logger.info(`Submission ${submission.id} has been updated in the database`)
+  return updatedSubmission
 }
 
 async function createInvitation(
@@ -225,7 +257,25 @@ async function createInvitation(
     createdAt: new Date().toISOString(),
   }
   await repository.addInvitation(invitation)
+  logger.info(`Invitation ${invitation.id} has been added to the database`)
   return invitation
+}
+
+async function updateInvitation(
+  repository: InvitationRepository,
+  invitation: Invitation,
+) {
+  const updatedInvitation = await repository.updateInvitation(invitation)
+  logger.info(`Invitation ${invitation.id} has been updated in the database`)
+  return updatedInvitation
+}
+
+async function deleteInvitation(
+  repository: InvitationRepository,
+  id: string,
+): Promise<void> {
+  await repository.deleteInvitation(id)
+  logger.info(`Invitation ${id} has been deleted from the database`)
 }
 
 async function getAllInvitations(repository: InvitationRepository) {
