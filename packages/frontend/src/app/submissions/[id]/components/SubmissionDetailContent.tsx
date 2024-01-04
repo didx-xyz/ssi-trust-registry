@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { Submission } from '@/common/interfaces'
-import { useForm } from 'react-hook-form'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { ApproveContents } from '@/app/submissions/[id]/components/ApproveContents'
 import { RejectContents } from '@/app/submissions/[id]/components/RejectContents'
@@ -9,6 +8,7 @@ import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDe
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 import { Card, CardWrapper } from '@/common/components/Card'
+import { useFormWithServerError } from '@/common/hooks'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<
@@ -20,28 +20,44 @@ export function SubmissionDetailContent({ id }: { id: string }) {
       isSubmitting: isApproving,
       isSubmitSuccessful: isApproveSuccessful,
     },
-  } = useForm()
+    setError: setApproveError,
+  } = useFormWithServerError()
   const {
     handleSubmit: handleReject,
     formState: {
       isSubmitting: isRejecting,
       isSubmitSuccessful: isRejectSuccessful,
     },
-  } = useForm()
+    setError: setRejectError,
+  } = useFormWithServerError()
 
   async function onApproveSubmission() {
-    if (submission) {
-      const { submission: approvedSubmission } = await approveSubmission(
-        submission.id,
-      )
-      setSubmission({ ...submission, ...approvedSubmission })
+    try {
+      if (submission) {
+        const { submission: approvedSubmission } = await approveSubmission(
+          submission.id,
+        )
+        setSubmission({ ...submission, ...approvedSubmission })
+      }
+    } catch (e) {
+      setApproveError('server', {
+        type: 'manual',
+        message: 'Something went wrong',
+      })
     }
   }
 
   async function onRejectSubmission() {
-    if (submission) {
-      const rejectedSubmission = await rejectSubmission(submission.id)
-      setSubmission({ ...submission, ...rejectedSubmission })
+    try {
+      if (submission) {
+        const rejectedSubmission = await rejectSubmission(submission.id)
+        setSubmission({ ...submission, ...rejectedSubmission })
+      }
+    } catch (e) {
+      setRejectError('server', {
+        type: 'manual',
+        message: 'Something went wrong',
+      })
     }
   }
 
