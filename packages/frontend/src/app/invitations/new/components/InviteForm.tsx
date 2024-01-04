@@ -1,22 +1,20 @@
 'use client'
 import React from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FormTextInput } from '@/common/components/FormTextInput'
 import { Button } from '@/common/components/Button'
 import Success from '@/common/assets/Success.svg'
-import EmailIcon from '../assets/EmailIcon.svg'
 import { backendUrl, betterFetch } from '@/api'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
+import EmailIcon from '../assets/EmailIcon.svg'
+import { useFormWithServerError } from '@/common/hooks'
 
 interface Inputs {
   emailAddress: string
 }
 
 const schema = z.object({ emailAddress: z.string().min(1, 'Required').email() })
-
-type ServerError = { server?: never }
 
 export function InviteForm() {
   const {
@@ -26,7 +24,7 @@ export function InviteForm() {
     getValues,
     reset,
     setError,
-  } = useForm<Inputs & ServerError>({
+  } = useFormWithServerError<Inputs>({
     resolver: zodResolver(schema),
   })
   async function onSubmit(data: Inputs) {
