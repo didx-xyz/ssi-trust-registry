@@ -21,10 +21,11 @@ export async function createEntityRepository(
 
   return {
     getAllEntities: partial(getAllEntities, collection),
-    findById: partial(findById, collection),
-    findByDid: partial(findByDid, collection),
+    findEntityById: partial(findById, collection),
+    findEntityByDid: partial(findByDid, collection),
     addEntity: partial(addEntity, collection),
     updateEntity: partial(updateEntity, collection),
+    deleteEntity: partial(deleteEntity, collection),
   }
 }
 
@@ -57,4 +58,8 @@ async function updateEntity(collection: Collection, entity: Entity) {
   }
   await collection.updateOne({ id: entity.id }, { $set: entityData })
   return entity
+}
+
+async function deleteEntity(collection: Collection, id: string) {
+  await collection.deleteOne({ id })
 }

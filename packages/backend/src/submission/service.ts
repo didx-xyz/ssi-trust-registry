@@ -23,7 +23,10 @@ export interface SubmissionRepository {
 }
 export interface InvitationRepository {
   addInvitation: (invitation: Invitation) => Promise<Invitation>
-  updateInvitation: (invitation: Invitation) => Promise<Invitation>
+  updateInvitation: (
+    invitation: Invitation,
+    config?: { newDatestamps?: boolean },
+  ) => Promise<Invitation>
   deleteInvitation: (id: string) => Promise<void>
   getAllInvitations: () => Promise<Invitation[]>
   findInvitationById: (id: string) => Promise<Invitation | null>
@@ -43,7 +46,10 @@ export interface SubmissionService {
     submission: Submission,
   ) => Promise<{ submission: Submission; entity: Entity }>
   rejectSubmission: (submission: Submission) => Promise<Submission>
-  updateSubmission: (submission: Submission) => Promise<Submission>
+  updateSubmission: (
+    submission: Submission,
+    config?: { newDatestamps?: boolean },
+  ) => Promise<Submission>
 }
 
 export async function createSubmissionService(
@@ -126,7 +132,7 @@ async function addSubmission(
     throw new Error('Invitation not found')
   }
   for (const did of submissionDto.dids) {
-    const existingEntity = await entityRepository.findByDid(did)
+    const existingEntity = await entityRepository.findEntityByDid(did)
     if (existingEntity && existingEntity.id !== invitation.entityId) {
       throw new FieldError(
         `A different entity has already registered the did '${did}'`,
@@ -161,7 +167,7 @@ async function approveSubmission(
     throw new Error('Invitation not found')
   }
   for (const did of submission.dids) {
-    const existingEntity = await entityRepository.findByDid(did)
+    const existingEntity = await entityRepository.findEntityByDid(did)
     if (existingEntity && existingEntity.id !== invitation.entityId) {
       throw new Error(
         `A different entity has already registered the did '${did}'`,
@@ -199,7 +205,9 @@ async function approveSubmission(
     })
     logger.info(`Entity ${entity.id} has been inserted to the database`)
   } else {
-    const existingEntity = await entityRepository.findById(invitation.entityId)
+    const existingEntity = await entityRepository.findEntityById(
+      invitation.entityId,
+    )
     if (!existingEntity) {
       throw new Error('Existing entity not found')
     }
@@ -249,6 +257,7 @@ async function createInvitation(
     createdAt: new Date().toISOString(),
   }
   await repository.addInvitation(invitation)
+  logger.info(`Invitation ${invitation.id} has been added to the database`)
   return invitation
 }
 

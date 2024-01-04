@@ -1,10 +1,7 @@
 import partial from 'lodash.partial'
 import { Collection, Db } from 'mongodb'
-import { createLogger } from '../logger'
 import { Invitation, Submission } from './domain'
 import { InvitationRepository, SubmissionRepository } from './service'
-
-const logger = createLogger(__filename)
 
 export async function createSubmissionRepository(
   database: Db,
@@ -57,12 +54,11 @@ async function findSubmissionById(collection: Collection, id: string) {
 }
 
 async function addSubmission(collection: Collection, submission: Submission) {
-  const result = await collection.replaceOne(
+  await collection.replaceOne(
     { invitationId: submission.invitationId, state: 'pending' },
     { ...submission },
     { upsert: true },
   )
-  logger.info(`Submission inserted to the database`, result)
   return submission
 }
 
@@ -97,8 +93,7 @@ async function findInvitationById(collection: Collection, id: string) {
 }
 
 async function addInvitation(collection: Collection, invitation: Invitation) {
-  const result = await collection.insertOne({ ...invitation })
-  logger.info(`Invitation inserted to the database`, result)
+  await collection.insertOne({ ...invitation })
   return invitation
 }
 
@@ -109,7 +104,10 @@ async function updateInvitation(
   const { id, ...data } = invitation
   const updatedInvitation = await collection.findOneAndUpdate(
     { id },
-    { $set: { ...data } },
+    {
+      $set: { ...data },
+      $unset: invitation.entityId ? {} : { entityId: '' },
+    },
     { returnDocument: 'after' },
   )
   if (!updatedInvitation) {
@@ -119,6 +117,5 @@ async function updateInvitation(
 }
 
 async function deleteInvitation(collection: Collection, id: string) {
-  const result = await collection.deleteOne({ id })
-  logger.info(`Invitation deleted from the database`, result)
+  await collection.deleteOne({ id })
 }

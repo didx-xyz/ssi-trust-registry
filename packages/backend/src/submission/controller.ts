@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import { createLogger } from '../logger'
 import { RequestWithToken } from '../auth/middleware'
 import partial from 'lodash.partial'
+import { Entity, EntityService } from '../entity/service'
 import { ValidationService } from '../entity/validationService'
 import { SubmissionService } from './service'
 import { EmailClient } from '../email/client'
@@ -27,6 +28,7 @@ export interface SubmissionController {
 
 export async function createSubmissionController(
   submissionService: SubmissionService,
+  entityService: EntityService,
   validationService: ValidationService,
   emailClient: EmailClient,
 ): Promise<SubmissionController> {
@@ -48,6 +50,7 @@ export async function createSubmissionController(
     updateSubmissionState: partial(
       updateSubmissionState,
       submissionService,
+      entityService,
       validationService,
       emailClient,
     ),
@@ -157,6 +160,7 @@ async function getSubmissionsByInvitationId(
 
 async function updateSubmissionState(
   submissionService: SubmissionService,
+  entityService: EntityService,
   validationService: ValidationService,
   emailClient: EmailClient,
   req: RequestWithToken,
@@ -175,9 +179,14 @@ async function updateSubmissionState(
   )
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
+  const existingEntity = invitation.entityId
+    ? await entityService.getEntityById(invitation.entityId)
+    : null
+  let newEntity: Entity | undefined
   try {
     if (state === 'approved') {
       const result = await submissionService.approveSubmission(submission)
+      newEntity = result.entity
       const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
       logger.info(
         `Sending submission approved email to: `,
@@ -209,8 +218,15 @@ async function updateSubmissionState(
       res.status(200).json(result)
     }
   } catch (error) {
-    await submissionService.updateSubmission(submission)
+    await submissionService.updateSubmission(submission, {
+      newDatestamps: false,
+    })
     await submissionService.updateInvitation(invitation)
+    if (existingEntity) {
+      await entityService.updateEntity(existingEntity)
+    } else if (newEntity) {
+      await entityService.deleteEntity(newEntity.id)
+    }
     throw error
   }
 }
