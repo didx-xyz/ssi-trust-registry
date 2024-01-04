@@ -9,6 +9,7 @@ import { backendUrl, betterFetch } from '@/api'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
 import EmailIcon from '../assets/EmailIcon.svg'
 import { useFormWithServerError } from '@/common/hooks'
+import { GenericErrorContents } from '@/common/components/GenericErrorContents'
 
 interface Inputs {
   emailAddress: string
@@ -35,7 +36,14 @@ export function InviteForm() {
     }
   }
 
-  return !isSubmitSuccessful ? (
+  return errors.server ? (
+    <GenericErrorContents />
+  ) : isSubmitSuccessful ? (
+    <SuccessContents
+      emailAddress={getValues().emailAddress}
+      onClick={() => reset}
+    />
+  ) : (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2 text-center">
         <Text2xlBold>Invite a company</Text2xlBold>
@@ -61,20 +69,28 @@ export function InviteForm() {
         />
       </div>
     </div>
-  ) : (
+  )
+}
+
+function SuccessContents({
+  emailAddress,
+  onClick,
+}: {
+  emailAddress: string
+  onClick: () => void
+}) {
+  return (
     <div className="flex flex-col gap-8 justify-center items-center text-primary">
       <Success />
       <div className="flex flex-col gap-2 text-center">
         <Text2xlBold>Invitation sent</Text2xlBold>
-        <TextSm>
-          Invitation was successfully sent to {getValues('emailAddress')}
-        </TextSm>
+        <TextSm>Invitation was successfully sent to {emailAddress}</TextSm>
       </div>
       <div className="flex gap-4">
         <Button
           type="secondary"
           title="Send another invitation"
-          onClick={() => reset()}
+          onClick={onClick}
         />
         <Button href="/invitations" title="Back to Invitations" />
       </div>
