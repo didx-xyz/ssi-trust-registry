@@ -7,7 +7,6 @@ import { Entity, EntityRepository } from '../entity/service'
 import { FieldError } from '../errors'
 import { Invitation, InvitationDto, Submission, SubmissionDto } from './domain'
 import { createId } from '@paralleldrive/cuid2'
-import { ClientSession } from 'mongodb'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
@@ -17,17 +16,14 @@ export interface SubmissionRepository {
   addSubmission: (submission: Submission) => Promise<Submission>
   updateSubmission: (
     submission: Submission,
-    config?: { session?: ClientSession; newDatestamps?: boolean },
+    config?: { newDatestamps?: boolean },
   ) => Promise<Submission>
   findSubmissionById: (id: string) => Promise<Submission | null>
   findSubmissionsByInvitationId: (id: string) => Promise<Submission[]>
 }
 export interface InvitationRepository {
   addInvitation: (invitation: Invitation) => Promise<Invitation>
-  updateInvitation: (
-    invitation: Invitation,
-    config?: { session?: ClientSession },
-  ) => Promise<Invitation>
+  updateInvitation: (invitation: Invitation) => Promise<Invitation>
   deleteInvitation: (id: string) => Promise<void>
   getAllInvitations: () => Promise<Invitation[]>
   findInvitationById: (id: string) => Promise<Invitation | null>
@@ -35,6 +31,7 @@ export interface InvitationRepository {
 
 export interface SubmissionService {
   createInvitation: (invitationDto: InvitationDto) => Promise<Invitation>
+  updateInvitation: (invitation: Invitation) => Promise<Invitation>
   deleteInvitation: (id: string) => Promise<void>
   getAllInvitations: () => Promise<Invitation[]>
   getInvitationById: (id: string) => Promise<Invitation>
@@ -44,16 +41,9 @@ export interface SubmissionService {
   addSubmission: (submissionDto: SubmissionDto) => Promise<Submission>
   approveSubmission: (
     submission: Submission,
-    config?: { session?: ClientSession },
   ) => Promise<{ submission: Submission; entity: Entity }>
-  rejectSubmission: (
-    submission: Submission,
-    config?: { session?: ClientSession },
-  ) => Promise<Submission>
-  updateSubmission: (
-    submission: Submission,
-    config?: { session?: ClientSession; newDatestamps?: boolean },
-  ) => Promise<Submission>
+  rejectSubmission: (submission: Submission) => Promise<Submission>
+  updateSubmission: (submission: Submission) => Promise<Submission>
 }
 
 export async function createSubmissionService(
@@ -63,6 +53,7 @@ export async function createSubmissionService(
 ): Promise<SubmissionService> {
   return {
     createInvitation: partial(createInvitation, invitationRepository),
+    updateInvitation: partial(updateInvitation, invitationRepository),
     deleteInvitation: partial(deleteInvitation, invitationRepository),
     getAllInvitations: partial(getAllInvitations, invitationRepository),
     getInvitationById: partial(getInvitationById, invitationRepository),
@@ -162,7 +153,6 @@ async function approveSubmission(
   invitationRepository: InvitationRepository,
   entityRepository: EntityRepository,
   submission: Submission,
-  config: { session?: ClientSession } = {},
 ): Promise<{ submission: Submission; entity: Entity }> {
   const invitation = await invitationRepository.findInvitationById(
     submission.invitationId,
@@ -178,13 +168,10 @@ async function approveSubmission(
       )
     }
   }
-  const reviewedSubmission = await submissionRepository.updateSubmission(
-    {
-      ...submission,
-      state: 'approved',
-    },
-    config,
-  )
+  const reviewedSubmission = await submissionRepository.updateSubmission({
+    ...submission,
+    state: 'approved',
+  })
   logger.info(`Submission ${submission.id} has been approved in the database`)
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -199,21 +186,17 @@ async function approveSubmission(
   /* eslint-enable @typescript-eslint/no-unused-vars */
   let entity: Entity
   if (!invitation.entityId) {
-    const date = new Date().toISOString()
     const newEntity = {
       ...entityData,
       id: uuidv4(),
-      createdAt: date,
-      updatedAt: date,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
-    entity = await entityRepository.addEntity(newEntity, config)
-    await invitationRepository.updateInvitation(
-      {
-        ...invitation,
-        entityId: entity.id,
-      },
-      config,
-    )
+    entity = await entityRepository.addEntity(newEntity)
+    await invitationRepository.updateInvitation({
+      ...invitation,
+      entityId: entity.id,
+    })
     logger.info(`Entity ${entity.id} has been inserted to the database`)
   } else {
     const existingEntity = await entityRepository.findById(invitation.entityId)
@@ -225,7 +208,7 @@ async function approveSubmission(
       ...entityData,
       updatedAt: new Date().toISOString(),
     }
-    entity = await entityRepository.updateEntity(updatedEntity, config)
+    entity = await entityRepository.updateEntity(updatedEntity)
     logger.info(`Entity ${entity.id} has been updated in the database`)
   }
 
@@ -235,15 +218,11 @@ async function approveSubmission(
 async function rejectSubmission(
   submissionRepository: SubmissionRepository,
   submission: Submission,
-  config: { session?: ClientSession } = {},
 ): Promise<Submission> {
-  const reviewedSubmission = await submissionRepository.updateSubmission(
-    {
-      ...submission,
-      state: 'rejected',
-    },
-    config,
-  )
+  const reviewedSubmission = await submissionRepository.updateSubmission({
+    ...submission,
+    state: 'rejected',
+  })
   logger.info(`Submission ${submission.id} has been rejected in the database`)
   return reviewedSubmission
 }
@@ -251,14 +230,11 @@ async function rejectSubmission(
 async function updateSubmission(
   repository: SubmissionRepository,
   submission: Submission,
-  config: { session?: ClientSession; newDatestamps?: boolean } = {
-    newDatestamps: true,
-  },
+  { newDatestamps = true }: { newDatestamps?: boolean } = {},
 ): Promise<Submission> {
-  const updatedSubmission = await repository.updateSubmission(
-    submission,
-    config,
-  )
+  const updatedSubmission = await repository.updateSubmission(submission, {
+    newDatestamps,
+  })
   logger.info(`Submission ${submission.id} has been updated in the database`)
   return updatedSubmission
 }
@@ -274,6 +250,15 @@ async function createInvitation(
   }
   await repository.addInvitation(invitation)
   return invitation
+}
+
+async function updateInvitation(
+  repository: InvitationRepository,
+  invitation: Invitation,
+) {
+  const updatedInvitation = await repository.updateInvitation(invitation)
+  logger.info(`Invitation ${invitation.id} has been updated in the database`)
+  return updatedInvitation
 }
 
 async function deleteInvitation(

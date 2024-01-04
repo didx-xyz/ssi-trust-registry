@@ -21,10 +21,6 @@ export async function connect(config: DbConfig) {
   return database
 }
 
-export async function createSession() {
-  return client.startSession()
-}
-
 export function close() {
   return client.close()
 }

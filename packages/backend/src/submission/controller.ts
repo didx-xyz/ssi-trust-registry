@@ -8,7 +8,6 @@ import { EmailClient } from '../email/client'
 import { config } from '../config'
 import { FieldError } from '../errors'
 import { InvitationDto, SubmissionDto } from './domain'
-import { createSession } from '../database'
 
 const logger = createLogger(__filename)
 
@@ -176,13 +175,9 @@ async function updateSubmissionState(
   )
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
-  const session = await createSession()
   try {
-    session.startTransaction()
     if (state === 'approved') {
-      const result = await submissionService.approveSubmission(submission, {
-        session,
-      })
+      const result = await submissionService.approveSubmission(submission)
       const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
       logger.info(
         `Sending submission approved email to: `,
@@ -198,9 +193,7 @@ async function updateSubmissionState(
       )
       res.status(200).json(result)
     } else {
-      const result = await submissionService.rejectSubmission(submission, {
-        session,
-      })
+      const result = await submissionService.rejectSubmission(submission)
       logger.info(
         `Sending submission rejected email to: `,
         invitation.emailAddress,
@@ -213,15 +206,11 @@ async function updateSubmissionState(
           invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
         },
       )
-      console.log('committing transaction')
-      await session.commitTransaction()
       res.status(200).json(result)
     }
   } catch (error) {
-    console.log('aborting transaction', error)
-    await session.abortTransaction()
+    await submissionService.updateSubmission(submission)
+    await submissionService.updateInvitation(invitation)
     throw error
-  } finally {
-    await session.endSession()
   }
 }

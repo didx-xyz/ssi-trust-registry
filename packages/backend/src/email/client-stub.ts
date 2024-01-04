@@ -14,12 +14,10 @@ export interface EmailClientStub {
     templateParams: Record<string, unknown>,
   ) => Promise<void>
   sentMessages: SentMessage[]
-  failNextSend: () => void
 }
 
 export function createEmailClientStub(): EmailClientStub {
   const sentMessages: SentMessage[] = []
-  let _failNextSend = false
   return {
     async sendMailFromTemplate(
       to: string,
@@ -27,15 +25,8 @@ export function createEmailClientStub(): EmailClientStub {
       templatePath: string,
       templateParams: Record<string, unknown>,
     ) {
-      if (_failNextSend) {
-        _failNextSend = false
-        throw new Error('Failed to send email')
-      }
       const html = await compileEmailTemplate(templatePath, templateParams)
       sentMessages.push({ to, subject, html })
-    },
-    failNextSend() {
-      _failNextSend = true
     },
     sentMessages,
   }

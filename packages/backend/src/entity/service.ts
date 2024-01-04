@@ -4,7 +4,6 @@ import partial from 'lodash.partial'
 import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../logger'
 import { ValidationService } from './validationService'
-import { ClientSession } from 'mongodb'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
@@ -28,14 +27,8 @@ export interface EntityRepository {
   getAllEntities: () => Promise<Entity[]>
   findById: (id: string) => Promise<Entity | null>
   findByDid: (did: string) => Promise<Entity | null>
-  addEntity: (
-    entity: Entity,
-    config?: { session?: ClientSession },
-  ) => Promise<Entity>
-  updateEntity: (
-    entity: Entity,
-    config?: { session?: ClientSession },
-  ) => Promise<Entity>
+  addEntity: (entity: Entity) => Promise<Entity>
+  updateEntity: (entity: Entity) => Promise<Entity>
 }
 
 export type Entity = z.infer<typeof Entity>

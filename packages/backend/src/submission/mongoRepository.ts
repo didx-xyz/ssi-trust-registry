@@ -1,5 +1,5 @@
 import partial from 'lodash.partial'
-import { ClientSession, Collection, Db } from 'mongodb'
+import { Collection, Db } from 'mongodb'
 import { createLogger } from '../logger'
 import { Invitation, Submission } from './domain'
 import { InvitationRepository, SubmissionRepository } from './service'
@@ -69,18 +69,16 @@ async function addSubmission(collection: Collection, submission: Submission) {
 async function updateSubmission(
   collection: Collection,
   submission: Submission,
-  config: { session?: ClientSession; newDatestamps?: boolean } = {
-    newDatestamps: true,
-  },
+  { newDatestamps = true }: { newDatestamps?: boolean } = {},
 ) {
   const { id, ...data } = submission
-  if (config.newDatestamps) {
+  if (newDatestamps) {
     data.updatedAt = new Date().toISOString()
   }
   const updatedSubmission = await collection.findOneAndUpdate(
     { id },
     { $set: { ...data } },
-    { returnDocument: 'after', session: config.session },
+    { returnDocument: 'after' },
   )
   if (!updatedSubmission) {
     throw new Error(`Submission with id ${id} not found`)
@@ -107,13 +105,12 @@ async function addInvitation(collection: Collection, invitation: Invitation) {
 async function updateInvitation(
   collection: Collection,
   invitation: Invitation,
-  config?: { session?: ClientSession },
 ) {
   const { id, ...data } = invitation
   const updatedInvitation = await collection.findOneAndUpdate(
     { id },
     { $set: { ...data } },
-    { ...config, returnDocument: 'after' },
+    { returnDocument: 'after' },
   )
   if (!updatedInvitation) {
     throw new Error(`Invitation with id ${id} not found`)
