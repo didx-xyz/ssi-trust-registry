@@ -9,6 +9,7 @@ import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 import { Card, CardWrapper } from '@/common/components/Card'
 import { useFormWithServerError } from '@/common/hooks'
+import { GenericErrorContents } from '@/common/components/GenericErrorContents'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<
@@ -17,6 +18,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
   const {
     handleSubmit: handleApprove,
     formState: {
+      errors: { server: approveError },
       isSubmitting: isApproving,
       isSubmitSuccessful: isApproveSuccessful,
     },
@@ -25,6 +27,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
   const {
     handleSubmit: handleReject,
     formState: {
+      errors: { server: rejectError },
       isSubmitting: isRejecting,
       isSubmitSuccessful: isRejectSuccessful,
     },
@@ -82,7 +85,9 @@ export function SubmissionDetailContent({ id }: { id: string }) {
       <CardWrapper>
         <Card>
           <div className="flex flex-col items-center gap-8">
-            {isApproveSuccessful ? (
+            {approveError || rejectError ? (
+              <GenericErrorContents />
+            ) : isApproveSuccessful ? (
               <ApproveContents submission={submission} />
             ) : isRejectSuccessful ? (
               <RejectContents submission={submission} />
