@@ -57,7 +57,7 @@ export async function InvitationsTable() {
                 <p className="text-right w-full">
                   {invitation.entityId ? (
                     <Link
-                      href={`/entities/${invitation.entityId}`}
+                      href={`/${invitation.entityId}`}
                       className="text-primary hover:opacity-70 underline"
                     >
                       {invitation.entityId}
