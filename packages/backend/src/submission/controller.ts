@@ -112,6 +112,7 @@ async function createInvitation(
     const { submitUiUrl } = getSubmitUrls(invitation)
     await emailService.sendInvitationEmail(invitation)
     res.status(201).json({ ...invitation, url: submitUiUrl })
+    await session.commitTransaction()
   } catch (error) {
     logger.error('Error creating invitation, aborting transaction')
     await session.abortTransaction()
@@ -239,8 +240,8 @@ async function updateSubmissionState(
       await emailService.sendRejectionEmail(invitation)
     }
     console.log('committing transaction')
-    await session.commitTransaction()
     res.status(200).json(result)
+    await session.commitTransaction()
   } catch (error) {
     logger.error('Error updating submission state, aborting transaction')
     await session.abortTransaction()
