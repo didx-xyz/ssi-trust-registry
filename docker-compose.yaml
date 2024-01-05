@@ -36,8 +36,17 @@ services:
   mongo:
     container_name: mongo
     image: mongo:7.0
+    entrypoint:
+      - bash
+      - -c
+      - |
+        cp /auth/local.file.key /auth/file.key
+        chmod 400 /auth/file.key
+        chown 999:999 /auth/file.key
+        exec docker-entrypoint.sh $$@
     command:
       [
+        "mongod",
         "--port",
         "27017",
         "--keyFile",
@@ -58,7 +67,7 @@ services:
       - ssi-trust-registry
     volumes:
       - ./.docker/mongodb/initdb.d/:/docker-entrypoint-initdb.d/
-      - ./.docker/mongodb/file.key:/auth/file.key
+      - ./.docker/mongodb/local.file.key:/auth/local.file.key
     healthcheck:
       test: echo 'rs.status().ok' | mongosh admin --port 27017 -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
       interval: 30s
