@@ -8,6 +8,7 @@ import { EmailClient } from '../email/client'
 import { config } from '../config'
 import { FieldError } from '../errors'
 import { InvitationDto, SubmissionDto } from './domain'
+import { createSession } from '../database'
 
 const logger = createLogger(__filename)
 
@@ -62,20 +63,33 @@ async function createInvitation(
 ) {
   const invitationDto = InvitationDto.parse(req.body)
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
-  const invitation = await service.createInvitation(invitationDto)
-  const submitApiUrl = `https://${config.server.url}:${config.server.port}/api/submissions`
-  const submitUiUrl = `${config.server.frontendUrl}/submit/${invitation.id}`
-  logger.info(`Sending invitation via email to: `, invitation.emailAddress)
-  await emailClient.sendMailFromTemplate(
-    invitation.emailAddress,
-    'Invitation',
-    './src/email/templates/invitation.html',
-    {
-      submitApiUrl,
-      submitUiUrl,
-    },
-  )
-  res.status(201).json({ ...invitation, url: submitUiUrl })
+  const session = await createSession()
+  try {
+    session.startTransaction()
+    const invitation = await service.createInvitation(invitationDto, {
+      session,
+    })
+    const submitApiUrl = `https://${config.server.url}:${config.server.port}/api/submissions`
+    const submitUiUrl = `${config.server.frontendUrl}/submit/${invitation.id}`
+    logger.info(`Sending invitation via email to: `, invitation.emailAddress)
+    await emailClient.sendMailFromTemplate(
+      invitation.emailAddress,
+      'Invitation',
+      './src/email/templates/invitation.html',
+      {
+        submitApiUrl,
+        submitUiUrl,
+      },
+    )
+    res.status(201).json({ ...invitation, url: submitUiUrl })
+    await session.commitTransaction()
+  } catch (error) {
+    logger.error('Error creating invitation, aborting transaction')
+    await session.abortTransaction()
+    throw error
+  } finally {
+    await session.endSession()
+  }
 }
 
 async function getAllInvitations(
@@ -170,37 +184,51 @@ async function updateSubmissionState(
   )
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
-
-  if (state === 'approved') {
-    const result = await submissionService.approveSubmission(submission)
-    const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
-    logger.info(
-      `Sending submission approved email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Congratulations! Your submission has been approved!',
-      './src/email/templates/approved.html',
-      {
-        entityUrl,
-      },
-    )
-    res.status(200).json(result)
-  } else {
-    const result = await submissionService.rejectSubmission(submission)
-    logger.info(
-      `Sending submission rejected email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Sorry. Your submission has been rejected.',
-      './src/email/templates/rejected.html',
-      {
-        invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
-      },
-    )
-    res.status(200).json(result)
+  const session = await createSession()
+  try {
+    session.startTransaction()
+    if (state === 'approved') {
+      const result = await submissionService.approveSubmission(submission, {
+        session,
+      })
+      const entityUrl = `${config.server.frontendUrl}/${result.entity.id}`
+      logger.info(
+        `Sending submission approved email to: `,
+        invitation.emailAddress,
+      )
+      await emailClient.sendMailFromTemplate(
+        invitation.emailAddress,
+        'Congratulations! Your submission has been approved!',
+        './src/email/templates/approved.html',
+        {
+          entityUrl,
+        },
+      )
+      res.status(200).json(result)
+    } else {
+      const result = await submissionService.rejectSubmission(submission, {
+        session,
+      })
+      logger.info(
+        `Sending submission rejected email to: `,
+        invitation.emailAddress,
+      )
+      await emailClient.sendMailFromTemplate(
+        invitation.emailAddress,
+        'Sorry. Your submission has been rejected.',
+        './src/email/templates/rejected.html',
+        {
+          invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
+        },
+      )
+      res.status(200).json(result)
+    }
+    await session.commitTransaction()
+  } catch (error) {
+    logger.error('Error updating submission state, aborting transaction')
+    await session.abortTransaction()
+    throw error
+  } finally {
+    await session.endSession()
   }
 }
