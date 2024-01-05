@@ -82,6 +82,7 @@ async function createInvitation(
       },
     )
     res.status(201).json({ ...invitation, url: submitUiUrl })
+    await session.commitTransaction()
   } catch (error) {
     logger.error('Error creating invitation, aborting transaction')
     await session.abortTransaction()
@@ -220,9 +221,9 @@ async function updateSubmissionState(
           invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
         },
       )
-      await session.commitTransaction()
       res.status(200).json(result)
     }
+    await session.commitTransaction()
   } catch (error) {
     logger.error('Error updating submission state, aborting transaction')
     await session.abortTransaction()
