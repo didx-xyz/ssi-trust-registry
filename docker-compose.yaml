@@ -22,7 +22,7 @@ services:
       SMTP_USER: user
       SMTP_PASSWORD: password
       AUTH_JWT_SECRET_KEY: authjwtsecretkey
-      AUTH_ADMIN_PASSWORD_HASH: passwordhash
+      AUTH_ADMIN_PASSWORD_HASH: $$2b$$10$$Jo5knrTTpteyyyBN1aCh3.JThMmLxtX33Djl4H8rprAG1UCUOYIRm
       FRONTEND_URL: http://localhost:3001
       SKIP_INITIAL_DATA_LOAD: true
       LOGGER_LOG_LEVEL: debug
