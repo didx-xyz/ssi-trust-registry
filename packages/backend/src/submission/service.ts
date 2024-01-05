@@ -29,19 +29,23 @@ export interface SubmissionRepository {
   findSubmissionsByInvitationId: (id: string) => Promise<Submission[]>
 }
 export interface InvitationRepository {
-  addInvitation: (invitation: Invitation) => Promise<Invitation>
+  addInvitation: (
+    invitation: Invitation,
+    config?: { session?: ClientSession },
+  ) => Promise<Invitation>
   updateInvitation: (
     invitation: Invitation,
     config?: { session?: ClientSession },
   ) => Promise<Invitation>
-  deleteInvitation: (id: string) => Promise<void>
   getAllInvitations: () => Promise<Invitation[]>
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
 export interface SubmissionService {
-  createInvitation: (invitationDto: InvitationDto) => Promise<Invitation>
-  deleteInvitation: (id: string) => Promise<void>
+  createInvitation: (
+    invitationDto: InvitationDto,
+    config?: { session?: ClientSession },
+  ) => Promise<Invitation>
   getAllInvitations: () => Promise<Invitation[]>
   getInvitationById: (id: string) => Promise<Invitation>
   getSubmissionById: (id: string) => Promise<Submission>
@@ -69,7 +73,6 @@ export async function createSubmissionService(
 ): Promise<SubmissionService> {
   return {
     createInvitation: partial(createInvitation, invitationRepository),
-    deleteInvitation: partial(deleteInvitation, invitationRepository),
     getAllInvitations: partial(getAllInvitations, invitationRepository),
     getInvitationById: partial(getInvitationById, invitationRepository),
     getAllSubmissions: partial(getAllSubmissions, submissionRepository),
@@ -272,22 +275,15 @@ async function updateSubmission(
 async function createInvitation(
   repository: InvitationRepository,
   invitationDto: InvitationDto,
+  config: { session?: ClientSession } = {},
 ) {
   const invitation = {
     ...invitationDto,
     id: createId(),
     createdAt: new Date().toISOString(),
   }
-  await repository.addInvitation(invitation)
+  await repository.addInvitation(invitation, config)
   return invitation
-}
-
-async function deleteInvitation(
-  repository: InvitationRepository,
-  id: string,
-): Promise<void> {
-  await repository.deleteInvitation(id)
-  logger.info(`Invitation ${id} has been deleted from the database`)
 }
 
 async function getAllInvitations(repository: InvitationRepository) {
