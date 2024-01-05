@@ -29,7 +29,6 @@ export async function createInvitationRepository(
   return {
     addInvitation: partial(addInvitation, invitationCollection),
     updateInvitation: partial(updateInvitation, invitationCollection),
-    deleteInvitation: partial(deleteInvitation, invitationCollection),
     getAllInvitations: partial(getAllInvitations, invitationCollection),
     findInvitationById: partial(findInvitationById, invitationCollection),
   }
@@ -98,8 +97,12 @@ async function findInvitationById(collection: Collection, id: string) {
   return invitation && Invitation.parse(invitation)
 }
 
-async function addInvitation(collection: Collection, invitation: Invitation) {
-  const result = await collection.insertOne({ ...invitation })
+async function addInvitation(
+  collection: Collection,
+  invitation: Invitation,
+  config?: { session?: ClientSession },
+) {
+  const result = await collection.insertOne({ ...invitation }, config)
   logger.info(`Invitation inserted to the database`, result)
   return invitation
 }
@@ -119,9 +122,4 @@ async function updateInvitation(
     throw new Error(`Invitation with id ${id} not found`)
   }
   return Invitation.parse(updatedInvitation)
-}
-
-async function deleteInvitation(collection: Collection, id: string) {
-  const result = await collection.deleteOne({ id })
-  logger.info(`Invitation deleted from the database`, result)
 }

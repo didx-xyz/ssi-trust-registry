@@ -63,8 +63,12 @@ async function createInvitation(
 ) {
   const invitationDto = InvitationDto.parse(req.body)
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
-  const invitation = await service.createInvitation(invitationDto)
+  const session = await createSession()
   try {
+    session.startTransaction()
+    const invitation = await service.createInvitation(invitationDto, {
+      session,
+    })
     const submitApiUrl = `https://${config.server.url}:${config.server.port}/api/submissions`
     const submitUiUrl = `${config.server.frontendUrl}/submit/${invitation.id}`
     logger.info(`Sending invitation via email to: `, invitation.emailAddress)
@@ -79,8 +83,11 @@ async function createInvitation(
     )
     res.status(201).json({ ...invitation, url: submitUiUrl })
   } catch (error) {
-    await service.deleteInvitation(invitation.id)
+    logger.error('Error creating invitation, aborting transaction')
+    await session.abortTransaction()
     throw error
+  } finally {
+    await session.endSession()
   }
 }
 
@@ -213,12 +220,11 @@ async function updateSubmissionState(
           invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
         },
       )
-      console.log('committing transaction')
       await session.commitTransaction()
       res.status(200).json(result)
     }
   } catch (error) {
-    console.log('aborting transaction', error)
+    logger.error('Error updating submission state, aborting transaction')
     await session.abortTransaction()
     throw error
   } finally {
