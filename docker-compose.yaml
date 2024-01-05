@@ -32,26 +32,51 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+
   mongo:
+    container_name: mongo
     image: mongo:7.0
-    command: "mongod --bind_ip_all --replSet rs0 --wiredTigerCacheSizeGB 2 --dbpath /data/db --port 27017"
-    ports:
-      - 27017:27017
-    hostname: mongo
-    expose:
-      - "27017"
+    command:
+      [
+        "--port",
+        "27017",
+        "--keyFile",
+        "/auth/file.key",
+        "--replSet",
+        "rs0",
+        "--bind_ip_all"
+      ]
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo
       MONGO_INITDB_DATABASE: trust-registry
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - "mongo-data:/data/db"
-      - "./keyfile:/data/keyfile:ro"
-      - "./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro"
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
     networks:
       - ssi-trust-registry
+    volumes:
+      - ./.docker/mongodb/initdb.d/:/docker-entrypoint-initdb.d/
+      - ./.docker/mongodb/file.key:/auth/file.key
+    healthcheck:
+      test: echo 'rs.status().ok' | mongosh admin --port 27017 -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --quiet | grep 1
+      interval: 30s
+      start_period: 60s
+  mongo-replica-setup:
+    container_name: mongo-setup
+    image: mongo:7.0
+    restart: on-failure
+    networks:
+      - ssi-trust-registry
+    volumes:
+      - ./.docker/mongodb/scripts/mongosetup.sh:/scripts/mongosetup.sh
+    entrypoint: [ "bash", "/scripts/mongosetup.sh" ]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    depends_on:
+      - mongo
   mongo-express:
     image: mongo-express:latest
     container_name: mongo-express
