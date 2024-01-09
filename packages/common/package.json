@@ -1,0 +1,22 @@
+{
+  "name": "@ssi-trust-registry/common",
+  "version": "1.0.0",
+  "main": "build/index",
+  "types": "build/index",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf build && tsc",
+    "format:check": "prettier --check .",
+    "format:update": "prettier --write .",
+    "lint": "eslint . --ignore-path ../../.gitignore",
+    "types:check": "tsc --noEmit",
+    "validate": "yarn format:check && yarn lint && yarn types:check"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^6.2.0",
+    "zod": "^3.22.3"
+  }
+}
