@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express'
+import { InvitationDto, SubmissionDto } from '@ssi-trust-registry/common'
 import { createLogger } from '../logger'
 import { RequestWithToken } from '../auth/middleware'
 import partial from 'lodash.partial'
@@ -7,7 +8,6 @@ import { SubmissionService } from './service'
 import { EmailClient } from '../email/client'
 import { config } from '../config'
 import { FieldError } from '../errors'
-import { InvitationDto, SubmissionDto } from './domain'
 
 const logger = createLogger(__filename)
 

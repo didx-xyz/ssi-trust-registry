@@ -1,7 +1,7 @@
 import partial from 'lodash.partial'
 import { Collection, Db } from 'mongodb'
+import { Invitation, Submission } from '@ssi-trust-registry/common'
 import { createLogger } from '../logger'
-import { Invitation, Submission } from './domain'
 import { InvitationRepository, SubmissionRepository } from './service'
 
 const logger = createLogger(__filename)

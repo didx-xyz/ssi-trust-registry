@@ -3,10 +3,16 @@ import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { createLogger } from '../logger'
-import { Entity, EntityRepository } from '../entity/service'
+import { EntityRepository } from '../entity/service'
 import { FieldError } from '../errors'
-import { Invitation, InvitationDto, Submission, SubmissionDto } from './domain'
 import { createId } from '@paralleldrive/cuid2'
+import {
+  Entity,
+  Invitation,
+  InvitationDto,
+  Submission,
+  SubmissionDto,
+} from '@ssi-trust-registry/common'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)

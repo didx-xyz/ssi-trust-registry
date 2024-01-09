@@ -1,17 +1,21 @@
 import fetch from 'node-fetch'
 import { Db } from 'mongodb'
 import { Server } from 'http'
+import {
+  Invitation,
+  exampleEntityDto,
+  exampleSchemaDto,
+} from '@ssi-trust-registry/common'
 
 import { startServer } from './server'
 import { config } from './config'
 import { close, connect } from './database'
-import { SchemaService, exampleSchemaDto } from './schema/service'
-import { EntityService, exampleEntityDto } from './entity/service'
+import { SchemaService } from './schema/service'
+import { EntityService } from './entity/service'
 import { createAppContext } from './context'
 import { correctDids } from './__tests__/fixtures'
 import { EmailClientStub, createEmailClientStub } from './email/client-stub'
 import { createFakeDidResolver } from './__tests__/helpers'
-import { Invitation } from './submission/domain'
 
 const { port, url } = config.server
 
