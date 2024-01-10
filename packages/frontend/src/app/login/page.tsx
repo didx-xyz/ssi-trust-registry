@@ -5,7 +5,7 @@ import { getUser, logIn } from '@/api'
 import { TextInput } from '@/common/components/TextInput'
 import { Button } from '@/common/components/Button'
 import { PageContainer } from '@/common/components/PageContainer'
-import { Text2xlBold } from '@/common/components/Typography'
+import { Text2xlBold, TextSm } from '@/common/components/Typography'
 import React, { useEffect } from 'react'
 import { Card, CardWrapper } from '@/common/components/Card'
 import { NavigationBreadcrumbsPlaceholder } from '@/common/components/navigation/Breadcrumbs'
@@ -15,18 +15,30 @@ interface Inputs {
   password: string
 }
 
+type AuthError = { auth: string }
+
 export default function LoginPage() {
   const router = useRouter()
-  const { register, handleSubmit, formState } = useForm<Inputs>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    clearErrors,
+  } = useForm<Inputs & AuthError>()
 
-  function onSubmit(data: Inputs) {
-    console.log('formState.errors', formState.errors)
-    console.log('data', data)
-    logIn(data)
-      .then(() => {
-        router.push('/')
+  async function onSubmit(data: Inputs) {
+    try {
+      console.log('data', data)
+      await logIn(data)
+      router.push('/')
+    } catch (error) {
+      console.error(error)
+      setError('auth', {
+        type: 'manual',
+        message: 'Authorization failed.',
       })
-      .catch(console.error)
+    }
   }
 
   useEffect(() => {
@@ -43,7 +55,14 @@ export default function LoginPage() {
       <CardWrapper>
         <Card>
           <div className="flex flex-col items-center gap-y-8">
-            <Text2xlBold>Admin Login</Text2xlBold>
+            <div className="flex flex-col items-center gap-y-2">
+              <Text2xlBold>Admin Login</Text2xlBold>
+              {errors.auth && (
+                <TextSm className="text-error">
+                  Your email or your password is incorrect. Please, try again.
+                </TextSm>
+              )}
+            </div>
             <div className="flex flex-col w-full gap-y-4">
               <TextInput
                 type="email"
@@ -61,7 +80,14 @@ export default function LoginPage() {
               />
             </div>
             <div className="card-actions justify-center w-full">
-              <Button onClick={handleSubmit(onSubmit)} title="Log in" />
+              <Button
+                onClick={(data) => {
+                  clearErrors()
+                  handleSubmit(onSubmit)(data)
+                }}
+                title="Log in"
+                loading={isSubmitting}
+              />
             </div>
           </div>
         </Card>
