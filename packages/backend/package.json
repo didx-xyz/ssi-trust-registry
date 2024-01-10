@@ -5,10 +5,11 @@
   "license": "MIT",
   "scripts": {
     "build": "rm -rf build && tsc -b -f",
+    "common:build": "yarn workspace @ssi-trust-registry/common build",
     "format:check": "prettier --check .",
     "format:update": "prettier --write .",
     "lint": "eslint . --ignore-path ../../.gitignore",
-    "types:check": "tsc --noEmit",
+    "types:check": "yarn common:build && tsc --noEmit",
     "validate": "yarn format:check && yarn lint && yarn types:check",
     "test": "jest",
     "test:watch": "yarn test --watchAll",

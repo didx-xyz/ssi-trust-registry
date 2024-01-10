@@ -5,7 +5,7 @@
   "types": "build/index",
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf build && tsc",
+    "build": "rm -rf build tsconfig.tsbuildinfo && tsc",
     "format:check": "prettier --check .",
     "format:update": "prettier --write .",
     "lint": "eslint . --ignore-path ../../.gitignore",
