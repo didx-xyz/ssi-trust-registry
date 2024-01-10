@@ -1,10 +1,10 @@
 import React from 'react'
+import dayjs from 'dayjs'
+import { Schema } from '@ssi-trust-registry/common'
+import { backendUrl, betterFetch } from '@/api'
 import { PageHeading } from '@/common/components/PageHeading'
 import { Text2xlBold } from '@/common/components/Typography'
-import { Schema } from '@/common/interfaces'
-import dayjs from 'dayjs'
 import { PageContainer } from '@/common/components/PageContainer'
-import { backendUrl, betterFetch } from '@/api'
 import {
   Table,
   TableBody,

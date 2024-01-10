@@ -1,12 +1,12 @@
 import Failure from '@/common/assets/Failure.svg'
 import { Button } from '@/common/components/Button'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
-import { Submission } from '@/common/interfaces'
+import { SubmissionWithEmail } from '@/common/interfaces'
 
 export function RejectContents({
   submission,
 }: {
-  submission?: Submission & { emailAddress: string }
+  submission?: SubmissionWithEmail
 }) {
   return (
     <>

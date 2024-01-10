@@ -1,5 +1,10 @@
 'use client'
 import React, { useEffect, useState } from 'react'
+import Image from 'next/image'
+import dayjs from 'dayjs'
+import { useRouter } from 'next/navigation'
+import { Entity } from '@ssi-trust-registry/common'
+import { backendUrl, betterFetch } from '@/api'
 import {
   Table,
   TableBody,
@@ -7,11 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/common/components/Table'
-import { Entity } from '@/common/interfaces'
-import Image from 'next/image'
-import dayjs from 'dayjs'
-import { useRouter } from 'next/navigation'
-import { backendUrl, betterFetch } from '@/api'
 
 export function TrustRegistryTable() {
   const router = useRouter()

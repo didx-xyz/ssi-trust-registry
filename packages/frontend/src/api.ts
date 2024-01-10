@@ -1,5 +1,5 @@
-import { BaseError } from 'make-error'
 import { env } from 'next-runtime-env'
+import { FieldError } from '@ssi-trust-registry/common'
 
 export const backendUrl = env('NEXT_PUBLIC_BACKEND_URL')
 
@@ -77,12 +77,4 @@ export async function betterFetch<T>(
   }
 
   return responsePayload
-}
-
-export class FieldError extends BaseError {
-  field: string
-  constructor(message: string, field: string) {
-    super(message)
-    this.field = field
-  }
 }
