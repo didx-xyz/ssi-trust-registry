@@ -74,6 +74,18 @@ async function createInvitation(
   res.status(201).json({ ...invitation, url: submitUiUrl })
 }
 
+async function resendInvitation(
+  service: SubmissionService,
+  emailClient: EmailClient,
+  req: Request,
+  res: Response,
+) {
+  const invitation = await service.getInvitationById(req.params.id)
+  const { submitUiUrl } = getSubmitUrls(invitation)
+  await service.sendInvitationEmail(invitation)
+  res.status(200).json({ ...invitation, url: submitUiUrl })
+}
+
 async function getAllInvitations(
   service: SubmissionService,
   req: RequestWithToken,
@@ -199,15 +211,4 @@ async function updateSubmissionState(
     )
     res.status(200).json(result)
   }
-}
-
-async function resendInvitation(
-  submissionService: SubmissionService,
-  emailClient: EmailClient,
-  req: Request,
-  res: Response,
-) {
-  const invitation = await submissionService.getInvitationById(req.params.id)
-  await submissionService.sendInvitationEmail(invitation)
-  res.status(200).json(invitation)
 }

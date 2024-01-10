@@ -34,6 +34,7 @@ export async function createAppContext(io: IO) {
     submissionRepository,
     invitationRepository,
     entityRepository,
+    emailClient,
   )
   const schemaService = await createSchemaService(schemaRepository)
   const entityService = await createEntityService(
