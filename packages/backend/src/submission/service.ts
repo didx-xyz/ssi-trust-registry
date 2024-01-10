@@ -260,9 +260,6 @@ async function sendInvitationEmail(
 ) {
   const { submitApiUrl, submitUiUrl } = getSubmitUrls(invitation)
   logger.info(`Sending invitation via email to: `, invitation.emailAddress)
-  console.log('======>>>>>')
-  console.log(invitation)
-  console.log(emailClient)
   await emailClient.sendMailFromTemplate(
     invitation.emailAddress,
     'Invitation',
