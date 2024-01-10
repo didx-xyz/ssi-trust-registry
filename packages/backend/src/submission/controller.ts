@@ -11,6 +11,7 @@ import { ValidationService } from '../entity/validationService'
 import { SubmissionService } from './service'
 import { EmailClient } from '../email/client'
 import { config } from '../config'
+import { getSubmitUrls } from '../email/helpers'
 
 const logger = createLogger(__filename)
 
@@ -26,6 +27,7 @@ export interface SubmissionController {
     res: Response,
   ) => Promise<void>
   updateSubmissionState: (req: RequestWithToken, res: Response) => Promise<void>
+  resendInvitation: (req: RequestWithToken, res: Response) => Promise<void>
 }
 
 export async function createSubmissionController(
@@ -54,6 +56,7 @@ export async function createSubmissionController(
       validationService,
       emailClient,
     ),
+    resendInvitation: partial(resendInvitation, submissionService, emailClient),
   }
 }
 
@@ -66,18 +69,8 @@ async function createInvitation(
   const invitationDto = InvitationDto.parse(req.body)
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
   const invitation = await service.createInvitation(invitationDto)
-  const submitApiUrl = `https://${config.server.url}:${config.server.port}/api/submissions`
-  const submitUiUrl = `${config.server.frontendUrl}/submit/${invitation.id}`
-  logger.info(`Sending invitation via email to: `, invitation.emailAddress)
-  await emailClient.sendMailFromTemplate(
-    invitation.emailAddress,
-    'Invitation',
-    './src/email/templates/invitation.html',
-    {
-      submitApiUrl,
-      submitUiUrl,
-    },
-  )
+  const { submitUiUrl } = getSubmitUrls(invitation)
+  await service.sendInvitationEmail(invitation)
   res.status(201).json({ ...invitation, url: submitUiUrl })
 }
 
@@ -206,4 +199,15 @@ async function updateSubmissionState(
     )
     res.status(200).json(result)
   }
+}
+
+async function resendInvitation(
+  submissionService: SubmissionService,
+  emailClient: EmailClient,
+  req: Request,
+  res: Response,
+) {
+  const invitation = await submissionService.getInvitationById(req.params.id)
+  await submissionService.sendInvitationEmail(invitation)
+  res.status(200).json(invitation)
 }
