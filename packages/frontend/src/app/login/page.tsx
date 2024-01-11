@@ -15,7 +15,7 @@ interface Inputs {
   password: string
 }
 
-type AuthError = { auth: string }
+type AuthError = { general: string }
 
 export default function LoginPage() {
   const router = useRouter()
@@ -34,7 +34,7 @@ export default function LoginPage() {
       router.push('/')
     } catch (error) {
       console.error(error)
-      setError('auth', {
+      setError('general', {
         type: 'manual',
         message: 'Authorization failed.',
       })
@@ -57,7 +57,7 @@ export default function LoginPage() {
           <div className="flex flex-col items-center gap-y-8">
             <div className="flex flex-col items-center gap-y-2">
               <Text2xlBold>Admin Login</Text2xlBold>
-              {errors.auth && (
+              {errors.general && (
                 <TextSm className="text-error">
                   Your email or your password is incorrect. Please, try again.
                 </TextSm>
