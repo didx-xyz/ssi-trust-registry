@@ -13,8 +13,6 @@ import {
 import { createId } from '@paralleldrive/cuid2'
 import { createLogger } from '../logger'
 import { EntityRepository } from '../entity/service'
-import { EmailClient } from '../email/client'
-import { getSubmitUrls } from '../email/helpers'
 
 const logger = createLogger(__filename)
 extendZodWithOpenApi(z)
@@ -47,14 +45,12 @@ export interface SubmissionService {
     submission: Submission,
   ) => Promise<{ submission: Submission; entity: Entity }>
   rejectSubmission: (submission: Submission) => Promise<Submission>
-  sendInvitationEmail: (invitation: Invitation) => Promise<void>
 }
 
 export async function createSubmissionService(
   submissionRepository: SubmissionRepository,
   invitationRepository: InvitationRepository,
   entityRepository: EntityRepository,
-  emailClient: EmailClient,
 ): Promise<SubmissionService> {
   return {
     createInvitation: partial(createInvitation, invitationRepository),
@@ -80,7 +76,6 @@ export async function createSubmissionService(
       entityRepository,
     ),
     rejectSubmission: partial(rejectSubmission, submissionRepository),
-    sendInvitationEmail: partial(sendInvitationEmail, emailClient),
   }
 }
 
@@ -252,21 +247,4 @@ async function getInvitationById(repository: InvitationRepository, id: string) {
     throw new Error('Invitation not found')
   }
   return invitation
-}
-
-async function sendInvitationEmail(
-  emailClient: EmailClient,
-  invitation: Invitation,
-) {
-  const { submitApiUrl, submitUiUrl } = getSubmitUrls(invitation)
-  logger.info(`Sending invitation via email to: `, invitation.emailAddress)
-  await emailClient.sendMailFromTemplate(
-    invitation.emailAddress,
-    'Invitation',
-    './src/email/templates/invitation.html',
-    {
-      submitApiUrl,
-      submitUiUrl,
-    },
-  )
 }

@@ -70,7 +70,7 @@ async function createInvitation(
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
   const invitation = await service.createInvitation(invitationDto)
   const { submitUiUrl } = getSubmitUrls(invitation)
-  await service.sendInvitationEmail(invitation)
+  await emailClient.sendInvitationEmail(invitation)
   res.status(201).json({ ...invitation, url: submitUiUrl })
 }
 
@@ -82,7 +82,7 @@ async function resendInvitation(
 ) {
   const invitation = await service.getInvitationById(req.params.id)
   const { submitUiUrl } = getSubmitUrls(invitation)
-  await service.sendInvitationEmail(invitation)
+  await emailClient.sendInvitationEmail(invitation)
   res.status(200).json({ ...invitation, url: submitUiUrl })
 }
 
