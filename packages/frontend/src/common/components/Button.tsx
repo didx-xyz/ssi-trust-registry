@@ -13,7 +13,7 @@ interface LinkProps extends Props {
 }
 
 interface ButtonProps extends Props {
-  onClick: (data?: any) => void
+  onClick: (param?: any) => void
   disabled?: boolean
   href?: never
 }
