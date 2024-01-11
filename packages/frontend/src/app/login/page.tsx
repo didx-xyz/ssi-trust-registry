@@ -81,9 +81,9 @@ export default function LoginPage() {
             </div>
             <div className="card-actions justify-center w-full">
               <Button
-                onClick={(inputs) => {
+                onClick={(event) => {
                   clearErrors()
-                  handleSubmit(onSubmit)(inputs)
+                  handleSubmit(onSubmit)(event)
                 }}
                 title="Log in"
                 loading={isSubmitting}
