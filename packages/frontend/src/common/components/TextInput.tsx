@@ -10,6 +10,7 @@ interface TextInputProps<T extends FieldValues> {
   register: UseFormRegister<T>
   icon?: ReactComponentElement<any>
   error?: FieldError
+  onChange?: () => void
 }
 
 export function TextInput<T extends FieldValues>({
@@ -20,6 +21,7 @@ export function TextInput<T extends FieldValues>({
   register,
   icon,
   error,
+  onChange,
 }: TextInputProps<T>) {
   return (
     <div
@@ -45,6 +47,7 @@ export function TextInput<T extends FieldValues>({
             error?.message && '!input-error !bg-error !bg-opacity-20'
           } ${icon && 'pl-12'}`}
           {...register(name)}
+          onChange={onChange}
         />
       </div>
       <div className="ml-4">

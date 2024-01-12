@@ -13,7 +13,7 @@ interface LinkProps extends Props {
 }
 
 interface ButtonProps extends Props {
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
+  onClick: () => void
   disabled?: boolean
   href?: never
 }

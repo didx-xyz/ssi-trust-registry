@@ -27,10 +27,10 @@ export default function LoginPage() {
     clearErrors,
   } = useForm<Inputs & AuthError>()
 
-  async function onSubmit(data: Inputs) {
+  async function onSubmit(inputs: Inputs) {
     try {
-      console.log('data', data)
-      await logIn(data)
+      console.log('inputs', inputs)
+      await logIn(inputs)
       router.push('/')
     } catch (error) {
       console.error(error)
@@ -70,6 +70,7 @@ export default function LoginPage() {
                 label="E-mail address"
                 placeholder="Enter e-mail address"
                 register={register}
+                onChange={() => clearErrors()}
               />
               <TextInput
                 type="password"
@@ -77,16 +78,15 @@ export default function LoginPage() {
                 label="Password"
                 placeholder="Enter password"
                 register={register}
+                onChange={() => clearErrors()}
               />
             </div>
             <div className="card-actions justify-center w-full">
               <Button
-                onClick={(event) => {
-                  clearErrors()
-                  handleSubmit(onSubmit)(event)
-                }}
+                onClick={handleSubmit(onSubmit)}
                 title="Log in"
                 loading={isSubmitting}
+                disabled={!!errors.server}
               />
             </div>
           </div>
