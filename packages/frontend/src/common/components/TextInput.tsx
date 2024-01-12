@@ -46,8 +46,9 @@ export function TextInput<T extends FieldValues>({
           className={`input w-full text-sm bg-lightHover text-gray-600 leading-6 placeholder:font-normal focus-within:placeholder:font-normal font-bold ${
             error?.message && '!input-error !bg-error !bg-opacity-20'
           } ${icon && 'pl-12'}`}
-          {...register(name)}
-          onChange={onChange}
+          {...register(name, {
+            onChange: () => onChange && onChange(),
+          })}
         />
       </div>
       <div className="ml-4">

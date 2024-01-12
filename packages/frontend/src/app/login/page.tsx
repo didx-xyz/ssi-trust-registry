@@ -70,7 +70,7 @@ export default function LoginPage() {
                 label="E-mail address"
                 placeholder="Enter e-mail address"
                 register={register}
-                onChange={() => clearErrors()}
+                onChange={clearErrors}
               />
               <TextInput
                 type="password"
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 label="Password"
                 placeholder="Enter password"
                 register={register}
-                onChange={() => clearErrors()}
+                onChange={clearErrors}
               />
             </div>
             <div className="card-actions justify-center w-full">
