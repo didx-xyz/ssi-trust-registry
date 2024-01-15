@@ -13,7 +13,7 @@ interface TextInputProps<T extends FieldValues> {
   onChange?: () => void
 }
 
-export function TextInput<T extends FieldValues>({
+export function FormTextInput<T extends FieldValues>({
   type,
   name,
   label,

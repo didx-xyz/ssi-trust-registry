@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { getUser, logIn } from '@/api'
-import { TextInput } from '@/common/components/TextInput'
+import { FormTextInput } from '@/common/components/FormTextInput'
 import { Button } from '@/common/components/Button'
 import { PageContainer } from '@/common/components/PageContainer'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
@@ -64,7 +64,7 @@ export default function LoginPage() {
               )}
             </div>
             <div className="flex flex-col w-full gap-y-4">
-              <TextInput
+              <FormTextInput
                 type="email"
                 name="email"
                 label="E-mail address"
@@ -72,7 +72,7 @@ export default function LoginPage() {
                 register={register}
                 onChange={clearErrors}
               />
-              <TextInput
+              <FormTextInput
                 type="password"
                 name="password"
                 label="Password"
