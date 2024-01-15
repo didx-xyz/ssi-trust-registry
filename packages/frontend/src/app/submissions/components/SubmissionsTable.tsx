@@ -1,7 +1,12 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Submission, SubmissionWithEmail } from '@/common/interfaces'
+
+import Image from 'next/image'
+import dayjs from 'dayjs'
+import { Submission } from '@ssi-trust-registry/common'
+import { backendUrl, betterFetch, getInvitation } from '@/api'
+import { SubmissionWithEmail } from '@/common/interfaces'
 import {
   Table,
   TableBody,
@@ -9,10 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/common/components/Table'
-import Image from 'next/image'
-import dayjs from 'dayjs'
 import { TextSmBold } from '@/common/components/Typography'
-import { backendUrl, betterFetch, getInvitation } from '@/api'
 import { PlusIcon } from '@/common/components/images/PlusIcon'
 
 export function SubmissionsTable() {

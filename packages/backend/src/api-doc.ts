@@ -2,10 +2,14 @@ import {
   OpenAPIRegistry,
   OpenApiGeneratorV3,
 } from '@asteasolutions/zod-to-openapi'
+import {
+  Entity,
+  Schema,
+  Invitation,
+  InvitationDto,
+  Submission,
+} from '@ssi-trust-registry/common'
 import { z } from 'zod'
-import { Entity } from './entity/service'
-import { Schema } from './schema/service'
-import { Invitation, InvitationDto, Submission } from './submission/domain'
 
 const RegistrySchema = z.object({
   entities: z.array(Entity),

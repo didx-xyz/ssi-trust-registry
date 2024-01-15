@@ -1,12 +1,12 @@
 import Image from 'next/image'
 import { Text2xlBold, TextSmBold } from '@/common/components/Typography'
-import { Submission } from '@/common/interfaces'
 import { Label } from '@/common/components/Label'
+import { SubmissionWithEmail } from '@/common/interfaces'
 
 export function SubmissionDetail({
   submission,
 }: {
-  submission?: Submission & { emailAddress: string }
+  submission?: SubmissionWithEmail
 }) {
   return (
     submission && (

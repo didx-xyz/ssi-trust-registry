@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { Submission } from '@/common/interfaces'
 import { useForm } from 'react-hook-form'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { ApproveContents } from '@/app/submissions/[id]/components/ApproveContents'
@@ -9,11 +8,10 @@ import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDe
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 import { Card, CardWrapper } from '@/common/components/Card'
+import { SubmissionWithEmail } from '@/common/interfaces'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
-  const [submission, setSubmission] = useState<
-    Submission & { emailAddress: string }
-  >()
+  const [submission, setSubmission] = useState<SubmissionWithEmail>()
   const {
     handleSubmit: handleApprove,
     formState: {
@@ -99,9 +97,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
   )
 }
 
-async function getSubmission(
-  id: string,
-): Promise<Submission & { emailAddress: string }> {
+async function getSubmission(id: string): Promise<SubmissionWithEmail> {
   const submission = await betterFetch(
     'GET',
     `${backendUrl}/api/submissions/${id}`,

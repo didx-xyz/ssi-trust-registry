@@ -27,6 +27,7 @@ const nextConfig = {
 
     return config
   },
+  transpilePackages: ['@ssi-trust-registry/common'],
 }
 
 module.exports = nextConfig

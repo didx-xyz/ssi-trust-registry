@@ -4,9 +4,10 @@ import morgan from 'morgan'
 import { v4 as uuidv4 } from 'uuid'
 import swaggerUi from 'swagger-ui-express'
 import { ZodError } from 'zod'
+import { FieldError } from '@ssi-trust-registry/common'
 import { createLogger } from './logger'
 import { RequestWithToken } from './auth/middleware'
-import { AuthError, FieldError } from './errors'
+import { AuthError } from './errors'
 
 const logger = createLogger(__filename)
 
