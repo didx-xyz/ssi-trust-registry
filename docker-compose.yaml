@@ -79,8 +79,8 @@ services:
     networks:
       - ssi-trust-registry
     volumes:
-      - ./.docker/mongodb/scripts/mongosetup.sh:/scripts/mongosetup.sh
-    entrypoint: [ "bash", "/scripts/mongosetup.sh" ]
+      - ./.docker/mongodb/scripts:/scripts
+    entrypoint: [ "bash", "/scripts/mongo-setup.sh" ]
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo
