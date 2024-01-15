@@ -457,7 +457,7 @@ describe('api', () => {
     })
 
     test('submission approval - when unable to send email, do not update submission state or create new entity', async () => {
-      const emailAddress = 'submissionrollback@test.com'
+      const emailAddress = 'submissionRollback@test.com'
       const invitation: Invitation = await generateNewInvitation(cookie, {
         emailAddress,
       })
