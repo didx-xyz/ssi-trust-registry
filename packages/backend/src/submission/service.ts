@@ -23,7 +23,7 @@ export interface SubmissionRepository {
   addSubmission: (submission: Submission) => Promise<Submission>
   updateSubmission: (
     submission: Submission,
-    config?: { session?: ClientSession; newDatestamps?: boolean },
+    session?: ClientSession,
   ) => Promise<Submission>
   findSubmissionById: (id: string) => Promise<Submission | null>
   findSubmissionsByInvitationId: (id: string) => Promise<Submission[]>
@@ -31,11 +31,11 @@ export interface SubmissionRepository {
 export interface InvitationRepository {
   addInvitation: (
     invitation: Invitation,
-    config?: { session?: ClientSession },
+    session?: ClientSession,
   ) => Promise<Invitation>
   updateInvitation: (
     invitation: Invitation,
-    config?: { session?: ClientSession },
+    session?: ClientSession,
   ) => Promise<Invitation>
   getAllInvitations: () => Promise<Invitation[]>
   findInvitationById: (id: string) => Promise<Invitation | null>
@@ -44,7 +44,7 @@ export interface InvitationRepository {
 export interface SubmissionService {
   createInvitation: (
     invitationDto: InvitationDto,
-    config?: { session?: ClientSession },
+    session?: ClientSession,
   ) => Promise<Invitation>
   getAllInvitations: () => Promise<Invitation[]>
   getInvitationById: (id: string) => Promise<Invitation>
@@ -54,15 +54,15 @@ export interface SubmissionService {
   addSubmission: (submissionDto: SubmissionDto) => Promise<Submission>
   approveSubmission: (
     submission: Submission,
-    config?: { session?: ClientSession },
+    session?: ClientSession,
   ) => Promise<{ submission: Submission; entity: Entity }>
   rejectSubmission: (
     submission: Submission,
-    config?: { session?: ClientSession },
+    session?: ClientSession,
   ) => Promise<Submission>
   updateSubmission: (
     submission: Submission,
-    config?: { session?: ClientSession; newDatestamps?: boolean },
+    session?: ClientSession,
   ) => Promise<Submission>
 }
 
@@ -171,7 +171,7 @@ async function approveSubmission(
   invitationRepository: InvitationRepository,
   entityRepository: EntityRepository,
   submission: Submission,
-  config: { session?: ClientSession } = {},
+  session?: ClientSession,
 ): Promise<{ submission: Submission; entity: Entity }> {
   const invitation = await invitationRepository.findInvitationById(
     submission.invitationId,
@@ -192,7 +192,7 @@ async function approveSubmission(
       ...submission,
       state: 'approved',
     },
-    config,
+    session,
   )
   logger.info(`Submission ${submission.id} has been approved in the database`)
 
@@ -215,13 +215,13 @@ async function approveSubmission(
       createdAt: date,
       updatedAt: date,
     }
-    entity = await entityRepository.addEntity(newEntity, config)
+    entity = await entityRepository.addEntity(newEntity, session)
     await invitationRepository.updateInvitation(
       {
         ...invitation,
         entityId: entity.id,
       },
-      config,
+      session,
     )
     logger.info(`Entity ${entity.id} has been inserted to the database`)
   } else {
@@ -234,7 +234,7 @@ async function approveSubmission(
       ...entityData,
       updatedAt: new Date().toISOString(),
     }
-    entity = await entityRepository.updateEntity(updatedEntity, config)
+    entity = await entityRepository.updateEntity(updatedEntity, session)
     logger.info(`Entity ${entity.id} has been updated in the database`)
   }
 
@@ -244,14 +244,14 @@ async function approveSubmission(
 async function rejectSubmission(
   submissionRepository: SubmissionRepository,
   submission: Submission,
-  config: { session?: ClientSession } = {},
+  session?: ClientSession,
 ): Promise<Submission> {
   const reviewedSubmission = await submissionRepository.updateSubmission(
     {
       ...submission,
       state: 'rejected',
     },
-    config,
+    session,
   )
   logger.info(`Submission ${submission.id} has been rejected in the database`)
   return reviewedSubmission
@@ -260,13 +260,11 @@ async function rejectSubmission(
 async function updateSubmission(
   repository: SubmissionRepository,
   submission: Submission,
-  config: { session?: ClientSession; newDatestamps?: boolean } = {
-    newDatestamps: true,
-  },
+  session?: ClientSession,
 ): Promise<Submission> {
   const updatedSubmission = await repository.updateSubmission(
     submission,
-    config,
+    session,
   )
   logger.info(`Submission ${submission.id} has been updated in the database`)
   return updatedSubmission
@@ -275,14 +273,14 @@ async function updateSubmission(
 async function createInvitation(
   repository: InvitationRepository,
   invitationDto: InvitationDto,
-  config: { session?: ClientSession } = {},
+  session?: ClientSession,
 ) {
   const invitation = {
     ...invitationDto,
     id: createId(),
     createdAt: new Date().toISOString(),
   }
-  await repository.addInvitation(invitation, config)
+  await repository.addInvitation(invitation, session)
   return invitation
 }
 

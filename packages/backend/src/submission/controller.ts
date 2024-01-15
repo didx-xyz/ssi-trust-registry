@@ -106,9 +106,7 @@ async function createInvitation(
   const session = await createSession()
   try {
     session.startTransaction()
-    const invitation = await service.createInvitation(invitationDto, {
-      session,
-    })
+    const invitation = await service.createInvitation(invitationDto, session)
     const { submitUiUrl } = getSubmitUrls(invitation)
     await emailService.sendInvitationEmail(invitation)
     res.status(201).json({ ...invitation, url: submitUiUrl })
@@ -231,12 +229,10 @@ async function updateSubmissionState(
     session.startTransaction()
     let result
     if (state === 'approved') {
-      result = await submissionService.approveSubmission(submission, {
-        session,
-      })
+      result = await submissionService.approveSubmission(submission, session)
       await emailService.sendApprovalEmail(invitation, result.entity.id)
     } else {
-      result = await submissionService.rejectSubmission(submission, { session })
+      result = await submissionService.rejectSubmission(submission, session)
       await emailService.sendRejectionEmail(invitation)
     }
     console.log('committing transaction')

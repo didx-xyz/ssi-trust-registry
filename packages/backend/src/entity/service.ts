@@ -29,14 +29,8 @@ export interface EntityRepository {
   getAllEntities: () => Promise<Entity[]>
   findById: (id: string) => Promise<Entity | null>
   findByDid: (did: string) => Promise<Entity | null>
-  addEntity: (
-    entity: Entity,
-    config?: { session?: ClientSession },
-  ) => Promise<Entity>
-  updateEntity: (
-    entity: Entity,
-    config?: { session?: ClientSession },
-  ) => Promise<Entity>
+  addEntity: (entity: Entity, session?: ClientSession) => Promise<Entity>
+  updateEntity: (entity: Entity, session?: ClientSession) => Promise<Entity>
 }
 
 export const EntityImportDto = EntityDto.extend({

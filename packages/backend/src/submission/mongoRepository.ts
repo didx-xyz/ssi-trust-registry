@@ -68,18 +68,13 @@ async function addSubmission(collection: Collection, submission: Submission) {
 async function updateSubmission(
   collection: Collection,
   submission: Submission,
-  config: { session?: ClientSession; newDatestamps?: boolean } = {
-    newDatestamps: true,
-  },
+  session?: ClientSession,
 ) {
   const { id, ...data } = submission
-  if (config.newDatestamps) {
-    data.updatedAt = new Date().toISOString()
-  }
   const updatedSubmission = await collection.findOneAndUpdate(
     { id },
     { $set: { ...data } },
-    { returnDocument: 'after', session: config.session },
+    { returnDocument: 'after', session },
   )
   if (!updatedSubmission) {
     throw new Error(`Submission with id ${id} not found`)
@@ -100,9 +95,9 @@ async function findInvitationById(collection: Collection, id: string) {
 async function addInvitation(
   collection: Collection,
   invitation: Invitation,
-  config?: { session?: ClientSession },
+  session?: ClientSession,
 ) {
-  const result = await collection.insertOne({ ...invitation }, config)
+  const result = await collection.insertOne({ ...invitation }, { session })
   logger.info(`Invitation inserted to the database`, result)
   return invitation
 }
@@ -110,13 +105,13 @@ async function addInvitation(
 async function updateInvitation(
   collection: Collection,
   invitation: Invitation,
-  config?: { session?: ClientSession },
+  session?: ClientSession,
 ) {
   const { id, ...data } = invitation
   const updatedInvitation = await collection.findOneAndUpdate(
     { id },
     { $set: { ...data } },
-    { ...config, returnDocument: 'after' },
+    { returnDocument: 'after', session },
   )
   if (!updatedInvitation) {
     throw new Error(`Invitation with id ${id} not found`)

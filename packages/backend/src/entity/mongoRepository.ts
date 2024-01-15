@@ -47,12 +47,12 @@ async function findByDid(collection: Collection, did: string) {
 async function addEntity(
   collection: Collection,
   entity: Entity,
-  config?: { session?: ClientSession },
+  session?: ClientSession,
 ) {
   const entityData = {
     ...entity,
   }
-  await collection.insertOne(entityData, config)
+  await collection.insertOne(entityData, { session })
   return entity
 }
 
