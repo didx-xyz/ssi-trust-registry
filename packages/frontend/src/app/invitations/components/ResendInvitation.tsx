@@ -38,7 +38,7 @@ export function ResendInvitation({ invitationId }: Props) {
   return (
     <TextSmBold>
       <span
-        className={`cursor-pointer text-${getResendButtonColor(buttonState)}`}
+        className={`cursor-pointer ${getResendButtonColor(buttonState)}`}
         onClick={() => onResendInvitation(invitationId)}
       >
         {getResendButtonText(buttonState)}
@@ -49,11 +49,11 @@ export function ResendInvitation({ invitationId }: Props) {
 
 function getResendButtonColor(buttonState: string) {
   const buttonColorByState = {
-    [ResendButtonState.Initial]: 'accent',
-    [ResendButtonState.Resent]: 'success',
-    [ResendButtonState.Failed]: 'error',
+    [ResendButtonState.Initial]: 'text-accent',
+    [ResendButtonState.Resent]: 'text-success',
+    [ResendButtonState.Failed]: 'text-error',
   }
-  return buttonColorByState[buttonState]
+  return buttonColorByState[buttonState] || 'text-primary'
 }
 
 function getResendButtonText(buttonState: string) {
