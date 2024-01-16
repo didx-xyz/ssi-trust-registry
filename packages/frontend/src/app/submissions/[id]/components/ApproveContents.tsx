@@ -1,12 +1,12 @@
-import { Submission } from '@/common/interfaces'
 import Success from '@/common/assets/Success.svg'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
 import { Button } from '@/common/components/Button'
+import { SubmissionWithEmail } from '@/common/interfaces'
 
 export function ApproveContents({
   submission,
 }: {
-  submission?: Submission & { emailAddress: string }
+  submission?: SubmissionWithEmail
 }) {
   return (
     <>

@@ -17,6 +17,7 @@ RUN yarn global add node-gyp
 
 WORKDIR /app
 COPY yarn.lock package.json ./
+COPY ./packages/common/package.json ./packages/common/
 COPY ./packages/frontend/package.json ./packages/frontend/
 COPY ./packages/backend/package.json ./packages/backend/
 RUN yarn install --frozen-lockfile

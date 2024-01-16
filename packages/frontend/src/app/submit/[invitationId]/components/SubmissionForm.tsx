@@ -3,9 +3,9 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { FieldError, backendUrl, betterFetch } from '@/api'
-import { TextInput } from '@/common/components/TextInput'
-import { Invitation } from '@/common/interfaces'
+import { FieldError, Invitation } from '@ssi-trust-registry/common'
+import { backendUrl, betterFetch } from '@/api'
+import { FormTextInput } from '@/common/components/FormTextInput'
 import { TextArea } from '@/common/components/TextArea'
 import { Checkbox } from '@/common/components/Checkbox'
 import Success from '@/common/assets/Success.svg'
@@ -95,7 +95,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
         </TextSm>
       </div>
       <div className="flex flex-col gap-4">
-        <TextInput
+        <FormTextInput
           type="text"
           name="name"
           label="Entity Name"
@@ -110,7 +110,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           name="dids"
           errors={errors.dids}
         />
-        <TextInput
+        <FormTextInput
           type="text"
           name="domain"
           label="Domain"
@@ -142,7 +142,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           name="credentials"
           errors={errors.credentials}
         />
-        <TextInput
+        <FormTextInput
           type="text"
           name="logo_url"
           label="Logo URL (SVG Format)"

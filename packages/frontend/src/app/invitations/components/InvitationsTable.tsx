@@ -8,7 +8,7 @@ import {
 } from '@/common/components/Table'
 import Link from 'next/link'
 import dayjs from 'dayjs'
-import { Invitation, Submission } from '@/common/interfaces'
+import { Submission, Invitation } from '@ssi-trust-registry/common'
 import { backendUrl, betterFetch } from '@/api'
 import { getAuthToken } from '@/common/helpers'
 

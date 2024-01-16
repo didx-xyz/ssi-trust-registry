@@ -1,9 +1,9 @@
+import { Invitation } from '@ssi-trust-registry/common'
 import { getInvitation } from '@/api'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
-import { Invitation } from '@/common/interfaces'
-import { SubmissionForm } from './components/SubmissionForm'
 import { Card, CardWrapper } from '@/common/components/Card'
 import { PageContainer } from '@/common/components/PageContainer'
+import { SubmissionForm } from './components/SubmissionForm'
 
 export default async function SubmitPage({
   params,
