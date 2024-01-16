@@ -50,6 +50,12 @@ describe('api', () => {
     cookie = response.headers.get('set-cookie') || ''
   })
 
+  afterEach(() => {
+    while (emailClient.sentMessages.length) {
+      emailClient.sentMessages.pop()
+    }
+  })
+
   afterAll(async () => {
     await database.dropDatabase()
     await close()
