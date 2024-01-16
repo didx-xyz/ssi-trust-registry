@@ -3,7 +3,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { TextInput } from '@/common/components/TextInput'
+import { FormTextInput } from '@/common/components/FormTextInput'
 import { Button } from '@/common/components/Button'
 import Success from '@/common/assets/Success.svg'
 import EmailIcon from '../assets/EmailIcon.svg'
@@ -46,7 +46,7 @@ export function InviteForm() {
           want to invite.
         </TextSm>
       </div>
-      <TextInput
+      <FormTextInput
         type="email"
         name="emailAddress"
         label="Email"
