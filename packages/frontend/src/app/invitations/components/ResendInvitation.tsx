@@ -2,16 +2,11 @@
 import React, { useEffect, useState } from 'react'
 import { TextSmBold } from '@/common/components/Typography'
 import { backendUrl, betterFetch } from '@/api'
+import { getResendButtonColor, getResendButtonText } from '@/common/helpers'
+import { ResendButtonState } from '@/common/constants'
 
 interface Props {
   invitationId: string
-}
-
-const ResendButtonState = {
-  Initial: 'Initial',
-  Sending: 'Sending',
-  Resent: 'Resent',
-  Failed: 'Failed',
 }
 
 export function ResendInvitation({ invitationId }: Props) {
@@ -30,26 +25,6 @@ export function ResendInvitation({ invitationId }: Props) {
     }
   }
 
-  function getResendButtonColor() {
-    if (buttonState === ResendButtonState.Resent) {
-      return 'success'
-    } else if (buttonState === ResendButtonState.Failed) {
-      return 'error'
-    }
-
-    return 'primary'
-  }
-
-  function getResendButtonText() {
-    const resendButtonTitleMap = {
-      [ResendButtonState.Initial]: 'Resend invitation',
-      [ResendButtonState.Sending]: 'Sending...',
-      [ResendButtonState.Resent]: 'Invitation resent',
-      [ResendButtonState.Failed]: 'Resending failed',
-    }
-    return resendButtonTitleMap[buttonState]
-  }
-
   useEffect(() => {
     if (
       buttonState !== ResendButtonState.Resent ||
@@ -64,10 +39,10 @@ export function ResendInvitation({ invitationId }: Props) {
   return (
     <TextSmBold>
       <span
-        className={`cursor-pointer text-${getResendButtonColor()}`}
+        className={`cursor-pointer text-${getResendButtonColor(buttonState)}`}
         onClick={() => onResendInvitation(invitationId)}
       >
-        {getResendButtonText()}
+        {getResendButtonText(buttonState)}
       </span>
     </TextSmBold>
   )
@@ -80,6 +55,6 @@ async function resendInvitation(invitationId: any) {
       `${backendUrl}/api/invitations/${invitationId}/resend`,
     )
   } catch (error) {
-    return []
+    console.log(error)
   }
 }
