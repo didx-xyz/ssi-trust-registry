@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import { TextSmBold } from '@/common/components/Typography'
 import { backendUrl, betterFetch } from '@/api'
-import { getResendButtonColor, getResendButtonText } from '@/common/helpers'
 import { ResendButtonState } from '@/common/constants'
 
 interface Props {
@@ -46,6 +45,25 @@ export function ResendInvitation({ invitationId }: Props) {
       </span>
     </TextSmBold>
   )
+}
+
+function getResendButtonColor(buttonState: string) {
+  const buttonColorByState = {
+    [ResendButtonState.Initial]: 'accent',
+    [ResendButtonState.Resent]: 'success',
+    [ResendButtonState.Failed]: 'error',
+  }
+  return buttonColorByState[buttonState]
+}
+
+function getResendButtonText(buttonState: string) {
+  const buttonTextByState = {
+    [ResendButtonState.Initial]: 'Resend',
+    [ResendButtonState.Sending]: 'Sending...',
+    [ResendButtonState.Resent]: 'Done',
+    [ResendButtonState.Failed]: 'Failed',
+  }
+  return buttonTextByState[buttonState]
 }
 
 async function resendInvitation(invitationId: any) {
