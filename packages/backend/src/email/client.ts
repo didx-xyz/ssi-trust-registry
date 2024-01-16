@@ -1,7 +1,7 @@
 import partial from 'lodash.partial'
 import nodemailer, { SentMessageInfo, Transporter } from 'nodemailer'
 import { compileEmailTemplate, getSubmitUrls } from './helpers'
-import { Invitation } from '../submission/domain'
+import { Invitation } from '@ssi-trust-registry/common'
 import { createLogger } from '../logger'
 
 const logger = createLogger(__filename)

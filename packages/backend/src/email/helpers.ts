@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import handlebars from 'handlebars'
-import { Invitation } from '../submission/domain'
+import { Invitation } from '@ssi-trust-registry/common'
 import { config } from '../config'
 
 export async function compileEmailTemplate(
