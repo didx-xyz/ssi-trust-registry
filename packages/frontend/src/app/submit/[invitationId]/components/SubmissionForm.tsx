@@ -1,6 +1,5 @@
 'use client'
 import React from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FieldError, Invitation } from '@ssi-trust-registry/common'
@@ -11,6 +10,7 @@ import { Checkbox } from '@/common/components/Checkbox'
 import Success from '@/common/assets/Success.svg'
 import { Button } from '@/common/components/Button'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
+import { useFormWithServerError } from '@/common/hooks'
 
 type Inputs = {
   name: string
@@ -54,8 +54,6 @@ const schema = z.object({
     .endsWith('.svg', 'Must be an SVG image'),
 })
 
-type ServerError = { server?: never }
-
 export function SubmissionForm({ invitation }: { invitation: Invitation }) {
   const {
     register,
@@ -63,7 +61,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
     setError,
-  } = useForm<Inputs & ServerError>({
+  } = useFormWithServerError<Inputs>({
     resolver: zodResolver(schema),
     defaultValues: {
       role: ['verifier'],
