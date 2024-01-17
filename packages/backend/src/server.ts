@@ -129,6 +129,12 @@ export function startServer(
       asyncHandler(context.submissionController.createInvitation),
     )
 
+    apiRouter.post(
+      '/invitations/:id/resend',
+      authenticate,
+      asyncHandler(context.submissionController.resendInvitation),
+    )
+
     apiRouter.post('/auth/login', asyncHandler(context.authController.logIn))
     apiRouter.get('/auth/logout', asyncHandler(context.authController.logOut))
     apiRouter.get(

@@ -50,6 +50,12 @@ describe('api', () => {
     cookie = response.headers.get('set-cookie') || ''
   })
 
+  afterEach(() => {
+    while (emailClient.sentMessages.length) {
+      emailClient.sentMessages.pop()
+    }
+  })
+
   afterAll(async () => {
     await database.dropDatabase()
     await close()
@@ -104,6 +110,19 @@ describe('api', () => {
           expect.objectContaining({ to: 'this-is-an-example@test.com' }),
         ]),
       )
+    })
+
+    test('invitation endpoint resends email', async () => {
+      const emailAddress = 'this-is-an-example@test.com'
+      const { id } = await generateNewInvitation(cookie, {
+        emailAddress,
+      })
+
+      await resendNewInvitation(cookie, { id })
+
+      expect(
+        emailClient.sentMessages.filter(({ to }) => to === emailAddress).length,
+      ).toEqual(2)
     })
 
     test('invalid invitationId fails with 500 error', async () => {
@@ -685,6 +704,22 @@ async function generateNewInvitation(
     {
       emailAddress,
     },
+    cookie,
+  )
+  return await response.json()
+}
+
+async function resendNewInvitation(
+  cookie: string,
+  {
+    id,
+  }: {
+    id: string
+  } = { id: 'test@example.com' },
+) {
+  const response = await post(
+    `http://localhost:${port}/api/invitations/${id}/resend`,
+    {},
     cookie,
   )
   return await response.json()

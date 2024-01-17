@@ -1,6 +1,10 @@
 import partial from 'lodash.partial'
 import nodemailer, { SentMessageInfo, Transporter } from 'nodemailer'
-import { compileEmailTemplate } from './helpers'
+import { compileEmailTemplate, getSubmitUrls } from './helpers'
+import { Invitation } from '@ssi-trust-registry/common'
+import { createLogger } from '../logger'
+
+const logger = createLogger(__filename)
 
 export interface EmailClient {
   sendMailFromTemplate: (
@@ -9,6 +13,7 @@ export interface EmailClient {
     templatePath: string,
     templateParams: Record<string, unknown>,
   ) => Promise<SentMessageInfo>
+  sendInvitationEmail: (invitation: Invitation) => Promise<void>
 }
 
 interface SmtpConfig {
@@ -24,6 +29,7 @@ export function createEmailClient(config: SmtpConfig): EmailClient {
   const transporter = nodemailer.createTransport(config)
   return {
     sendMailFromTemplate: partial(sendMailFromTemplate, transporter),
+    sendInvitationEmail: partial(sendInvitationEmail, transporter),
   }
 }
 
@@ -40,4 +46,22 @@ async function sendMailFromTemplate(
     subject,
     html,
   })
+}
+
+async function sendInvitationEmail(
+  transporter: Transporter,
+  invitation: Invitation,
+) {
+  const { submitApiUrl, submitUiUrl } = getSubmitUrls(invitation)
+  logger.info(`Sending invitation via email to: `, invitation.emailAddress)
+  await sendMailFromTemplate(
+    transporter,
+    invitation.emailAddress,
+    'Invitation',
+    './src/email/templates/invitation.html',
+    {
+      submitApiUrl,
+      submitUiUrl,
+    },
+  )
 }
