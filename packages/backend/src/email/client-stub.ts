@@ -1,4 +1,4 @@
-import { compileEmailTemplate, getSubmitUrls } from './helpers'
+import { compileEmailTemplate, getEntityUrl, getSubmitUrls } from './helpers'
 import { Invitation } from '@ssi-trust-registry/common'
 
 type SentMessage = {
@@ -15,6 +15,8 @@ export interface EmailClientStub {
     templateParams: Record<string, unknown>,
   ) => Promise<void>
   sendInvitationEmail: (invitation: Invitation) => Promise<void>
+  sendApprovalEmail: (invitation: Invitation, entityId: string) => Promise<void>
+  sendRejectionEmail: (invitation: Invitation) => Promise<void>
   sentMessages: SentMessage[]
 }
 
@@ -38,6 +40,28 @@ export function createEmailClientStub(): EmailClientStub {
         './src/email/templates/invitation.html',
         {
           submitApiUrl,
+          submitUiUrl,
+        },
+      )
+    },
+    async sendApprovalEmail(invitation: Invitation, entityId: string) {
+      const entityUrl = getEntityUrl(entityId)
+      await this.sendMailFromTemplate(
+        invitation.emailAddress,
+        'Congratulations! Your submission has been approved!',
+        './src/email/templates/approved.html',
+        {
+          entityUrl,
+        },
+      )
+    },
+    async sendRejectionEmail(invitation: Invitation) {
+      const { submitUiUrl } = getSubmitUrls(invitation)
+      await this.sendMailFromTemplate(
+        invitation.emailAddress,
+        'Sorry. Your submission has been rejected.',
+        './src/email/templates/rejected.html',
+        {
           submitUiUrl,
         },
       )

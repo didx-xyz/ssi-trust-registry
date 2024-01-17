@@ -10,7 +10,6 @@ import partial from 'lodash.partial'
 import { ValidationService } from '../entity/validationService'
 import { SubmissionService } from './service'
 import { EmailClient } from '../email/client'
-import { config } from '../config'
 import { getSubmitUrls } from '../email/helpers'
 
 const logger = createLogger(__filename)
@@ -179,36 +178,13 @@ async function updateSubmissionState(
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
 
+  let result
   if (state === 'approved') {
-    const result = await submissionService.approveSubmission(submission)
-    const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
-    logger.info(
-      `Sending submission approved email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Congratulations! Your submission has been approved!',
-      './src/email/templates/approved.html',
-      {
-        entityUrl,
-      },
-    )
-    res.status(200).json(result)
+    result = await submissionService.approveSubmission(submission)
+    await emailClient.sendApprovalEmail(invitation, result.entity.id)
   } else {
-    const result = await submissionService.rejectSubmission(submission)
-    logger.info(
-      `Sending submission rejected email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Sorry. Your submission has been rejected.',
-      './src/email/templates/rejected.html',
-      {
-        invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
-      },
-    )
-    res.status(200).json(result)
+    result = await submissionService.rejectSubmission(submission)
+    await emailClient.sendRejectionEmail(invitation)
   }
+  res.status(200).json(result)
 }
