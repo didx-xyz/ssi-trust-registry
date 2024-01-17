@@ -7,30 +7,30 @@ import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDe
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 import { Card, CardWrapper } from '@/common/components/Card'
-import { SubmissionWithEmail } from '@/common/interfaces'
-import { useFormWithServerError } from '@/common/hooks'
+import { GenericError, SubmissionWithEmail } from '@/common/interfaces'
 import { GenericErrorContents } from '@/common/components/GenericErrorContents'
+import { useForm } from 'react-hook-form'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<SubmissionWithEmail>()
   const {
     handleSubmit: handleApprove,
     formState: {
-      errors: { server: approveError },
+      errors: { generic: approveError },
       isSubmitting: isApproving,
       isSubmitSuccessful: isApproveSuccessful,
     },
     setError: setApproveError,
-  } = useFormWithServerError()
+  } = useForm<GenericError>()
   const {
     handleSubmit: handleReject,
     formState: {
-      errors: { server: rejectError },
+      errors: { generic: rejectError },
       isSubmitting: isRejecting,
       isSubmitSuccessful: isRejectSuccessful,
     },
     setError: setRejectError,
-  } = useFormWithServerError()
+  } = useForm<GenericError>()
 
   async function onApproveSubmission() {
     try {
@@ -41,7 +41,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
         setSubmission({ ...submission, ...approvedSubmission })
       }
     } catch (e) {
-      setApproveError('server', {
+      setApproveError('generic', {
         type: 'manual',
         message: 'Something went wrong',
       })
@@ -55,7 +55,7 @@ export function SubmissionDetailContent({ id }: { id: string }) {
         setSubmission({ ...submission, ...rejectedSubmission })
       }
     } catch (e) {
-      setRejectError('server', {
+      setRejectError('generic', {
         type: 'manual',
         message: 'Something went wrong',
       })

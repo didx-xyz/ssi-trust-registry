@@ -2,6 +2,7 @@
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useForm } from 'react-hook-form'
 import { FieldError, Invitation } from '@ssi-trust-registry/common'
 import { backendUrl, betterFetch } from '@/api'
 import { FormTextInput } from '@/common/components/FormTextInput'
@@ -10,7 +11,7 @@ import { Checkbox } from '@/common/components/Checkbox'
 import Success from '@/common/assets/Success.svg'
 import { Button } from '@/common/components/Button'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
-import { useFormWithServerError } from '@/common/hooks'
+import { GenericError } from '@/common/interfaces'
 
 type Inputs = {
   name: string
@@ -61,7 +62,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
     setError,
-  } = useFormWithServerError<Inputs>({
+  } = useForm<Inputs & GenericError>({
     resolver: zodResolver(schema),
     defaultValues: {
       role: ['verifier'],
@@ -77,7 +78,7 @@ export function SubmissionForm({ invitation }: { invitation: Invitation }) {
           message: error.message,
         })
       } else {
-        setError('server', { type: 'manual', message: 'Something went wrong' })
+        setError('generic', { type: 'manual', message: 'Something went wrong' })
       }
     }
   }

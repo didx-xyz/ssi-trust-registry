@@ -2,14 +2,15 @@
 import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useForm } from 'react-hook-form'
 import { FormTextInput } from '@/common/components/FormTextInput'
 import { Button } from '@/common/components/Button'
 import Success from '@/common/assets/Success.svg'
 import { backendUrl, betterFetch } from '@/api'
 import { Text2xlBold, TextSm } from '@/common/components/Typography'
 import EmailIcon from '../assets/EmailIcon.svg'
-import { useFormWithServerError } from '@/common/hooks'
 import { GenericErrorContents } from '@/common/components/GenericErrorContents'
+import { GenericError } from '@/common/interfaces'
 
 interface Inputs {
   emailAddress: string
@@ -25,18 +26,18 @@ export function InviteForm() {
     getValues,
     reset,
     setError,
-  } = useFormWithServerError<Inputs>({
+  } = useForm<Inputs & GenericError>({
     resolver: zodResolver(schema),
   })
   async function onSubmit(data: Inputs) {
     try {
       await invite(data)
     } catch (e) {
-      setError('server', { type: 'manual', message: 'Something went wrong' })
+      setError('generic', { type: 'manual', message: 'Something went wrong' })
     }
   }
 
-  return errors.server ? (
+  return errors.generic ? (
     <GenericErrorContents />
   ) : isSubmitSuccessful ? (
     <SuccessContents
