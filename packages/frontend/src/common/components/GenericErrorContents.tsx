@@ -10,7 +10,7 @@ export function GenericErrorContents() {
         <Text2xlBold>Oops, something went wrong</Text2xlBold>
         <TextSm>
           Try to refresh the page. If the issue persists, contact us at
-          lorem@ipsum.com
+          ssi@absa.africa
         </TextSm>
       </div>
       <Button onClick={() => location.reload()} title="Refresh" />
