@@ -20,3 +20,7 @@ export function getSubmitUrls(invitation: Invitation) {
     submitUiUrl,
   }
 }
+
+export function getEntityUrl(entityId: string) {
+  return `${config.server.frontendUrl}/entities/${entityId}`
+}
