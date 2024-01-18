@@ -1,10 +1,6 @@
 import partial from 'lodash.partial'
 import nodemailer, { SentMessageInfo, Transporter } from 'nodemailer'
-import { compileEmailTemplate, getEntityUrl, getSubmitUrls } from './helpers'
-import { Invitation } from '@ssi-trust-registry/common'
-import { createLogger } from '../logger'
-
-const logger = createLogger(__filename)
+import { compileEmailTemplate } from './helpers'
 
 export interface EmailClient {
   sendMailFromTemplate: (
@@ -13,9 +9,6 @@ export interface EmailClient {
     templatePath: string,
     templateParams: Record<string, unknown>,
   ) => Promise<SentMessageInfo>
-  sendInvitationEmail: (invitation: Invitation) => Promise<void>
-  sendApprovalEmail: (invitation: Invitation, entityId: string) => Promise<void>
-  sendRejectionEmail: (invitation: Invitation) => Promise<void>
 }
 
 interface SmtpConfig {
@@ -31,9 +24,6 @@ export function createEmailClient(config: SmtpConfig): EmailClient {
   const transporter = nodemailer.createTransport(config)
   return {
     sendMailFromTemplate: partial(sendMailFromTemplate, transporter),
-    sendInvitationEmail: partial(sendInvitationEmail, transporter),
-    sendApprovalEmail: partial(sendApprovalEmail, transporter),
-    sendRejectionEmail: partial(sendRejectionEmail, transporter),
   }
 }
 
@@ -50,57 +40,4 @@ async function sendMailFromTemplate(
     subject,
     html,
   })
-}
-
-async function sendInvitationEmail(
-  transporter: Transporter,
-  invitation: Invitation,
-) {
-  const { submitApiUrl, submitUiUrl } = getSubmitUrls(invitation)
-  logger.info(`Sending submission approved email to: `, invitation.emailAddress)
-  await sendMailFromTemplate(
-    transporter,
-    invitation.emailAddress,
-    'Invitation',
-    './src/email/templates/invitation.html',
-    {
-      submitApiUrl,
-      submitUiUrl,
-    },
-  )
-}
-
-async function sendApprovalEmail(
-  transporter: Transporter,
-  invitation: Invitation,
-  entityId: string,
-) {
-  const entityUrl = getEntityUrl(entityId)
-  logger.info(`Sending submission approved email to: `, invitation.emailAddress)
-  await sendMailFromTemplate(
-    transporter,
-    invitation.emailAddress,
-    'Congratulations! Your submission has been approved!',
-    './src/email/templates/approved.html',
-    {
-      entityUrl,
-    },
-  )
-}
-
-async function sendRejectionEmail(
-  transporter: Transporter,
-  invitation: Invitation,
-) {
-  const { submitUiUrl } = getSubmitUrls(invitation)
-  logger.info(`Sending submission rejected email to: `, invitation.emailAddress)
-  await sendMailFromTemplate(
-    transporter,
-    invitation.emailAddress,
-    'Sorry. Your submission has been rejected.',
-    './src/email/templates/rejected.html',
-    {
-      submitUiUrl,
-    },
-  )
 }

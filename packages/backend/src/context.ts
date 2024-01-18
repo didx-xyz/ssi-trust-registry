@@ -5,6 +5,7 @@ import {
   createInvitationRepository,
   createSubmissionRepository,
 } from './submission/mongoRepository'
+import { createEmailService } from './email/service'
 import { createSubmissionService } from './submission/service'
 import { createSchemaRepository } from './schema/mongoRepository'
 import { createSchemaService } from './schema/service'
@@ -22,6 +23,7 @@ interface IO {
 
 export async function createAppContext(io: IO) {
   const { database, didResolver, emailClient } = io
+  const emailService = await createEmailService(emailClient)
   const invitationRepository = await createInvitationRepository(database)
   const submissionRepository = await createSubmissionRepository(database)
   const schemaRepository = await createSchemaRepository(database)
@@ -42,14 +44,14 @@ export async function createAppContext(io: IO) {
   )
 
   const authController = await createAuthController()
-
   const submissionController = await createSubmissionController(
     submissionService,
     validationService,
-    emailClient,
+    emailService,
   )
 
   return {
+    emailService,
     invitationRepository,
     submissionRepository,
     submissionService,
