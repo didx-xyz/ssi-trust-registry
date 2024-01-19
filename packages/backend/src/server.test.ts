@@ -309,7 +309,7 @@ describe('api', () => {
       expect(emailClient.sentMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            subject: 'Congratulations! Your submission has been approved!',
+            subject: 'SSI Trust Registry - Submission Approved',
           }),
         ]),
       )
@@ -332,7 +332,7 @@ describe('api', () => {
       expect(emailClient.sentMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            subject: 'Sorry. Your submission has been rejected.',
+            subject: 'SSI Trust Registry - Submission Rejected',
           }),
         ]),
       )
