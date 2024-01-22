@@ -31,17 +31,17 @@
     class-validator "0.14.0"
     reflect-metadata "^0.1.13"
 
-"@aries-framework/askar@0.4.1":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@aries-framework/askar/-/askar-0.4.1.tgz#16c2664ad88de90702464f9099125f4f588a6c34"
-  integrity sha512-GGdo/P/1F15maLfFJuv/VbNY9eKHQLfJ8bZ1sTyFt7e8EqGInxNqoO/4tzJFFYze0dU71NgpPTAcmoh8gmcQ7A==
+"@aries-framework/askar@0.4.2":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@aries-framework/askar/-/askar-0.4.2.tgz#b05051e0a5bbdf95d3c1339aa19b2680ed6d21f0"
+  integrity sha512-eQuLsXCjVxRRhUCd8yXqP0PD2S3QX3OPV2eUBb7PqkTxdo1ZCbiA8Q1pCP65l9s/zVIGT/2E1ys/n1sZZm1wmQ==
   dependencies:
-    "@aries-framework/core" "0.4.1"
+    "@aries-framework/core" "0.4.2"
     bn.js "^5.2.1"
     class-transformer "0.5.1"
     class-validator "0.14.0"
     rxjs "^7.2.0"
-    tsyringe "^4.7.0"
+    tsyringe "^4.8.0"
 
 "@aries-framework/core@0.4.1":
   version "0.4.1"
