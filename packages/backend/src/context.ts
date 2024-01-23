@@ -6,20 +6,35 @@ import {
   createSubmissionRepository,
 } from './submission/mongoRepository'
 import { createEmailService } from './email/service'
-import { createSubmissionService } from './submission/service'
+import {
+  createSubmissionService,
+  SubmissionService,
+} from './submission/service'
 import { createSchemaRepository } from './schema/mongoRepository'
-import { createSchemaService } from './schema/service'
+import { createSchemaService, SchemaService } from './schema/service'
 import { createEntityRepository } from './entity/mongoRepository'
-import { createEntityService } from './entity/service'
-import { createAuthController } from './auth/controller'
-import { createSubmissionController } from './submission/controller'
+import { createEntityService, EntityService } from './entity/service'
+import { AuthController, createAuthController } from './auth/controller'
+import {
+  createSubmissionController,
+  SubmissionController,
+} from './submission/controller'
 import { createValidationService } from './entity/validationService'
-import { createRegistryController } from './entity/controller'
+import { createRegistryController, EntityController } from './entity/controller'
 
 interface IO {
   database: Db
   didResolver: DidResolver
   emailClient: EmailClient
+}
+
+export interface Context {
+  entityService: EntityService
+  schemaService: SchemaService
+  submissionService: SubmissionService
+  submissionController: SubmissionController
+  authController: AuthController
+  entityController: EntityController
 }
 
 export async function createAppContext(io: IO) {

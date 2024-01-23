@@ -11,27 +11,13 @@ import {
   swaggerDocs,
 } from './middleware'
 import { generateSwaggerDocs } from './api-doc'
-import { EntityService } from './entity/service'
-import { SchemaService } from './schema/service'
-import { SubmissionService } from './submission/service'
-import { AuthController } from './auth/controller'
 import { authenticate } from './auth/middleware'
-import { SubmissionController } from './submission/controller'
-import { EntityController } from './entity/controller'
+import { Context } from './context'
 
 interface ServerConfig {
   port: number
   url: string
   frontendUrl: string
-}
-
-export interface Context {
-  entityService: EntityService
-  schemaService: SchemaService
-  submissionService: SubmissionService
-  submissionController: SubmissionController
-  authController: AuthController
-  entityController: EntityController
 }
 
 export function startServer(

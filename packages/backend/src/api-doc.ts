@@ -3,7 +3,7 @@ import {
   OpenApiGeneratorV3,
 } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
-import { Context } from './server'
+import { Context } from './context'
 
 export function generateSwaggerDocs(context: Context) {
   const registry = new OpenAPIRegistry()
