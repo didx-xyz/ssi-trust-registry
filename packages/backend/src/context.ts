@@ -14,6 +14,7 @@ import { createEntityService } from './entity/service'
 import { createAuthController } from './auth/controller'
 import { createSubmissionController } from './submission/controller'
 import { createValidationService } from './entity/validationService'
+import { createEntityController } from './entity/controller'
 
 interface IO {
   database: Db
@@ -28,6 +29,7 @@ export async function createAppContext(io: IO) {
   const submissionRepository = await createSubmissionRepository(database)
   const schemaRepository = await createSchemaRepository(database)
   const entityRepository = await createEntityRepository(database)
+  const entityController = createEntityController()
   const validationService = await createValidationService(
     schemaRepository,
     didResolver,
@@ -60,6 +62,7 @@ export async function createAppContext(io: IO) {
     schemaService,
     entityRepository,
     entityService,
+    entityController,
     authController,
   }
 }

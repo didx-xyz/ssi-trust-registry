@@ -18,6 +18,7 @@ import { SubmissionService } from './submission/service'
 import { AuthController } from './auth/controller'
 import { authenticate } from './auth/middleware'
 import { SubmissionController } from './submission/controller'
+import { EntityController } from './entity/controller'
 
 const logger = createLogger(__filename)
 
@@ -27,12 +28,13 @@ interface ServerConfig {
   frontendUrl: string
 }
 
-interface Context {
+export interface Context {
   entityService: EntityService
   schemaService: SchemaService
   submissionService: SubmissionService
   submissionController: SubmissionController
   authController: AuthController
+  entityController: EntityController
 }
 
 export function startServer(
@@ -60,7 +62,9 @@ export function startServer(
     app.use('/api', apiRouter)
 
     if (process.env.NODE_ENV !== 'production') {
-      const swaggerDocsJson = JSON.parse(JSON.stringify(generateSwaggerDocs()))
+      const swaggerDocsJson = JSON.parse(
+        JSON.stringify(generateSwaggerDocs(context)),
+      )
       apiRouter.use('/docs', ...swaggerDocs(url, port, swaggerDocsJson))
       apiRouter.get('/docs-json', (_, res) => {
         res.json(swaggerDocsJson)
