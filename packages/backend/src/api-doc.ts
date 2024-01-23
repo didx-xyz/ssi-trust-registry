@@ -26,15 +26,15 @@ export function generateSwaggerDocs(context: Context) {
   })
 
   context.entityController
-    .getRouteConfigs()
+    .getRouteConfigDocs()
     .forEach((route) => registry.registerPath(route))
 
   context.submissionController
-    .getRouteConfigs()
+    .getRouteConfigDocs()
     .forEach((route) => registry.registerPath(route))
 
   context.authController
-    .getRouteConfigs()
+    .getRouteConfigDocs()
     .forEach((route) => registry.registerPath(route))
 
   const generator = new OpenApiGeneratorV3(registry.definitions)

@@ -25,7 +25,7 @@ export async function createAuthController(): Promise<AuthController> {
     logIn,
     logOut,
     getUser,
-    getRouteConfigs,
+    getRouteConfigDocs,
   }
 }
 
@@ -33,7 +33,7 @@ export interface AuthController {
   logIn: (req: Request, res: Response) => Promise<void>
   logOut: (req: Request, res: Response) => Promise<void>
   getUser: (req: RequestWithToken, res: Response) => Promise<void>
-  getRouteConfigs: () => RouteConfig[]
+  getRouteConfigDocs: () => RouteConfig[]
 }
 
 async function logIn(req: Request, res: Response) {
@@ -100,7 +100,7 @@ function verifyPassword(password: string, hash: string) {
   return bcrypt.compare(password, hash)
 }
 
-function getRouteConfigs(): RouteConfig[] {
+function getRouteConfigDocs(): RouteConfig[] {
   return [
     {
       method: 'post',

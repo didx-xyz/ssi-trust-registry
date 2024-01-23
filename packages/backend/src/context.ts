@@ -14,7 +14,7 @@ import { createEntityService } from './entity/service'
 import { createAuthController } from './auth/controller'
 import { createSubmissionController } from './submission/controller'
 import { createValidationService } from './entity/validationService'
-import { createEntityController } from './entity/controller'
+import { createRegistryController } from './entity/controller'
 
 interface IO {
   database: Db
@@ -50,7 +50,10 @@ export async function createAppContext(io: IO) {
     validationService,
     emailService,
   )
-  const entityController = createEntityController(entityService, schemaService)
+  const entityController = createRegistryController(
+    entityService,
+    schemaService,
+  )
 
   return {
     emailService,

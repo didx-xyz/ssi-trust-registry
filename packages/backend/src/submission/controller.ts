@@ -52,7 +52,7 @@ export interface SubmissionController {
   ) => Promise<void>
   updateSubmissionState: (req: RequestWithToken, res: Response) => Promise<void>
   resendInvitation: (req: RequestWithToken, res: Response) => Promise<void>
-  getRouteConfigs: () => RouteConfig[]
+  getRouteConfigDocs: () => RouteConfig[]
 }
 
 export async function createSubmissionController(
@@ -90,7 +90,7 @@ export async function createSubmissionController(
       submissionService,
       emailService,
     ),
-    getRouteConfigs: partial(getRouteConfigs),
+    getRouteConfigDocs,
   }
 }
 
@@ -224,7 +224,7 @@ async function updateSubmissionState(
   res.status(200).json(result)
 }
 
-function getRouteConfigs(): RouteConfig[] {
+function getRouteConfigDocs(): RouteConfig[] {
   return [
     {
       method: 'get',
@@ -349,6 +349,22 @@ function getRouteConfigs(): RouteConfig[] {
           content: {
             'application/json': {
               schema: z.array(Submission),
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'post',
+      path: '/invitations/:id/resend',
+      summary: 'Resend invitation',
+      request: {},
+      responses: {
+        200: {
+          description: 'Invitation',
+          content: {
+            'application/json': {
+              schema: CreateInvitationResponseSchema,
             },
           },
         },

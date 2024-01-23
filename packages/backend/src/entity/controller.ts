@@ -15,18 +15,18 @@ const RegistryResponseSchema = z.object({
   schemas: z.array(Schema),
 })
 
-export function createEntityController(
+export function createRegistryController(
   entityService: EntityService,
   schemaService: SchemaService,
 ): EntityController {
   return {
-    getRouteConfigs: partial(getRouteConfigs),
+    getRouteConfigDocs,
     getRegistry: partial(getRegistry, entityService, schemaService),
   }
 }
 
 export interface EntityController {
-  getRouteConfigs: () => RouteConfig[]
+  getRouteConfigDocs: () => RouteConfig[]
   getRegistry: (req: RequestWithToken, res: Response) => Promise<void>
 }
 
@@ -44,7 +44,7 @@ async function getRegistry(
   res.status(200).json(registry)
 }
 
-function getRouteConfigs(): RouteConfig[] {
+function getRouteConfigDocs(): RouteConfig[] {
   return [
     {
       method: 'get',
