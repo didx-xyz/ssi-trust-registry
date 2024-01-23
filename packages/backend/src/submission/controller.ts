@@ -9,9 +9,8 @@ import { RequestWithToken } from '../auth/middleware'
 import partial from 'lodash.partial'
 import { ValidationService } from '../entity/validationService'
 import { SubmissionService } from './service'
-import { EmailClient } from '../email/client'
-import { config } from '../config'
 import { getSubmitUrls } from '../email/helpers'
+import { EmailService } from '../email/service'
 
 const logger = createLogger(__filename)
 
@@ -33,10 +32,14 @@ export interface SubmissionController {
 export async function createSubmissionController(
   submissionService: SubmissionService,
   validationService: ValidationService,
-  emailClient: EmailClient,
+  emailService: EmailService,
 ): Promise<SubmissionController> {
   return {
-    createInvitation: partial(createInvitation, submissionService, emailClient),
+    createInvitation: partial(
+      createInvitation,
+      submissionService,
+      emailService,
+    ),
     getAllInvitations: partial(getAllInvitations, submissionService),
     getInvitationById: partial(getInvitationById, submissionService),
     createSubmission: partial(
@@ -54,15 +57,19 @@ export async function createSubmissionController(
       updateSubmissionState,
       submissionService,
       validationService,
-      emailClient,
+      emailService,
     ),
-    resendInvitation: partial(resendInvitation, submissionService, emailClient),
+    resendInvitation: partial(
+      resendInvitation,
+      submissionService,
+      emailService,
+    ),
   }
 }
 
 async function createInvitation(
   service: SubmissionService,
-  emailClient: EmailClient,
+  emailService: EmailService,
   req: Request,
   res: Response,
 ) {
@@ -70,19 +77,19 @@ async function createInvitation(
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
   const invitation = await service.createInvitation(invitationDto)
   const { submitUiUrl } = getSubmitUrls(invitation)
-  await emailClient.sendInvitationEmail(invitation)
+  await emailService.sendInvitationEmail(invitation)
   res.status(201).json({ ...invitation, url: submitUiUrl })
 }
 
 async function resendInvitation(
   service: SubmissionService,
-  emailClient: EmailClient,
+  emailService: EmailService,
   req: Request,
   res: Response,
 ) {
   const invitation = await service.getInvitationById(req.params.id)
   const { submitUiUrl } = getSubmitUrls(invitation)
-  await emailClient.sendInvitationEmail(invitation)
+  await emailService.sendInvitationEmail(invitation)
   res.status(200).json({ ...invitation, url: submitUiUrl })
 }
 
@@ -161,7 +168,7 @@ async function getSubmissionsByInvitationId(
 async function updateSubmissionState(
   submissionService: SubmissionService,
   validationService: ValidationService,
-  emailClient: EmailClient,
+  emailService: EmailService,
   req: RequestWithToken,
   res: Response,
 ) {
@@ -179,36 +186,13 @@ async function updateSubmissionState(
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
 
+  let result
   if (state === 'approved') {
-    const result = await submissionService.approveSubmission(submission)
-    const entityUrl = `${config.server.frontendUrl}/entities/${result.entity.id}`
-    logger.info(
-      `Sending submission approved email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Congratulations! Your submission has been approved!',
-      './src/email/templates/approved.html',
-      {
-        entityUrl,
-      },
-    )
-    res.status(200).json(result)
+    result = await submissionService.approveSubmission(submission)
+    await emailService.sendApprovalEmail(invitation, result.entity.id)
   } else {
-    const result = await submissionService.rejectSubmission(submission)
-    logger.info(
-      `Sending submission rejected email to: `,
-      invitation.emailAddress,
-    )
-    await emailClient.sendMailFromTemplate(
-      invitation.emailAddress,
-      'Sorry. Your submission has been rejected.',
-      './src/email/templates/rejected.html',
-      {
-        invitationUrl: `${config.server.frontendUrl}/submit/${invitation.id}`,
-      },
-    )
-    res.status(200).json(result)
+    result = await submissionService.rejectSubmission(submission)
+    await emailService.sendRejectionEmail(invitation)
   }
+  res.status(200).json(result)
 }
