@@ -10,7 +10,6 @@ import {
   httpLogger,
   swaggerDocs,
 } from './middleware'
-import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
 import { EntityService } from './entity/service'
 import { SchemaService } from './schema/service'
@@ -19,8 +18,6 @@ import { AuthController } from './auth/controller'
 import { authenticate } from './auth/middleware'
 import { SubmissionController } from './submission/controller'
 import { EntityController } from './entity/controller'
-
-const logger = createLogger(__filename)
 
 interface ServerConfig {
   port: number
@@ -77,14 +74,7 @@ export function startServer(
 
     apiRouter.get(
       '/registry',
-      asyncHandler(async (req, res) => {
-        logger.info('Reading the registry from the file.')
-        const registry = {
-          entities: await context.entityService.getAllEntities(),
-          schemas: await context.schemaService.getAllSchemas(),
-        }
-        res.status(200).json(registry)
-      }),
+      asyncHandler(context.entityController.getRegistry),
     )
 
     apiRouter.get(

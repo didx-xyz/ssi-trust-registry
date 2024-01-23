@@ -29,7 +29,6 @@ export async function createAppContext(io: IO) {
   const submissionRepository = await createSubmissionRepository(database)
   const schemaRepository = await createSchemaRepository(database)
   const entityRepository = await createEntityRepository(database)
-  const entityController = createEntityController()
   const validationService = await createValidationService(
     schemaRepository,
     didResolver,
@@ -51,6 +50,7 @@ export async function createAppContext(io: IO) {
     validationService,
     emailService,
   )
+  const entityController = createEntityController(entityService, schemaService)
 
   return {
     emailService,
