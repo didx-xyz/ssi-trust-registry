@@ -10,29 +10,14 @@ import {
   httpLogger,
   swaggerDocs,
 } from './middleware'
-import { createLogger } from './logger'
 import { generateSwaggerDocs } from './api-doc'
-import { EntityService } from './entity/service'
-import { SchemaService } from './schema/service'
-import { SubmissionService } from './submission/service'
-import { AuthController } from './auth/controller'
 import { authenticate } from './auth/middleware'
-import { SubmissionController } from './submission/controller'
-
-const logger = createLogger(__filename)
+import { Context } from './context'
 
 interface ServerConfig {
   port: number
   url: string
   frontendUrl: string
-}
-
-interface Context {
-  entityService: EntityService
-  schemaService: SchemaService
-  submissionService: SubmissionService
-  submissionController: SubmissionController
-  authController: AuthController
 }
 
 export function startServer(
@@ -60,7 +45,9 @@ export function startServer(
     app.use('/api', apiRouter)
 
     if (process.env.NODE_ENV !== 'production') {
-      const swaggerDocsJson = JSON.parse(JSON.stringify(generateSwaggerDocs()))
+      const swaggerDocsJson = JSON.parse(
+        JSON.stringify(generateSwaggerDocs(context)),
+      )
       apiRouter.use('/docs', ...swaggerDocs(url, port, swaggerDocsJson))
       apiRouter.get('/docs-json', (_, res) => {
         res.json(swaggerDocsJson)
@@ -73,14 +60,7 @@ export function startServer(
 
     apiRouter.get(
       '/registry',
-      asyncHandler(async (req, res) => {
-        logger.info('Reading the registry from the file.')
-        const registry = {
-          entities: await context.entityService.getAllEntities(),
-          schemas: await context.schemaService.getAllSchemas(),
-        }
-        res.status(200).json(registry)
-      }),
+      asyncHandler(context.registryController.getRegistry),
     )
 
     apiRouter.get(

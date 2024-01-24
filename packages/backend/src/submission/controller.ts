@@ -1,7 +1,10 @@
 import type { Request, Response } from 'express'
 import {
+  Entity,
   FieldError,
+  Invitation,
   InvitationDto,
+  Submission,
   SubmissionDto,
 } from '@ssi-trust-registry/common'
 import { createLogger } from '../logger'
@@ -11,8 +14,30 @@ import { ValidationService } from '../entity/validationService'
 import { SubmissionService } from './service'
 import { getSubmitUrls } from '../email/helpers'
 import { EmailService } from '../email/service'
+import { z } from 'zod'
+import { RouteConfig } from '@asteasolutions/zod-to-openapi'
 
 const logger = createLogger(__filename)
+
+const UpdateSubmissionRequestSchema = z.object({
+  submission: Submission,
+  entity: Entity,
+})
+
+const CreateInvitationResponseSchema = z.object({
+  emailAddress: z.string().openapi({
+    example: 'test@example.com',
+  }),
+  id: z.string().openapi({
+    example: 'tz4a98xxat96iws9zmbrgj3a',
+  }),
+  createdAt: z.string().openapi({
+    example: '2023-05-24T18:14:24',
+  }),
+  url: z.string().openapi({
+    example: 'http://localhost:3001/submit/tz4a98xxat96iws9zmbrgj3a',
+  }),
+})
 
 export interface SubmissionController {
   createInvitation: (req: RequestWithToken, res: Response) => Promise<void>
@@ -27,6 +52,7 @@ export interface SubmissionController {
   ) => Promise<void>
   updateSubmissionState: (req: RequestWithToken, res: Response) => Promise<void>
   resendInvitation: (req: RequestWithToken, res: Response) => Promise<void>
+  getRouteConfigDocs: () => RouteConfig[]
 }
 
 export async function createSubmissionController(
@@ -64,6 +90,7 @@ export async function createSubmissionController(
       submissionService,
       emailService,
     ),
+    getRouteConfigDocs,
   }
 }
 
@@ -195,4 +222,153 @@ async function updateSubmissionState(
     await emailService.sendRejectionEmail(invitation)
   }
   res.status(200).json(result)
+}
+
+function getRouteConfigDocs(): RouteConfig[] {
+  return [
+    {
+      method: 'get',
+      path: '/submissions',
+      summary: 'Returns submissions list',
+      request: {},
+      responses: {
+        200: {
+          description: 'List of submissions',
+          content: {
+            'application/json': {
+              schema: z.array(Submission),
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'post',
+      path: '/submissions',
+      summary: 'Creates submission',
+      request: { params: Submission },
+      responses: {
+        200: {
+          description: 'Created submission',
+          content: {
+            'application/json': {
+              schema: Submission,
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'get',
+      path: '/submissions/:id',
+      summary: 'Returns single submission',
+      request: {},
+      responses: {
+        200: {
+          description: 'Single submission',
+          content: {
+            'application/json': {
+              schema: Submission,
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'put',
+      path: '/submissions/:id',
+      summary: 'Updates single submission',
+      request: { params: UpdateSubmissionRequestSchema },
+      responses: {
+        200: {
+          description: 'Updated submission',
+          content: {
+            'application/json': {
+              schema: Submission,
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'get',
+      path: '/invitations',
+      summary: 'Returns invitations list',
+      request: {},
+      responses: {
+        200: {
+          description: 'List of invitations',
+          content: {
+            'application/json': {
+              schema: z.array(Invitation),
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'post',
+      path: '/invitations',
+      summary: 'Create invitation',
+      request: { params: InvitationDto },
+      responses: {
+        200: {
+          description: 'Created invitation',
+          content: {
+            'application/json': {
+              schema: CreateInvitationResponseSchema,
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'get',
+      path: '/invitations/:id',
+      summary: 'Returns single invitation',
+      request: {},
+      responses: {
+        200: {
+          description: 'Single invitation',
+          content: {
+            'application/json': {
+              schema: Invitation,
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'get',
+      path: '/invitations/:id/submissions',
+      summary: 'Returns submission by invitation id',
+      request: {},
+      responses: {
+        200: {
+          description: 'Submission by invitation id',
+          content: {
+            'application/json': {
+              schema: z.array(Submission),
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'post',
+      path: '/invitations/:id/resend',
+      summary: 'Resend invitation',
+      request: {},
+      responses: {
+        200: {
+          description: 'Invitation',
+          content: {
+            'application/json': {
+              schema: CreateInvitationResponseSchema,
+            },
+          },
+        },
+      },
+    },
+  ]
 }

@@ -4,14 +4,28 @@ import bcrypt from 'bcrypt'
 import { createLogger } from '../logger'
 import { RequestWithToken } from './middleware'
 import { config } from '../config'
+import { RouteConfig } from '@asteasolutions/zod-to-openapi'
+import { z } from 'zod'
 
 const logger = createLogger(__filename)
+
+const UserLogInRequestSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+})
+
+const UserLogOutResponseSchema = z.object({
+  message: z
+    .string()
+    .openapi({ example: 'You have been successfully logged out.' }),
+})
 
 export async function createAuthController(): Promise<AuthController> {
   return {
     logIn,
     logOut,
     getUser,
+    getRouteConfigDocs,
   }
 }
 
@@ -19,6 +33,7 @@ export interface AuthController {
   logIn: (req: Request, res: Response) => Promise<void>
   logOut: (req: Request, res: Response) => Promise<void>
   getUser: (req: RequestWithToken, res: Response) => Promise<void>
+  getRouteConfigDocs: () => RouteConfig[]
 }
 
 async function logIn(req: Request, res: Response) {
@@ -83,4 +98,59 @@ function createToken(userId: string) {
 
 function verifyPassword(password: string, hash: string) {
   return bcrypt.compare(password, hash)
+}
+
+function getRouteConfigDocs(): RouteConfig[] {
+  return [
+    {
+      method: 'post',
+      path: '/auth/login',
+      summary: 'Logs user in',
+      request: { params: UserLogInRequestSchema },
+      responses: {
+        200: {
+          description: 'Session token',
+          content: {
+            'application/json': {
+              schema: z.object({ token: z.string() }),
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'get',
+      path: '/auth/logout',
+      summary: 'Logs user out',
+      request: {},
+      responses: {
+        200: {
+          description: 'Logout message',
+          content: {
+            'application/json': {
+              schema: UserLogOutResponseSchema,
+            },
+          },
+        },
+      },
+    },
+    {
+      method: 'get',
+      path: '/auth/whoami',
+      summary: 'Returns logged user id',
+      request: {},
+      responses: {
+        200: {
+          description: 'Logged user id',
+          content: {
+            'application/json': {
+              schema: z.object({
+                id: z.string().openapi({ example: 'admin' }),
+              }),
+            },
+          },
+        },
+      },
+    },
+  ]
 }
