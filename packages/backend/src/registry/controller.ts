@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { Entity, Schema } from '@ssi-trust-registry/common'
 import { Request, Response } from 'express'
 import partial from 'lodash.partial'
-import { EntityService } from './service'
+import { EntityService } from '../entity/service'
 import { SchemaService } from '../schema/service'
 import { createLogger } from '../logger'
 import { RequestWithToken } from '../auth/middleware'
@@ -18,14 +18,14 @@ const RegistryResponseSchema = z.object({
 export function createRegistryController(
   entityService: EntityService,
   schemaService: SchemaService,
-): EntityController {
+): RegistryController {
   return {
     getRouteConfigDocs,
     getRegistry: partial(getRegistry, entityService, schemaService),
   }
 }
 
-export interface EntityController {
+export interface RegistryController {
   getRouteConfigDocs: () => RouteConfig[]
   getRegistry: (req: RequestWithToken, res: Response) => Promise<void>
 }

@@ -60,7 +60,7 @@ export function startServer(
 
     apiRouter.get(
       '/registry',
-      asyncHandler(context.entityController.getRegistry),
+      asyncHandler(context.registryController.getRegistry),
     )
 
     apiRouter.get(

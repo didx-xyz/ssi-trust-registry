@@ -20,7 +20,10 @@ import {
   SubmissionController,
 } from './submission/controller'
 import { createValidationService } from './entity/validationService'
-import { createRegistryController, EntityController } from './entity/controller'
+import {
+  createRegistryController,
+  RegistryController,
+} from './registry/controller'
 
 interface IO {
   database: Db
@@ -34,7 +37,7 @@ export interface Context {
   submissionService: SubmissionService
   submissionController: SubmissionController
   authController: AuthController
-  entityController: EntityController
+  registryController: RegistryController
 }
 
 export async function createAppContext(io: IO) {
@@ -65,7 +68,7 @@ export async function createAppContext(io: IO) {
     validationService,
     emailService,
   )
-  const entityController = createRegistryController(
+  const registryController = createRegistryController(
     entityService,
     schemaService,
   )
@@ -80,7 +83,7 @@ export async function createAppContext(io: IO) {
     schemaService,
     entityRepository,
     entityService,
-    entityController,
+    registryController,
     authController,
   }
 }

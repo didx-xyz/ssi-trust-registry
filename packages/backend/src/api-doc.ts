@@ -25,7 +25,7 @@ export function generateSwaggerDocs(context: Context) {
     },
   })
 
-  context.entityController
+  context.registryController
     .getRouteConfigDocs()
     .forEach((route) => registry.registerPath(route))
 
