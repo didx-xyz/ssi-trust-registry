@@ -7,15 +7,16 @@ import {
   Submission,
   SubmissionDto,
 } from '@ssi-trust-registry/common'
-import { createLogger } from '../logger'
-import { RequestWithToken } from '../auth/middleware'
-import partial from 'lodash.partial'
-import { ValidationService } from '../entity/validationService'
-import { SubmissionService } from './service'
-import { getSubmitUrls } from '../email/helpers'
-import { EmailService } from '../email/service'
 import { z } from 'zod'
 import { RouteConfig } from '@asteasolutions/zod-to-openapi'
+import partial from 'lodash.partial'
+import { RequestWithToken } from '../auth/middleware'
+import { ValidationService } from '../entity/validationService'
+import { getSubmitUrls } from '../email/helpers'
+import { EmailService } from '../email/service'
+import { createLogger } from '../logger'
+import { createSession } from '../database'
+import { SubmissionService } from './service'
 
 const logger = createLogger(__filename)
 
@@ -102,10 +103,21 @@ async function createInvitation(
 ) {
   const invitationDto = InvitationDto.parse(req.body)
   logger.info(`Creating new invitation for: `, invitationDto.emailAddress)
-  const invitation = await service.createInvitation(invitationDto)
-  const { submitUiUrl } = getSubmitUrls(invitation)
-  await emailService.sendInvitationEmail(invitation)
-  res.status(201).json({ ...invitation, url: submitUiUrl })
+  const session = await createSession()
+  try {
+    session.startTransaction()
+    const invitation = await service.createInvitation(invitationDto, session)
+    const { submitUiUrl } = getSubmitUrls(invitation)
+    await emailService.sendInvitationEmail(invitation)
+    res.status(201).json({ ...invitation, url: submitUiUrl })
+    await session.commitTransaction()
+  } catch (error) {
+    logger.error('Error creating invitation, aborting transaction')
+    await session.abortTransaction()
+    throw error
+  } finally {
+    await session.endSession()
+  }
 }
 
 async function resendInvitation(
@@ -212,16 +224,27 @@ async function updateSubmissionState(
   )
   await validationService.validateDids(submission.dids)
   await validationService.validateSchemas(submission.credentials)
-
-  let result
-  if (state === 'approved') {
-    result = await submissionService.approveSubmission(submission)
-    await emailService.sendApprovalEmail(invitation, result.entity.id)
-  } else {
-    result = await submissionService.rejectSubmission(submission)
-    await emailService.sendRejectionEmail(invitation)
+  const session = await createSession()
+  try {
+    session.startTransaction()
+    let result
+    if (state === 'approved') {
+      result = await submissionService.approveSubmission(submission, session)
+      await emailService.sendApprovalEmail(invitation, result.entity.id)
+    } else {
+      result = await submissionService.rejectSubmission(submission, session)
+      await emailService.sendRejectionEmail(invitation)
+    }
+    console.log('committing transaction')
+    res.status(200).json(result)
+    await session.commitTransaction()
+  } catch (error) {
+    logger.error('Error updating submission state, aborting transaction')
+    await session.abortTransaction()
+    throw error
+  } finally {
+    await session.endSession()
   }
-  res.status(200).json(result)
 }
 
 function getRouteConfigDocs(): RouteConfig[] {

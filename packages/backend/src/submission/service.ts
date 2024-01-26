@@ -2,6 +2,7 @@ import partial from 'lodash.partial'
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
+import { ClientSession } from 'mongodb'
 import {
   Entity,
   FieldError,
@@ -20,21 +21,31 @@ extendZodWithOpenApi(z)
 export interface SubmissionRepository {
   getAllSubmissions: () => Promise<Submission[]>
   addSubmission: (submission: Submission) => Promise<Submission>
-  reviewSubmission: (
-    id: string,
-    state: 'approved' | 'rejected',
+  updateSubmission: (
+    submission: Submission,
+    session?: ClientSession,
   ) => Promise<Submission>
   findSubmissionById: (id: string) => Promise<Submission | null>
   findSubmissionsByInvitationId: (id: string) => Promise<Submission[]>
 }
 export interface InvitationRepository {
-  addInvitation: (invitation: Invitation) => Promise<Invitation>
+  addInvitation: (
+    invitation: Invitation,
+    session?: ClientSession,
+  ) => Promise<Invitation>
+  updateInvitation: (
+    invitation: Invitation,
+    session?: ClientSession,
+  ) => Promise<Invitation>
   getAllInvitations: () => Promise<Invitation[]>
   findInvitationById: (id: string) => Promise<Invitation | null>
 }
 
 export interface SubmissionService {
-  createInvitation: (invitationDto: InvitationDto) => Promise<Invitation>
+  createInvitation: (
+    invitationDto: InvitationDto,
+    session?: ClientSession,
+  ) => Promise<Invitation>
   getAllInvitations: () => Promise<Invitation[]>
   getInvitationById: (id: string) => Promise<Invitation>
   getSubmissionById: (id: string) => Promise<Submission>
@@ -43,8 +54,16 @@ export interface SubmissionService {
   addSubmission: (submissionDto: SubmissionDto) => Promise<Submission>
   approveSubmission: (
     submission: Submission,
+    session?: ClientSession,
   ) => Promise<{ submission: Submission; entity: Entity }>
-  rejectSubmission: (submission: Submission) => Promise<Submission>
+  rejectSubmission: (
+    submission: Submission,
+    session?: ClientSession,
+  ) => Promise<Submission>
+  updateSubmission: (
+    submission: Submission,
+    session?: ClientSession,
+  ) => Promise<Submission>
 }
 
 export async function createSubmissionService(
@@ -76,6 +95,7 @@ export async function createSubmissionService(
       entityRepository,
     ),
     rejectSubmission: partial(rejectSubmission, submissionRepository),
+    updateSubmission: partial(updateSubmission, submissionRepository),
   }
 }
 
@@ -151,6 +171,7 @@ async function approveSubmission(
   invitationRepository: InvitationRepository,
   entityRepository: EntityRepository,
   submission: Submission,
+  session?: ClientSession,
 ): Promise<{ submission: Submission; entity: Entity }> {
   const invitation = await invitationRepository.findInvitationById(
     submission.invitationId,
@@ -166,9 +187,12 @@ async function approveSubmission(
       )
     }
   }
-  const reviewedSubmission = await submissionRepository.reviewSubmission(
-    submission.id,
-    'approved',
+  const reviewedSubmission = await submissionRepository.updateSubmission(
+    {
+      ...submission,
+      state: 'approved',
+    },
+    session,
   )
   logger.info(`Submission ${submission.id} has been approved in the database`)
 
@@ -184,13 +208,21 @@ async function approveSubmission(
   /* eslint-enable @typescript-eslint/no-unused-vars */
   let entity: Entity
   if (!invitation.entityId) {
+    const date = new Date().toISOString()
     const newEntity = {
       ...entityData,
       id: uuidv4(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: date,
+      updatedAt: date,
     }
-    entity = await entityRepository.addEntity(newEntity)
+    entity = await entityRepository.addEntity(newEntity, session)
+    await invitationRepository.updateInvitation(
+      {
+        ...invitation,
+        entityId: entity.id,
+      },
+      session,
+    )
     logger.info(`Entity ${entity.id} has been inserted to the database`)
   } else {
     const existingEntity = await entityRepository.findById(invitation.entityId)
@@ -202,7 +234,7 @@ async function approveSubmission(
       ...entityData,
       updatedAt: new Date().toISOString(),
     }
-    entity = await entityRepository.updateEntity(updatedEntity)
+    entity = await entityRepository.updateEntity(updatedEntity, session)
     logger.info(`Entity ${entity.id} has been updated in the database`)
   }
 
@@ -212,25 +244,43 @@ async function approveSubmission(
 async function rejectSubmission(
   submissionRepository: SubmissionRepository,
   submission: Submission,
+  session?: ClientSession,
 ): Promise<Submission> {
-  const reviewedSubmission = await submissionRepository.reviewSubmission(
-    submission.id,
-    'rejected',
+  const reviewedSubmission = await submissionRepository.updateSubmission(
+    {
+      ...submission,
+      state: 'rejected',
+    },
+    session,
   )
   logger.info(`Submission ${submission.id} has been rejected in the database`)
   return reviewedSubmission
 }
 
+async function updateSubmission(
+  repository: SubmissionRepository,
+  submission: Submission,
+  session?: ClientSession,
+): Promise<Submission> {
+  const updatedSubmission = await repository.updateSubmission(
+    submission,
+    session,
+  )
+  logger.info(`Submission ${submission.id} has been updated in the database`)
+  return updatedSubmission
+}
+
 async function createInvitation(
   repository: InvitationRepository,
   invitationDto: InvitationDto,
+  session?: ClientSession,
 ) {
   const invitation = {
     ...invitationDto,
     id: createId(),
     createdAt: new Date().toISOString(),
   }
-  await repository.addInvitation(invitation)
+  await repository.addInvitation(invitation, session)
   return invitation
 }
 

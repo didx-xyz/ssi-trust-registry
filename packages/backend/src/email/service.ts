@@ -27,7 +27,7 @@ async function sendInvitationEmail(
   invitation: Invitation,
 ) {
   const { submitApiUrl, submitUiUrl } = getSubmitUrls(invitation)
-  logger.info(`Sending submission approved email to: `, invitation.emailAddress)
+  logger.info(`Sending invitation email to: `, invitation.emailAddress)
   await emailClient.sendMailFromTemplate(
     invitation.emailAddress,
     'SSI Trust Registry - Invitation',

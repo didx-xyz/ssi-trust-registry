@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { NavigationBreadcrumbs } from '@/common/components/navigation/Breadcrumbs'
 import { ApproveContents } from '@/app/submissions/[id]/components/ApproveContents'
 import { RejectContents } from '@/app/submissions/[id]/components/RejectContents'
@@ -8,38 +7,58 @@ import { SubmissionDetail } from '@/app/submissions/[id]/components/SubmissionDe
 import { Button } from '@/common/components/Button'
 import { backendUrl, betterFetch } from '@/api'
 import { Card, CardWrapper } from '@/common/components/Card'
-import { SubmissionWithEmail } from '@/common/interfaces'
+import { GenericError, SubmissionWithEmail } from '@/common/interfaces'
+import { GenericErrorContents } from '@/common/components/GenericErrorContents'
+import { useForm } from 'react-hook-form'
 
 export function SubmissionDetailContent({ id }: { id: string }) {
   const [submission, setSubmission] = useState<SubmissionWithEmail>()
   const {
     handleSubmit: handleApprove,
     formState: {
+      errors: { generic: approveError },
       isSubmitting: isApproving,
       isSubmitSuccessful: isApproveSuccessful,
     },
-  } = useForm()
+    setError: setApproveError,
+  } = useForm<GenericError>()
   const {
     handleSubmit: handleReject,
     formState: {
+      errors: { generic: rejectError },
       isSubmitting: isRejecting,
       isSubmitSuccessful: isRejectSuccessful,
     },
-  } = useForm()
+    setError: setRejectError,
+  } = useForm<GenericError>()
 
   async function onApproveSubmission() {
-    if (submission) {
-      const { submission: approvedSubmission } = await approveSubmission(
-        submission.id,
-      )
-      setSubmission({ ...submission, ...approvedSubmission })
+    try {
+      if (submission) {
+        const { submission: approvedSubmission } = await approveSubmission(
+          submission.id,
+        )
+        setSubmission({ ...submission, ...approvedSubmission })
+      }
+    } catch (e) {
+      setApproveError('generic', {
+        type: 'manual',
+        message: 'Something went wrong',
+      })
     }
   }
 
   async function onRejectSubmission() {
-    if (submission) {
-      const rejectedSubmission = await rejectSubmission(submission.id)
-      setSubmission({ ...submission, ...rejectedSubmission })
+    try {
+      if (submission) {
+        const rejectedSubmission = await rejectSubmission(submission.id)
+        setSubmission({ ...submission, ...rejectedSubmission })
+      }
+    } catch (e) {
+      setRejectError('generic', {
+        type: 'manual',
+        message: 'Something went wrong',
+      })
     }
   }
 
@@ -64,7 +83,9 @@ export function SubmissionDetailContent({ id }: { id: string }) {
       <CardWrapper>
         <Card>
           <div className="flex flex-col items-center gap-8">
-            {isApproveSuccessful ? (
+            {approveError || rejectError ? (
+              <GenericErrorContents />
+            ) : isApproveSuccessful ? (
               <ApproveContents submission={submission} />
             ) : isRejectSuccessful ? (
               <RejectContents submission={submission} />

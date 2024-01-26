@@ -9,13 +9,12 @@ import { Text2xlBold, TextSm } from '@/common/components/Typography'
 import React, { useEffect } from 'react'
 import { Card, CardWrapper } from '@/common/components/Card'
 import { NavigationBreadcrumbsPlaceholder } from '@/common/components/navigation/Breadcrumbs'
+import { GenericError } from '@/common/interfaces'
 
 interface Inputs {
   email: string
   password: string
 }
-
-type AuthError = { server: string }
 
 export default function LoginPage() {
   const router = useRouter()
@@ -25,7 +24,7 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
     setError,
     clearErrors,
-  } = useForm<Inputs & AuthError>()
+  } = useForm<Inputs & GenericError>()
 
   async function onSubmit(inputs: Inputs) {
     try {
@@ -34,7 +33,7 @@ export default function LoginPage() {
       router.push('/')
     } catch (error) {
       console.error(error)
-      setError('server', {
+      setError('generic', {
         type: 'manual',
         message: 'Authorization failed.',
       })
@@ -57,7 +56,7 @@ export default function LoginPage() {
           <div className="flex flex-col items-center gap-y-8">
             <div className="flex flex-col items-center gap-y-2">
               <Text2xlBold>Admin Login</Text2xlBold>
-              {errors.server && (
+              {errors.generic && (
                 <TextSm className="text-error">
                   Your email or your password is incorrect. Please, try again.
                 </TextSm>
@@ -86,7 +85,7 @@ export default function LoginPage() {
                 onClick={handleSubmit(onSubmit)}
                 title="Log in"
                 loading={isSubmitting}
-                disabled={!!errors.server}
+                disabled={!!errors.generic}
               />
             </div>
           </div>
