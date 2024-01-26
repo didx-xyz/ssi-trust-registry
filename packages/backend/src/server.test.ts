@@ -414,7 +414,6 @@ describe('api', () => {
 
   describe('transaction rollbacks', () => {
     const mockEmailClient = {
-      sendInvitationEmail: jest.fn(() => Promise.resolve()),
       sendMailFromTemplate: jest.fn(() => Promise.resolve({})),
     }
     beforeAll(async () => {
@@ -434,7 +433,7 @@ describe('api', () => {
 
     test('when unable to send email, do not create invitation', async () => {
       const emailAddress = 'invitationRollback@test.com'
-      mockEmailClient.sendInvitationEmail.mockRejectedValueOnce(
+      mockEmailClient.sendMailFromTemplate.mockRejectedValueOnce(
         new Error('Unknown email error'),
       )
       await generateNewInvitation(cookie, {
