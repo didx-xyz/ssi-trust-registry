@@ -145,9 +145,9 @@ jobs:
       checks: read
     runs-on: ubuntu-latest
     env:
-      TAILSCALE_VERSION: 1.52.1
-      HELMFILE_VERSION: v0.158.1
-      HELM_VERSION: v3.13.1
+      TAILSCALE_VERSION: 1.58.2
+      HELMFILE_VERSION: v0.161.0
+      HELM_VERSION: v3.14.0
 
     concurrency:
       group: ${{ github.workflow }}-deploy-${{ github.event_name == 'release' && 'prod' || 'dev' }}
@@ -158,7 +158,7 @@ jobs:
 
     # Don't deploy if triggering actor is dependabot
     # Only deploy if PR is Ready for Review
-    if: github.triggering_actor != 'dependabot[bot]' && github.event.pull_request.draft == false
+    if: github.actor != 'dependabot[bot]' && github.event.pull_request.draft == false
 
     steps:
       - uses: actions/checkout@v4
