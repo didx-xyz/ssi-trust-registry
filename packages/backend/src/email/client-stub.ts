@@ -13,11 +13,12 @@ export interface EmailClientStub {
     templatePath: string,
     templateParams: Record<string, unknown>,
   ) => Promise<void>
-  sentMessages: SentMessage[]
+  getSentMessages: () => SentMessage[]
+  clearSentMessages: () => void
 }
 
 export function createEmailClientStub(): EmailClientStub {
-  const sentMessages: SentMessage[] = []
+  let sentMessages: SentMessage[] = []
   return {
     async sendMailFromTemplate(
       to: string,
@@ -28,6 +29,11 @@ export function createEmailClientStub(): EmailClientStub {
       const html = await compileEmailTemplate(templatePath, templateParams)
       sentMessages.push({ to, subject, html })
     },
-    sentMessages,
+    getSentMessages() {
+      return sentMessages
+    },
+    clearSentMessages() {
+      sentMessages = []
+    },
   }
 }

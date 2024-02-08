@@ -53,9 +53,7 @@ describe('api', () => {
   })
 
   afterEach(() => {
-    while (emailClient.sentMessages.length) {
-      emailClient.sentMessages.pop()
-    }
+    emailClient.clearSentMessages()
   })
 
   afterAll(async () => {
@@ -107,7 +105,7 @@ describe('api', () => {
       await generateNewInvitation(cookie, {
         emailAddress: 'this-is-an-example@test.com',
       })
-      expect(emailClient.sentMessages).toEqual(
+      expect(emailClient.getSentMessages()).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ to: 'this-is-an-example@test.com' }),
         ]),
@@ -123,7 +121,8 @@ describe('api', () => {
       await resendNewInvitation(cookie, { id })
 
       expect(
-        emailClient.sentMessages.filter(({ to }) => to === emailAddress).length,
+        emailClient.getSentMessages().filter(({ to }) => to === emailAddress)
+          .length,
       ).toEqual(2)
     })
 
@@ -318,7 +317,7 @@ describe('api', () => {
       const registry = await fetchRegistry()
       expect(registry.entities).toContainEqual(approvalResponse.entity)
 
-      expect(emailClient.sentMessages).toEqual(
+      expect(emailClient.getSentMessages()).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             subject: 'SSI Trust Registry - Submission Approved',
@@ -341,7 +340,7 @@ describe('api', () => {
       )
       const updatedSubmission = await rejectionResult.json()
       expect(updatedSubmission.state).toEqual('rejected')
-      expect(emailClient.sentMessages).toEqual(
+      expect(emailClient.getSentMessages()).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             subject: 'SSI Trust Registry - Submission Rejected',
