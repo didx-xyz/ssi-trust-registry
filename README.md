@@ -116,7 +116,7 @@ cp .env.example .env.test
 Start the database, you can use docker for that in the following way:
 
 ```sh
-docker-compose up -d mongo mongo-replica-setup
+docker compose up -d mongo mongo-replica-setup
 ```
 
 Now, you can run tests:
