@@ -28,7 +28,7 @@ We require fully qualified schemas. You can find how the unqualified should be t
 Start the database, you can use docker for that in the following way:
 
 ```sh
-docker run --name mongo -p 4000:27017 -d mongo:6.0
+docker compose up -d mongo mongo-replica-setup
 ```
 
 You can change port but don't forget to update the `.env`.
@@ -116,7 +116,7 @@ cp .env.example .env.test
 Start the database, you can use docker for that in the following way:
 
 ```sh
-docker run --name mongo -p 4000:27017 -d mongo:6.0
+docker compose up -d mongo mongo-replica-setup
 ```
 
 Now, you can run tests:
