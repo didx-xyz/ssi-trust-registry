@@ -26,7 +26,7 @@ deploymentLabels:
   tags.datadoghq.com/version: '{{ .Values.image.tag }}'
 podAnnotations:
   # https://gcr.io/datadoghq/dd-lib-js-init
-  admission.datadoghq.com/js-lib.version: v4.20.0
+  admission.datadoghq.com/js-lib.version: v5.6.0
 podLabels:
   # tags.datadoghq.com/env: <env>
   tags.datadoghq.com/service: '{{ include "trust-registry.fullname" . }}'
