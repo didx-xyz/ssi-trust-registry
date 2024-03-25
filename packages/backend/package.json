@@ -44,7 +44,7 @@
     "@aries-framework/askar": "0.4.2",
     "@aries-framework/core": "0.4.2",
     "@aries-framework/indy-vdr": "0.4.2",
-    "@aries-framework/node": "0.4.1",
+    "@aries-framework/node": "0.4.2",
     "@asteasolutions/zod-to-openapi": "^6.2.0",
     "@hyperledger/aries-askar-nodejs": "0.1.1",
     "@hyperledger/indy-vdr-nodejs": "0.1.0",
